@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		80018F4C1AD487E4007C81CD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F4B1AD487E4007C81CD /* main.cpp */; };
+		80018F561AD5C6D1007C81CD /* Layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F541AD5C6D1007C81CD /* Layer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,10 @@
 /* Begin PBXFileReference section */
 		80018F481AD487E4007C81CD /* NeuralNetworks */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NeuralNetworks; sourceTree = BUILT_PRODUCTS_DIR; };
 		80018F4B1AD487E4007C81CD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		80018F521AD5C294007C81CD /* includes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
+		80018F531AD5C2A0007C81CD /* ActivationFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivationFunc.h; sourceTree = "<group>"; };
+		80018F541AD5C6D1007C81CD /* Layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Layer.cpp; sourceTree = "<group>"; };
+		80018F551AD5C6D1007C81CD /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +63,10 @@
 			isa = PBXGroup;
 			children = (
 				80018F4B1AD487E4007C81CD /* main.cpp */,
+				80018F521AD5C294007C81CD /* includes.h */,
+				80018F531AD5C2A0007C81CD /* ActivationFunc.h */,
+				80018F541AD5C6D1007C81CD /* Layer.cpp */,
+				80018F551AD5C6D1007C81CD /* Layer.h */,
 			);
 			path = NeuralNetworks;
 			sourceTree = "<group>";
@@ -119,6 +128,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				80018F4C1AD487E4007C81CD /* main.cpp in Sources */,
+				80018F561AD5C6D1007C81CD /* Layer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +242,7 @@
 				80018F511AD487E4007C81CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
