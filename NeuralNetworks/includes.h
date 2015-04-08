@@ -17,6 +17,7 @@
 #include <string>
 
 #include "ActivationFunc.h"
+#include "CostFunc.h"
 #include "Layer.h"
 
 #endif
