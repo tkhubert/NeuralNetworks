@@ -32,6 +32,7 @@ public:
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
+    void setDelta    (const std::vector<double>& _delta) {delta = _delta;}
     
 protected:
     size_t              size;
@@ -50,10 +51,26 @@ protected:
 };
 //
 template<typename ActFunc>
+class InputLayer : public Layer<ActFunc>
+{
+public:
+    InputLayer(size_t _size);
+    std::string getName()    const {return "InputLayer";}
+    std::string getDetails() const {return "";}
+    
+    void fwdProp() {throw "InputLayer do not inplement fwdProp()";}
+    void bwdProp() {throw "InputLayer do not inplement bwdProp()";}
+    
+    void setInput(const std::vector<double> input) { this->a = input;}
+};
+//
+template<typename ActFunc>
 class FCLayer : public Layer<ActFunc>
 {
 public:
     FCLayer(size_t _size);
+    std::string getName()    const {return "FCLayer";}
+    std::string getDetails() const {return "";}
     
     void fwdProp();
     void bwdProp();

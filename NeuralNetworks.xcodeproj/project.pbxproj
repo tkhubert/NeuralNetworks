@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		80018F4C1AD487E4007C81CD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F4B1AD487E4007C81CD /* main.cpp */; };
 		80018F561AD5C6D1007C81CD /* Layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F541AD5C6D1007C81CD /* Layer.cpp */; };
+		80018F5A1AD5D9C1007C81CD /* NeuralNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		80018F541AD5C6D1007C81CD /* Layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Layer.cpp; sourceTree = "<group>"; };
 		80018F551AD5C6D1007C81CD /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
 		80018F571AD5D572007C81CD /* CostFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CostFunc.h; sourceTree = "<group>"; };
+		80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NeuralNetwork.cpp; sourceTree = "<group>"; };
+		80018F591AD5D9C1007C81CD /* NeuralNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NeuralNetwork.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +72,8 @@
 				80018F571AD5D572007C81CD /* CostFunc.h */,
 				80018F541AD5C6D1007C81CD /* Layer.cpp */,
 				80018F551AD5C6D1007C81CD /* Layer.h */,
+				80018F591AD5D9C1007C81CD /* NeuralNetwork.h */,
+				80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */,
 			);
 			path = NeuralNetworks;
 			sourceTree = "<group>";
@@ -131,6 +136,7 @@
 			files = (
 				80018F4C1AD487E4007C81CD /* main.cpp in Sources */,
 				80018F561AD5C6D1007C81CD /* Layer.cpp in Sources */,
+				80018F5A1AD5D9C1007C81CD /* NeuralNetwork.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

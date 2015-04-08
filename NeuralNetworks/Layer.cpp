@@ -16,6 +16,9 @@ Layer<ActFunc>::Layer(size_t _size) : size(_size)
     delta.resize(size);
     
     bias.resize(size);
+    
+    prevLayer = nullptr;
+    nextLayer = nullptr;
 }
 //
 template<typename ActFunc>

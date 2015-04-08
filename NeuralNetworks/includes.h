@@ -19,5 +19,6 @@
 #include "ActivationFunc.h"
 #include "CostFunc.h"
 #include "Layer.h"
+#include "NeuralNetwork.h"
 
 #endif
