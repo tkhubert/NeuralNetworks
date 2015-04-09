@@ -19,6 +19,17 @@ Layer::Layer(size_t _size, const ActivationFunc& _AFunc) : size(_size), AFunc(_A
     prevLayer = nullptr;
     nextLayer = nullptr;
 }
+Layer::~Layer()
+{
+    prevLayer = nullptr;
+    nextLayer = nullptr;
+}
+//
+//void FCLayer::setDCost(const std::vector<double> &dc)
+//{
+//    for (size_t i=0; i<size; ++i)
+//        delta[i] = da[i]*dc[i];
+//}
 //
 void FCLayer::fwdProp()
 {

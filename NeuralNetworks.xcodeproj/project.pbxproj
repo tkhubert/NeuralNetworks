@@ -34,6 +34,7 @@
 		80018F571AD5D572007C81CD /* CostFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CostFunc.h; sourceTree = "<group>"; };
 		80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NeuralNetwork.cpp; sourceTree = "<group>"; };
 		80018F591AD5D9C1007C81CD /* NeuralNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NeuralNetwork.h; sourceTree = "<group>"; };
+		807BA6951AD715CA00BB878B /* Optimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Optimizer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,10 +71,11 @@
 				80018F521AD5C294007C81CD /* includes.h */,
 				80018F531AD5C2A0007C81CD /* ActivationFunc.h */,
 				80018F571AD5D572007C81CD /* CostFunc.h */,
+				807BA6951AD715CA00BB878B /* Optimizer.h */,
 				80018F541AD5C6D1007C81CD /* Layer.cpp */,
 				80018F551AD5C6D1007C81CD /* Layer.h */,
-				80018F591AD5D9C1007C81CD /* NeuralNetwork.h */,
 				80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */,
+				80018F591AD5D9C1007C81CD /* NeuralNetwork.h */,
 			);
 			path = NeuralNetworks;
 			sourceTree = "<group>";

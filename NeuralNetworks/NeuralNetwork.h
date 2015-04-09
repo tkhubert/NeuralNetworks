@@ -11,30 +11,44 @@
 
 #include "includes.h"
 #include "CostFunc.h"
+#include "Optimizer.h"
 #include "Layer.h"
 
 
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(const CostFunc& _CFunc) : nbLayers(0) , CFunc(_CFunc) {}
+    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim) {}
     std::string getDetails() const;
     
-    void setInput(const std::vector<double>& input) { layers[0].setA(input);}
+    void setInput(const std::vector<double>& input) { layers[0]->setA(input);}
     void addLayer(Layer& layer);
     
+    const std::vector<double>& getOuptut() const {return layers[nbLayers-1]->getA();}
+    
+    double getCost() const {return c;}
+    const std::vector<double>& getDCost() const {return dc;}
+    
     const std::vector<double>& predict(const std::vector<double> & inputs);
-    void train(const std::vector<std::vector<double> >& inputs, const std::vector<double>& labels);
-    void test (const std::vector<std::vector<double> >& inputs, const std::vector<double>& labels) const;
+    void train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels);
+    void test (const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels);
     
 private:
     // members
     size_t nbLayers;
     
-    const CostFunc&    CFunc;
-    std::vector<Layer> layers;
+    const CostFunc&     CFunc;
+    const Optimizer&    Optim;
+    std::vector<Layer*> layers;
+    
+    double               c;
+    std::vector<double> dc;
     
     // methods
+    double calcCost (const std::vector<double>& label) const { return CFunc.f (getOuptut(), label);}
+    void   calcDCost(const std::vector<double>& label)       { return CFunc.df(getOuptut(), label, dc);}
+    //void   setDCost ()                                       { return layers[nbLayers-1].setDCost(dc);}
+    
     void fwdProp();
     void bwdProp();
 };

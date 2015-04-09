@@ -15,8 +15,8 @@ class CostFunc
 {
 public:
     CostFunc() {}
-    virtual double  f(double a, double y) const = 0;
-    virtual double df(double a, double y) const = 0;
+    virtual double  f(const std::vector<double>& a, const std::vector<double>& y) const = 0;
+    virtual void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const = 0;
 };
 //
 class MSE : public CostFunc

@@ -16,9 +16,10 @@ class Layer
 {
 public:
     Layer(size_t _size, const ActivationFunc& _AFunc);
+    ~Layer();
     
-    virtual std::string getName()    const;
-    virtual std::string getDetails() const;
+    virtual std::string getName()    const = 0;
+    virtual std::string getDetails() const = 0;
     
     size_t                     getSize()      const {return size;}
     const std::vector<double>& getA()         const {return a; }
@@ -28,14 +29,15 @@ public:
     const std::vector<double>& getWeight()    const {return weight; }
     const Layer*               getNextLayer() const {return nextLayer;}
     const Layer*               getPrevLayer() const {return prevLayer;}
-    
-    virtual void fwdProp();
-    virtual void bwdProp();
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
     void setA        (const std::vector<double>& _a)     {a = _a;}
     void setDelta    (const std::vector<double>& _delta) {delta = _delta;}
+    
+    //virtual void setDCost(const std::vector<double>& dc);
+    virtual void fwdProp() = 0;
+    virtual void bwdProp() = 0;
     
 protected:
     size_t              size;
@@ -53,19 +55,6 @@ protected:
     const ActivationFunc& AFunc;
 };
 //
-class InputLayer : public Layer
-{
-public:
-    InputLayer(size_t _size);
-    std::string getName()    const {return "InputLayer";}
-    std::string getDetails() const {return "";}
-    
-    void fwdProp() {throw "InputLayer do not inplement fwdProp()";}
-    void bwdProp() {throw "InputLayer do not inplement bwdProp()";}
-    
-    void setInput(const std::vector<double>& input) { this->a = input;}
-};
-//
 class FCLayer : public Layer
 {
 public:
@@ -73,6 +62,7 @@ public:
     std::string getName()    const {return "FCLayer";}
     std::string getDetails() const {return "";}
     
+    //void setDCost(const std::vector<double>& dc);
     void fwdProp();
     void bwdProp();
 };
