@@ -54,17 +54,29 @@ void FCLayer::fwdProp()
 //
 void FCLayer::bwdProp()
 {
+    calcGrad();
+    
     const std::vector<double>& prevdA = prevLayer->getdA();
-    std::vector<double> prevDelta(inputSize);
+    std::vector<double>& prevDelta    = prevLayer->getDelta();
     
     for (size_t i=0; i<inputSize; ++i)
     {
         double val=0.;
         for (size_t o=0; o<outputSize; ++o)
-            val += weight[i*inputSize+o]*delta[o];
+            val += delta[o]*weight[o*inputSize+i];
         
         prevDelta[i] = prevdA[i]*val;
     }
+}
+//
+void FCLayer::calcGrad()
+{
+    const std::vector<double>& prevdA = prevLayer->getdA();
     
-    prevLayer->setDelta(prevDelta);
+    for (size_t o=0; o<outputSize; ++o)
+    {
+        dbias[o] = delta[o];
+        for (size_t i=0; i<inputSize; ++i)
+            dweight[o*inputSize+i] = delta[o] * prevdA[i];
+    }
 }

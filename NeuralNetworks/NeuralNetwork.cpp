@@ -18,12 +18,15 @@ NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, st
     {
         Layer* pLayer = layers[i-1];
         Layer* cLayer = &_layers[i];
+        assert(pLayer->getOutputSize()==cLayer->getInputSize());
+        
         pLayer->setNextLayer(cLayer);
         cLayer->setPrevLayer(pLayer);
         layers[i] = cLayer;
     }
-    inputSize  = layers[0]->getSize();
-    outputSize = layers[nbLayers-1]->getSize();
+    
+    inputSize  = layers[0]->getInputSize();
+    outputSize = layers[nbLayers-1]->getInputSize();
 }
 //
 void NeuralNetwork::fwdProp()
