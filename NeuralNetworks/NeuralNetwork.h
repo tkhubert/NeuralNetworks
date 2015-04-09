@@ -14,7 +14,6 @@
 #include "Optimizer.h"
 #include "Layer.h"
 
-
 class NeuralNetwork
 {
 public:
@@ -27,7 +26,6 @@ public:
     const std::vector<double>& getOuptut() const {return layers[nbLayers-1]->getA();}
     
     double getCost() const {return c;}
-    const std::vector<double>& getDCost() const {return dc;}
     
     const std::vector<double>& predict(const std::vector<double> & inputs);
     void train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels);
@@ -42,12 +40,14 @@ private:
     std::vector<Layer*> layers;
     
     double               c;
-    std::vector<double> dc;
     
     // methods
     double calcCost (const std::vector<double>& label) const { return CFunc.f (getOuptut(), label);}
-    void   calcDCost(const std::vector<double>& label)       { return CFunc.df(getOuptut(), label, dc);}
-    //void   setDCost ()                                       { return layers[nbLayers-1].setDCost(dc);}
+    double calcDCost(size_t i, const std::vector<double>& label)
+    {
+        return CFunc.df(i, getOuptut(), label);
+    }
+    void   setDCost (std::vector<double>& dc)                                       { return layers[nbLayers-1]->setDCost(dc);}
     
     void fwdProp();
     void bwdProp();

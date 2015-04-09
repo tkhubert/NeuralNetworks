@@ -16,7 +16,7 @@ class CostFunc
 public:
     CostFunc() {}
     virtual double  f(const std::vector<double>& a, const std::vector<double>& y) const = 0;
-    virtual void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const = 0;
+    virtual double df(size_t i, const std::vector<double>& a, const std::vector<double>& y) const = 0;
 };
 //
 class MSE : public CostFunc
@@ -31,11 +31,9 @@ public:
         return 0.5*val;
     }
     //
-    void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
+    double df(size_t i, const std::vector<double>& a, const std::vector<double>& y) const
     {
-        for (size_t i=0; i<a.size(); ++i)
-            da[i] = a[i]-y[i];
-        return;
+        return a[i]-y[i];
     }
 };
 //
@@ -51,11 +49,9 @@ public:
         return val;
     }
     //
-    void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
+    double df(size_t i, const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
     {
-        for (size_t i=0; i<a.size(); ++i)
-            da[i] = -(y[i]-a[i])/(a[i]*(1-a[i]));
-        return;
+        return -(y[i]-a[i])/(a[i]*(1-a[i]));
     }
 };
 

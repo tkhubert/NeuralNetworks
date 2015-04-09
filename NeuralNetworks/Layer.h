@@ -35,19 +35,21 @@ public:
     void setA        (const std::vector<double>& _a)     {a = _a;}
     void setDelta    (const std::vector<double>& _delta) {delta = _delta;}
     
-    //virtual void setDCost(const std::vector<double>& dc);
+    virtual void setDCost(const std::vector<double>& dc);
     virtual void fwdProp() = 0;
     virtual void bwdProp() = 0;
     
 protected:
     size_t              size;
     
-    std::vector<double>  a;
-    std::vector<double> da;
+    std::vector<double> a;
     std::vector<double> delta;
-    
     std::vector<double> bias;
     std::vector<double> weight;
+    
+    std::vector<double> da;
+    std::vector<double> dbias;
+    std::vector<double> dweight;
     
     Layer* nextLayer;
     Layer* prevLayer;
@@ -62,7 +64,6 @@ public:
     std::string getName()    const {return "FCLayer";}
     std::string getDetails() const {return "";}
     
-    //void setDCost(const std::vector<double>& dc);
     void fwdProp();
     void bwdProp();
 };

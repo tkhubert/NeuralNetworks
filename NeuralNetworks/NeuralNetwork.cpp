@@ -41,13 +41,28 @@ const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& inp
 //
 void NeuralNetwork::train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels)
 {
-    for (size_t i=0; i<inputs.size(); ++i)
+    size_t outputSize = layers[nbLayers-1]->getSize();
+    size_t nbBatches  = (inputs.size()-1)/Optim.batchSize + 1;
+    
+    for (size_t batch=0; batch<nbBatches; ++batch)
     {
-        setInput(inputs[i]);
-        fwdProp();
-
-        calcDCost(labels[i]);
-        //setDCost();
+        size_t start = batch*Optim.batchSize;
+        size_t end   = std::min(start+Optim.batchSize, inputs.size());
+        
+        std::vector<double> dc(outputSize);
+        for (size_t i=start; i<end; ++i)
+        {
+            setInput(inputs[i]);
+            fwdProp();
+            
+            for (size_t j=0; j<outputSize; ++j)
+                dc[j] += calcDCost(j, labels[i]);
+        }
+        
+        for (size_t j=0; j<outputSize; ++j)
+            dc[j] /= (end-start);
+        
+        setDCost(dc);
         bwdProp();
     }
 }
@@ -61,5 +76,5 @@ void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const 
         cost += calcCost(labels[i]);
     }
     
-    c = cost;
+    c = cost/inputs.size();
 }
