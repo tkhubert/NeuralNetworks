@@ -8,14 +8,16 @@
 
 #include "Layer.h"
 
-Layer::Layer(size_t _size, const ActivationFunc& _AFunc) : size(_size), AFunc(_AFunc)
+Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : inputSize(_inputSize), outputSize(_outputSize), AFunc(_AFunc)
 {
-    a.resize(size);
-    delta.resize(size);
-    bias.resize(size);
+    a.resize      (outputSize);
+    bias.resize   (outputSize);
+    weight.resize (inputSize*outputSize);
     
-    da.resize(size);
-    dbias.resize(size);
+    da.resize     (outputSize);
+    dbias.resize  (outputSize);
+    dweight.resize(inputSize*outputSize);
+    delta.resize  (outputSize);
     
     prevLayer = nullptr;
     nextLayer = nullptr;
@@ -28,49 +30,41 @@ Layer::~Layer()
 //
 void Layer::setDCost(const std::vector<double> &dc)
 {
-    for (size_t i=0; i<size; ++i)
+    for (size_t i=0; i<outputSize; ++i)
         delta[i] = da[i]*dc[i];
 }
 //
 void FCLayer::fwdProp()
 {
-    size_t iSize = prevLayer->getSize();
-    size_t oSize = size;
+    const std::vector<double>& prevA = prevLayer->getA();
     
-    const std::vector<double>& inputA = prevLayer->getA();
-    
-    for (size_t i=0; i<oSize; ++i)
+    for (size_t o=0; o<outputSize; ++o)
     {
         double val=0.;
-        for (size_t j=0; j<iSize; ++j)
-            val+= weight[i*iSize+j]*inputA[j];
+        for (size_t i=0; i<inputSize; ++i)
+            val+= weight[o*inputSize+i]*prevA[i];
         
-        val  += bias[i];
+        val  += bias[o];
         val   = AFunc.f(val);
         
-        a[i]  = val;
-        da[i] = AFunc.df(val);
+        a[o]  = val;
+        da[o] = AFunc.df(val);
     }
 }
 //
 void FCLayer::bwdProp()
 {
-    size_t iSize = size;
-    size_t oSize = prevLayer->getSize();
+    const std::vector<double>& prevdA = prevLayer->getdA();
+    std::vector<double> prevDelta(inputSize);
     
-    const std::vector<double>& outputdA    = prevLayer->getdA();
-    std::vector<double> outputDelta(oSize);
-    
-    for (size_t i=0; i<oSize; ++i)
+    for (size_t i=0; i<inputSize; ++i)
     {
         double val=0.;
-        for (size_t j=0; j<iSize; ++j)
-            val += weight[i*iSize+j]*delta[j];
+        for (size_t o=0; o<outputSize; ++o)
+            val += weight[i*inputSize+o]*delta[o];
         
-        val *= outputdA[i];
-        
-        outputDelta[i] = val;
+        prevDelta[i] = prevdA[i]*val;
     }
     
-    prevLayer->setDelta(outputDelta);
+    prevLayer->setDelta(prevDelta);
 }

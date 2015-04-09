@@ -8,16 +8,22 @@
 
 #include "NeuralNetwork.h"
 
-void NeuralNetwork::addLayer(Layer& layer)
+NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer>& _layers) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim)
 {
-    if (nbLayers>0)
+    nbLayers = _layers.size();
+    layers.resize(nbLayers);
+    
+    layers.push_back(&_layers[0]);
+    for (size_t i=1; i<nbLayers; ++i)
     {
-        Layer& pLayer = *layers[nbLayers-1];
-        pLayer.setNextLayer(&layer);
-        layer.setPrevLayer (&pLayer);
+        Layer* pLayer = layers[i-1];
+        Layer* cLayer = &_layers[i];
+        pLayer->setNextLayer(cLayer);
+        cLayer->setPrevLayer(pLayer);
+        layers[i] = cLayer;
     }
-    layers.push_back(&layer);
-    nbLayers++;
+    inputSize  = layers[0]->getSize();
+    outputSize = layers[nbLayers-1]->getSize();
 }
 //
 void NeuralNetwork::fwdProp()
@@ -41,7 +47,6 @@ const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& inp
 //
 void NeuralNetwork::train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels)
 {
-    size_t outputSize = layers[nbLayers-1]->getSize();
     size_t nbBatches  = (inputs.size()-1)/Optim.batchSize + 1;
     
     for (size_t batch=0; batch<nbBatches; ++batch)

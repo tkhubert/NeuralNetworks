@@ -17,11 +17,10 @@
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim) {}
+    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer>& _layers);
     std::string getDetails() const;
     
     void setInput(const std::vector<double>& input) { layers[0]->setA(input);}
-    void addLayer(Layer& layer);
     
     const std::vector<double>& getOuptut() const {return layers[nbLayers-1]->getA();}
     
@@ -33,6 +32,8 @@ public:
     
 private:
     // members
+    size_t inputSize;
+    size_t outputSize;
     size_t nbLayers;
     
     const CostFunc&     CFunc;

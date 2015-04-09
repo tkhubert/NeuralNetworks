@@ -15,13 +15,13 @@
 class Layer
 {
 public:
-    Layer(size_t _size, const ActivationFunc& _AFunc);
+    Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc);
     ~Layer();
     
     virtual std::string getName()    const = 0;
     virtual std::string getDetails() const = 0;
     
-    size_t                     getSize()      const {return size;}
+    size_t                     getSize()      const {return inputSize;}
     const std::vector<double>& getA()         const {return a; }
     const std::vector<double>& getdA()        const {return da; }
     const std::vector<double>& getDelta()     const {return delta; }
@@ -40,17 +40,17 @@ public:
     virtual void bwdProp() = 0;
     
 protected:
-    size_t              size;
+    size_t              inputSize;
+    size_t              outputSize;
     
     std::vector<double> a;
-    std::vector<double> delta;
     std::vector<double> bias;
     std::vector<double> weight;
     
     std::vector<double> da;
     std::vector<double> dbias;
     std::vector<double> dweight;
-    
+    std::vector<double> delta;
     Layer* nextLayer;
     Layer* prevLayer;
 
