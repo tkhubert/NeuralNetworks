@@ -10,28 +10,31 @@
 #define __NeuralNetworks__Layer__
 
 #include "includes.h"
+#include "ActivationFunc.h"
 
-template<typename ActFunc>
 class Layer
 {
 public:
-    Layer(size_t _size);
+    Layer(size_t _size, const ActivationFunc& _AFunc);
     
-    virtual std::string getName()    const = 0;
-    virtual std::string getDetails() const = 0;
+    virtual std::string getName()    const;
+    virtual std::string getDetails() const;
     
+    size_t                     getSize()      const {return size;}
     const std::vector<double>& getA()         const {return a; }
     const std::vector<double>& getdA()        const {return da; }
+    const std::vector<double>& getDelta()     const {return delta; }
     const std::vector<double>& getBias()      const {return bias; }
     const std::vector<double>& getWeight()    const {return weight; }
     const Layer*               getNextLayer() const {return nextLayer;}
     const Layer*               getPrevLayer() const {return prevLayer;}
     
-    virtual void fwdProp() = 0;
-    virtual void bwdProp() = 0;
+    virtual void fwdProp();
+    virtual void bwdProp();
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
+    void setA        (const std::vector<double>& _a)     {a = _a;}
     void setDelta    (const std::vector<double>& _delta) {delta = _delta;}
     
 protected:
@@ -44,14 +47,13 @@ protected:
     std::vector<double> bias;
     std::vector<double> weight;
     
-    Layer<ActFunc>* nextLayer;
-    Layer<ActFunc>* prevLayer;
-    
-    ActFunc AFunc;
+    Layer* nextLayer;
+    Layer* prevLayer;
+
+    const ActivationFunc& AFunc;
 };
 //
-template<typename ActFunc>
-class InputLayer : public Layer<ActFunc>
+class InputLayer : public Layer
 {
 public:
     InputLayer(size_t _size);
@@ -61,11 +63,10 @@ public:
     void fwdProp() {throw "InputLayer do not inplement fwdProp()";}
     void bwdProp() {throw "InputLayer do not inplement bwdProp()";}
     
-    void setInput(const std::vector<double> input) { this->a = input;}
+    void setInput(const std::vector<double>& input) { this->a = input;}
 };
 //
-template<typename ActFunc>
-class FCLayer : public Layer<ActFunc>
+class FCLayer : public Layer
 {
 public:
     FCLayer(size_t _size);

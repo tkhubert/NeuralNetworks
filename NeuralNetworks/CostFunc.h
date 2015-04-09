@@ -23,16 +23,40 @@ class MSE : public CostFunc
 {
 public:
     MSE() {}
-    double  f(double a, double y) const {return 0.5*(a-y)*(a-y);}
-    double df(double a, double y) const {return (a-y);}
+    double  f(const std::vector<double>& a, const std::vector<double>& y) const
+    {
+        double val=0.;
+        for (size_t i=0; i<a.size(); ++i)
+            val+= (a[i]-y[i])*(a[i]-y[i]);
+        return 0.5*val;
+    }
+    //
+    void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
+    {
+        for (size_t i=0; i<a.size(); ++i)
+            da[i] = a[i]-y[i];
+        return;
+    }
 };
 //
 class CE : public CostFunc
 {
 public:
     CE() {}
-    double  f(double a, double y) const {return -y*std::log(a) - (1-y)*std::log(1-a);}
-    double df(double a, double y) const {return -(y-a)/(a*(1-a));}
+    double  f(const std::vector<double>& a, const std::vector<double>& y) const
+    {
+        double val=0.;
+        for (size_t i=0; i<a.size(); ++i)
+            val += -y[i]*std::log(a[i]) - (1-y[i])*std::log(1-a[i]);
+        return val;
+    }
+    //
+    void df(const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
+    {
+        for (size_t i=0; i<a.size(); ++i)
+            da[i] = -(y[i]-a[i])/(a[i]*(1-a[i]));
+        return;
+    }
 };
 
 #endif

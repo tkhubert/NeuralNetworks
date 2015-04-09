@@ -8,8 +8,7 @@
 
 #include "Layer.h"
 
-template<typename ActFunc>
-Layer<ActFunc>::Layer(size_t _size) : size(_size)
+Layer::Layer(size_t _size, const ActivationFunc& _AFunc) : size(_size), AFunc(_AFunc)
 {
     a.resize(size);
     da.resize(size);
@@ -21,45 +20,45 @@ Layer<ActFunc>::Layer(size_t _size) : size(_size)
     nextLayer = nullptr;
 }
 //
-template<typename ActFunc>
-void FCLayer<ActFunc>::fwdProp()
+void FCLayer::fwdProp()
 {
-    const std::vector<double>& inputA = this->prevLayer->a;
+    size_t iSize = prevLayer->getSize();
+    size_t oSize = size;
     
-    size_t iSize = this->prevLayer->size;
-    size_t oSize = this->size;
+    const std::vector<double>& inputA = prevLayer->getA();
     
     for (size_t i=0; i<oSize; ++i)
     {
         double val=0.;
         for (size_t j=0; j<iSize; ++j)
-            val+= this->weight[i*iSize+j]*inputA[j];
+            val+= weight[i*iSize+j]*inputA[j];
         
-        val  += this->bias[i];
-        val   = this->AFunc.f(val);
+        val  += bias[i];
+        val   = AFunc.f(val);
         
-        this->a[i]  = val;
-        this->da[i] = this->AFunc.df(val);
+        a[i]  = val;
+        da[i] = AFunc.df(val);
     }
 }
 //
-template<typename ActFunc>
-void FCLayer<ActFunc>::bwdProp()
+void FCLayer::bwdProp()
 {
-    const std::vector<double>& outputdA    = this->prevLayer->da;
-    std::vector<double>&       outputDelta = this->prevLayer->delta;
+    size_t iSize = size;
+    size_t oSize = prevLayer->getSize();
     
-    size_t iSize = this->size;
-    size_t oSize = this->prevLayer->size;
+    const std::vector<double>& outputdA    = prevLayer->getdA();
+    std::vector<double> outputDelta(oSize);
     
     for (size_t i=0; i<oSize; ++i)
     {
         double val=0.;
         for (size_t j=0; j<iSize; ++j)
-            val += this->weight[i*iSize+j]*this->delta[j];
+            val += weight[i*iSize+j]*delta[j];
         
         val *= outputdA[i];
         
         outputDelta[i] = val;
     }
+    
+    prevLayer->setDelta(outputDelta);
 }

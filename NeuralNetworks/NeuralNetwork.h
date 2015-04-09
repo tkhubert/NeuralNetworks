@@ -10,20 +10,33 @@
 #define __NeuralNetworks__NeuralNetwork__
 
 #include "includes.h"
+#include "CostFunc.h"
+#include "Layer.h"
 
-template<typename ActFunc, typename CtFunc>
+
 class NeuralNetwork
 {
 public:
-    NeuralNetwork() : nbLayers(0) {}
-    void addLayer(Layer<ActFunc>& layer);
+    NeuralNetwork(const CostFunc& _CFunc) : nbLayers(0) , CFunc(_CFunc) {}
+    std::string getDetails() const;
+    
+    void setInput(const std::vector<double>& input) { layers[0].setA(input);}
+    void addLayer(Layer& layer);
+    
+    const std::vector<double>& predict(const std::vector<double> & inputs);
+    void train(const std::vector<std::vector<double> >& inputs, const std::vector<double>& labels);
+    void test (const std::vector<std::vector<double> >& inputs, const std::vector<double>& labels) const;
     
 private:
-    int    nbLayers;
+    // members
+    size_t nbLayers;
     
-    CtFunc CFunc;
-    std::vector<Layer<ActFunc> > layers;
+    const CostFunc&    CFunc;
+    std::vector<Layer> layers;
     
+    // methods
+    void fwdProp();
+    void bwdProp();
 };
 
 #endif /* defined(__NeuralNetworks__NeuralNetwork__) */
