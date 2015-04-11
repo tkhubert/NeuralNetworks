@@ -41,10 +41,11 @@ public:
             crossLabels.push_back(trainLabels[i]);
             crossData.push_back  (trainData[i]);
         }
-        for (size_t i=crossSize*fractionSize; i>=0; i-=fractionSize)
+        for (size_t i=0; i<crossSize; i++)
         {
-            trainLabels.erase(trainLabels.begin()+i);
-            trainData.erase  (trainData.begin()+i);
+            size_t idx = (crossSize-1-i)*fractionSize;
+            trainLabels.erase(trainLabels.begin()+idx);
+            trainData.erase  (trainData.begin()+idx);
         }
     }
 
@@ -61,14 +62,14 @@ protected:
 class MNistDataContainer : public DataContainer
 {
 public:
-    MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN)
+    MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=10)
     {
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
         parseImages(trainDataFN , trainData);
         parseImages(testDataFN  , testData);
         
-        constructCrossData(10);
+        constructCrossData(crossFraction);
     }
 };
 

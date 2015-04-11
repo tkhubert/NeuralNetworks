@@ -19,10 +19,10 @@ public:
     virtual double df(size_t i, const std::vector<double>& a, int y) const = 0;
 };
 //
-class MSE : public CostFunc
+class MSECostFunc : public CostFunc
 {
 public:
-    MSE() {}
+    MSECostFunc() {}
     double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;
@@ -36,14 +36,15 @@ public:
     //
     double df(size_t i, const std::vector<double>& a, int y) const
     {
-        return a[i]-i==y;
+        int label = i==y;
+        return a[i]-label;
     }
 };
 //
-class CE : public CostFunc
+class CECostFunc : public CostFunc
 {
 public:
-    CE() {}
+    CECostFunc() {}
     double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;

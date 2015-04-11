@@ -18,7 +18,7 @@
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer>& _layers);
+    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer*>& _layers);
     std::string getDetails() const;
     
     double getCost()    const {return cost;}
@@ -41,6 +41,8 @@ private:
     
     double               cost;
     double               errRate;
+    
+    std::ofstream        debugFile;
     
     // methods
     void setInput(const std::vector<double>& input) { layers[0]->setA(input);}

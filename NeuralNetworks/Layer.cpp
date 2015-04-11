@@ -21,6 +21,8 @@ Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc
     
     prevLayer = nullptr;
     nextLayer = nullptr;
+    
+    initWeights();
 }
 Layer::~Layer()
 {
@@ -36,11 +38,15 @@ void Layer::setDCost(const std::vector<double> &dc)
 //
 void Layer::initWeights()
 {
+    for (size_t i=0; i<bias.size(); ++i)
+        bias[i]   = -0.05 + ((double)rand() / RAND_MAX)*0.1;
     for (size_t i=0; i<weight.size(); ++i)
-        weight[i] = 0.;
+        weight[i] = -0.05 + ((double)rand() / RAND_MAX)*0.1;
 }
 void Layer::updateWeights(double alpha)
 {
+    for (size_t i=0; i<bias.size(); ++i)
+        bias[i]  -= alpha*bias[i];
     for (size_t i=0; i<weight.size(); ++i)
         weight[i]-= alpha*dweight[i];
 }
@@ -82,12 +88,12 @@ void FCLayer::bwdProp()
 //
 void FCLayer::calcGrad()
 {
-    const std::vector<double>& prevdA = prevLayer->getdA();
+    const std::vector<double>& prevA = prevLayer->getA();
     
     for (size_t o=0; o<outputSize; ++o)
     {
         dbias[o] = delta[o];
         for (size_t i=0; i<inputSize; ++i)
-            dweight[o*inputSize+i] = delta[o] * prevdA[i];
+            dweight[o*inputSize+i] = delta[o] * prevA[i];
     }
 }

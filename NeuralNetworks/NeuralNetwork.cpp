@@ -8,16 +8,16 @@
 
 #include "NeuralNetwork.h"
 
-NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer>& _layers) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim)
+NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer*>& _layers) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim)
 {
     nbLayers = _layers.size();
     layers.resize(nbLayers);
     
-    layers.push_back(&_layers[0]);
+    layers[0] = _layers[0];
     for (size_t i=1; i<nbLayers; ++i)
     {
         Layer* pLayer = layers[i-1];
-        Layer* cLayer = &_layers[i];
+        Layer* cLayer = _layers[i];
         assert(pLayer->getOutputSize()==cLayer->getInputSize());
         
         pLayer->setNextLayer(cLayer);
@@ -25,8 +25,10 @@ NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, st
         layers[i] = cLayer;
     }
     
-    inputSize  = layers[0]->getInputSize();
-    outputSize = layers[nbLayers-1]->getInputSize();
+    inputSize  = layers[0]->getOutputSize();
+    outputSize = layers[nbLayers-1]->getOutputSize();
+    
+    debugFile  = std::ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/debugNN.csv");
 }
 //
 void NeuralNetwork::initWeights()
@@ -43,13 +45,13 @@ void NeuralNetwork::updateWeights()
 //
 void NeuralNetwork::fwdProp()
 {
-    for (size_t i=0; i<nbLayers; ++i)
+    for (size_t i=1; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
 void NeuralNetwork::bwdProp()
 {
-    for (size_t i=nbLayers-1; i>=1; ++i)
+    for (size_t i=nbLayers-1; i>=1; --i)
         layers[i]->bwdProp();
 }
 //
@@ -71,13 +73,13 @@ void NeuralNetwork::train(const DataContainer& data)
     const std::vector<std::vector<double> >& inputs = data.getTrainData();
     const std::vector<int>&                  labels = data.getTrainLabels();
     
-    std::cout << "Start training -------------------------------------"<<std::endl;
+    debugFile << "Start training -------------------------------------"<<std::endl;
     
     size_t nbBatches  = (inputs.size()-1)/Optim.batchSize + 1;
     
     for (size_t t=0; t<Optim.nbEpochs; ++t)
     {
-        std::cout << "   Epoch: " << t << "-------------------------------" << std::endl;
+        debugFile << "Epoch: " << t << ", ";
         std::clock_t startTimeEpoch = std::clock();;
         
         for (size_t batch=0; batch<nbBatches; ++batch)
@@ -104,13 +106,20 @@ void NeuralNetwork::train(const DataContainer& data)
         }
         
         double timeEpoch = ( std::clock() - startTimeEpoch ) / (double) CLOCKS_PER_SEC;
-        std::cout << "     time to train for epoch: " << timeEpoch << std::endl;
+        debugFile << "time " << timeEpoch << "s,";
         
         test(inputs, labels);
-        std::cout << "     Train: errRate is" << errRate << ", cost is" << cost << std::endl;
+        double trainErrRate = errRate;
+        double trainCost    = cost;
+        
         test(data.getCrossData(), data.getCrossLabels());
-        std::cout << "     Cross: errRate is" << errRate << ", cost is" << cost << std::endl;
+        debugFile << trainErrRate << "," << errRate << ",";
+        debugFile << trainCost    << "," << cost << std::endl;
     }
+    
+    test(data.getTestData(), data.getTestLabels());
+    debugFile << "Final," << " , " << errRate << ", , " << cost << std::endl;
+    debugFile.close();
 }
 //
 void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels)
@@ -126,5 +135,5 @@ void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const 
     }
     
     cost    /= inputs.size();
-    errRate  = (1.-errRate)/inputs.size();
+    errRate  = 1.-errRate/inputs.size();
 }

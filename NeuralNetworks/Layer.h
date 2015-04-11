@@ -69,7 +69,7 @@ protected:
 class FCLayer : public Layer
 {
 public:
-    FCLayer(size_t _size);
+    FCLayer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : Layer(_inputSize, _outputSize, _AFunc) {};
     std::string getName()    const {return "FCLayer";}
     std::string getDetails() const {return "";}
     
