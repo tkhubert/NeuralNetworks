@@ -9,12 +9,17 @@
 #ifndef NeuralNetworks_includes_h
 #define NeuralNetworks_includes_h
 
-#include <iostream>
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+
 #include <cmath>
 #include <cassert>
+#include <ctime>
+
 #include <algorithm>
 #include <vector>
 #include <string>
+
 
 #endif

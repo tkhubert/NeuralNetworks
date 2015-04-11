@@ -34,6 +34,17 @@ void Layer::setDCost(const std::vector<double> &dc)
         delta[i] = da[i]*dc[i];
 }
 //
+void Layer::initWeights()
+{
+    for (size_t i=0; i<weight.size(); ++i)
+        weight[i] = 0.;
+}
+void Layer::updateWeights(double alpha)
+{
+    for (size_t i=0; i<weight.size(); ++i)
+        weight[i]-= alpha*dweight[i];
+}
+//
 void FCLayer::fwdProp()
 {
     const std::vector<double>& prevA = prevLayer->getA();

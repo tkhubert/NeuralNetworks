@@ -15,25 +15,28 @@ class CostFunc
 {
 public:
     CostFunc() {}
-    virtual double  f(const std::vector<double>& a, const std::vector<double>& y) const = 0;
-    virtual double df(size_t i, const std::vector<double>& a, const std::vector<double>& y) const = 0;
+    virtual double  f(const std::vector<double>& a, int y) const = 0;
+    virtual double df(size_t i, const std::vector<double>& a, int y) const = 0;
 };
 //
 class MSE : public CostFunc
 {
 public:
     MSE() {}
-    double  f(const std::vector<double>& a, const std::vector<double>& y) const
+    double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;
         for (size_t i=0; i<a.size(); ++i)
-            val+= (a[i]-y[i])*(a[i]-y[i]);
+        {
+            int label = i==y;
+            val+= (a[i]-label)*(a[i]-label);
+        }
         return 0.5*val;
     }
     //
-    double df(size_t i, const std::vector<double>& a, const std::vector<double>& y) const
+    double df(size_t i, const std::vector<double>& a, int y) const
     {
-        return a[i]-y[i];
+        return a[i]-i==y;
     }
 };
 //
@@ -41,17 +44,21 @@ class CE : public CostFunc
 {
 public:
     CE() {}
-    double  f(const std::vector<double>& a, const std::vector<double>& y) const
+    double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;
         for (size_t i=0; i<a.size(); ++i)
-            val += -y[i]*std::log(a[i]) - (1-y[i])*std::log(1-a[i]);
+        {
+            int label = i==y;
+            val += -label*std::log(a[i]) - (1-label)*std::log(1-a[i]);
+        }
         return val;
     }
     //
-    double df(size_t i, const std::vector<double>& a, const std::vector<double>& y, std::vector<double>& da) const
+    double df(size_t i, const std::vector<double>& a, int y, std::vector<double>& da) const
     {
-        return -(y[i]-a[i])/(a[i]*(1-a[i]));
+        int label = i==y;
+        return -(label-a[i])/(a[i]*(1-a[i]));
     }
 };
 

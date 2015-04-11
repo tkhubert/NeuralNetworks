@@ -13,6 +13,7 @@
 #include "CostFunc.h"
 #include "Optimizer.h"
 #include "Layer.h"
+#include "Data.h"
 
 class NeuralNetwork
 {
@@ -20,15 +21,13 @@ public:
     NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer>& _layers);
     std::string getDetails() const;
     
-    void setInput(const std::vector<double>& input) { layers[0]->setA(input);}
+    double getCost()    const {return cost;}
+    double getErrRate() const {return errRate;}
     
-    const std::vector<double>& getOuptut() const {return layers[nbLayers-1]->getA();}
-    
-    double getCost() const {return c;}
+    void train(const DataContainer& data);
+    void test (const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels);
     
     const std::vector<double>& predict(const std::vector<double> & inputs);
-    void train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels);
-    void test (const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels);
     
 private:
     // members
@@ -40,18 +39,23 @@ private:
     const Optimizer&    Optim;
     std::vector<Layer*> layers;
     
-    double               c;
+    double               cost;
+    double               errRate;
     
     // methods
-    double calcCost (const std::vector<double>& label) const { return CFunc.f (getOuptut(), label);}
-    double calcDCost(size_t i, const std::vector<double>& label)
-    {
-        return CFunc.df(i, getOuptut(), label);
-    }
-    void   setDCost (std::vector<double>& dc)                                       { return layers[nbLayers-1]->setDCost(dc);}
+    void setInput(const std::vector<double>& input) { layers[0]->setA(input);}
+    const std::vector<double>& getOutput() const {return layers[nbLayers-1]->getA();}
     
+    bool   isCorrect(int label) const;
+    double calcCost (int label) const         { return CFunc.f (getOutput(), label);}
+    double calcDCost(size_t i, int label)     { return CFunc.df(i, getOutput(), label); }
+    void   setDCost (std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    
+    void initWeights();
+    void updateWeights();
     void fwdProp();
     void bwdProp();
+
 };
 
 #endif /* defined(__NeuralNetworks__NeuralNetwork__) */

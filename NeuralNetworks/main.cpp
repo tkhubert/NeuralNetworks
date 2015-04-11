@@ -8,15 +8,11 @@
 
 
 #include "includes.h"
+#include "Data.h"
+#include "NeuralNetwork.h"
 
 int main(int argc, const char * argv[])
 {
-    std::cout << "Hello, World!\n";
     
-    SigmoidFunc sF;
-    TanHFunc    tF;
-    RLFunc      rF;
-    
-    std::cout << sF.f(1) << " " << tF.f(1) << " " << rF.f(1) <<std::endl;
     return 0;
 }

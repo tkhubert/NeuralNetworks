@@ -29,6 +29,18 @@ NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, st
     outputSize = layers[nbLayers-1]->getInputSize();
 }
 //
+void NeuralNetwork::initWeights()
+{
+    for (size_t i=0; i<nbLayers; ++i)
+        layers[i]->initWeights();
+}
+//
+void NeuralNetwork::updateWeights()
+{
+    for (size_t i=0; i<nbLayers; ++i)
+        layers[i]->updateWeights(Optim.alpha);
+}
+//
 void NeuralNetwork::fwdProp()
 {
     for (size_t i=0; i<nbLayers; ++i)
@@ -45,44 +57,74 @@ const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& inp
 {
     setInput(inputs);
     fwdProp();
-    return getOuptut();
+    return getOutput();
 }
 //
-void NeuralNetwork::train(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels)
+bool NeuralNetwork::isCorrect(int label) const
 {
+    const std::vector<double>& prediction = getOutput();
+    return std::distance(prediction.begin(), std::max_element(prediction.begin(), prediction.end()))==label;
+}
+//
+void NeuralNetwork::train(const DataContainer& data)
+{
+    const std::vector<std::vector<double> >& inputs = data.getTrainData();
+    const std::vector<int>&                  labels = data.getTrainLabels();
+    
+    std::cout << "Start training -------------------------------------"<<std::endl;
+    
     size_t nbBatches  = (inputs.size()-1)/Optim.batchSize + 1;
     
-    for (size_t batch=0; batch<nbBatches; ++batch)
+    for (size_t t=0; t<Optim.nbEpochs; ++t)
     {
-        size_t start = batch*Optim.batchSize;
-        size_t end   = std::min(start+Optim.batchSize, inputs.size());
+        std::cout << "   Epoch: " << t << "-------------------------------" << std::endl;
+        std::clock_t startTimeEpoch = std::clock();;
         
-        std::vector<double> dc(outputSize);
-        for (size_t i=start; i<end; ++i)
+        for (size_t batch=0; batch<nbBatches; ++batch)
         {
-            setInput(inputs[i]);
-            fwdProp();
+            size_t start = batch*Optim.batchSize;
+            size_t end   = std::min(start+Optim.batchSize, inputs.size());
+            
+            std::vector<double> dc(outputSize);
+            for (size_t i=start; i<end; ++i)
+            {
+                setInput(inputs[i]);
+                fwdProp();
+                
+                for (size_t j=0; j<outputSize; ++j)
+                    dc[j] += calcDCost(j, labels[i]);
+            }
             
             for (size_t j=0; j<outputSize; ++j)
-                dc[j] += calcDCost(j, labels[i]);
+                dc[j] /= (end-start);
+            
+            setDCost(dc);
+            bwdProp();
+            updateWeights();
         }
         
-        for (size_t j=0; j<outputSize; ++j)
-            dc[j] /= (end-start);
+        double timeEpoch = ( std::clock() - startTimeEpoch ) / (double) CLOCKS_PER_SEC;
+        std::cout << "     time to train for epoch: " << timeEpoch << std::endl;
         
-        setDCost(dc);
-        bwdProp();
+        test(inputs, labels);
+        std::cout << "     Train: errRate is" << errRate << ", cost is" << cost << std::endl;
+        test(data.getCrossData(), data.getCrossLabels());
+        std::cout << "     Cross: errRate is" << errRate << ", cost is" << cost << std::endl;
     }
 }
 //
-void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const std::vector<std::vector<double> >& labels)
+void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels)
 {
-    double cost=0.;
+    cost=0.;
+    errRate=0.;
+    
     for (size_t i=0; i<inputs.size(); ++i)
     {
         predict(inputs[i]);
         cost += calcCost(labels[i]);
+        errRate += isCorrect(labels[i]);
     }
     
-    c = cost/inputs.size();
+    cost    /= inputs.size();
+    errRate  = (1.-errRate)/inputs.size();
 }

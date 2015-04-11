@@ -44,6 +44,8 @@ public:
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
+    void         initWeights();
+    void         updateWeights(double alpha);
     
 protected:
     size_t              inputSize;
