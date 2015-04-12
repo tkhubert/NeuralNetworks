@@ -50,13 +50,13 @@ private:
     
     bool   isCorrect(int label) const;
     double calcCost (int label) const         { return CFunc.f (getOutput(), label);}
-    double calcDCost(size_t i, int label)     { return CFunc.df(i, getOutput(), label); }
-    void   setDCost (std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    void calcDCost(int label, std::vector<double>& dc)     { return CFunc.df(getOutput(), label, dc); }
+    void   setDCost (const std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
     void initParams();
     void updateParams();
-    void fwdProp();
-    void bwdProp();
+    void fwdProp(const std::vector<double>& input);
+    void bwdProp(const std::vector<double>& dc);
     
     void checkGradient();
 };

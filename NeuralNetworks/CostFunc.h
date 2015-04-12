@@ -16,7 +16,7 @@ class CostFunc
 public:
     CostFunc() {}
     virtual double  f(const std::vector<double>& a, int y) const = 0;
-    virtual double df(size_t i, const std::vector<double>& a, int y) const = 0;
+    virtual void   df(const std::vector<double>& a, int y, std::vector<double>& dc) const = 0;
 };
 //
 class MSECostFunc : public CostFunc
@@ -34,10 +34,13 @@ public:
         return 0.5*val;
     }
     //
-    double df(size_t i, const std::vector<double>& a, int y) const
+    void df(const std::vector<double>& a, int y, std::vector<double>& dc) const
     {
-        int label = i==y;
-        return a[i]-label;
+        for (size_t i=0; i<a.size(); ++i)
+        {
+            int label = i==y;
+            dc[i] = a[i]-label;
+        }
     }
 };
 //
@@ -56,10 +59,13 @@ public:
         return val;
     }
     //
-    double df(size_t i, const std::vector<double>& a, int y, std::vector<double>& da) const
+    void df(const std::vector<double>& a, int y, std::vector<double>& dc) const
     {
-        int label = i==y;
-        return -(label-a[i])/(a[i]*(1-a[i]));
+        for (size_t i=0; i<a.size(); ++i)
+        {
+            int label = i==y;
+            dc[i] = -(label-a[i])/(a[i]*(1-a[i]));
+        }
     }
 };
 

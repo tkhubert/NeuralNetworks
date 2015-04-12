@@ -43,22 +43,23 @@ void NeuralNetwork::updateParams()
         layers[i]->updateParams(Optim.alpha);
 }
 //
-void NeuralNetwork::fwdProp()
+void NeuralNetwork::fwdProp(const std::vector<double>& input)
 {
+    setInput(input);
     for (size_t i=1; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
-void NeuralNetwork::bwdProp()
+void NeuralNetwork::bwdProp(const std::vector<double>& dc)
 {
+    setDCost(dc);
     for (size_t i=nbLayers-1; i>=1; --i)
         layers[i]->bwdProp();
 }
 //
-const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& inputs)
+const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& input)
 {
-    setInput(inputs);
-    fwdProp();
+    fwdProp(input);
     return getOutput();
 }
 //
@@ -92,15 +93,14 @@ void NeuralNetwork::train(const DataContainer& data)
             std::vector<double> dc(outputSize);
             for (size_t i=start; i<end; ++i)
             {
-                setInput(inputs[i]);
-                fwdProp();
+                fwdProp(inputs[i]);
                 
                 batchCost += calcCost(labels[i])/(end-start);
+                calcDCost(labels[i], dc);
                 for (size_t j=0; j<outputSize; ++j)
-                    dc[j] = calcDCost(j, labels[i])/(end-start);
+                    dc[j] /=(end-start);
                 
-                setDCost(dc);
-                bwdProp();
+                bwdProp(dc);
             }
             
 //            const double tweakSize = 0.0001;
@@ -180,7 +180,7 @@ void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const 
     
     for (size_t i=0; i<inputs.size(); ++i)
     {
-        predict(inputs[i]);
+        fwdProp(inputs[i]);
         cost    += calcCost(labels[i]);
         errRate += isCorrect(labels[i]);
     }
