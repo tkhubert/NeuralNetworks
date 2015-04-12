@@ -53,11 +53,12 @@ private:
     double calcDCost(size_t i, int label)     { return CFunc.df(i, getOutput(), label); }
     void   setDCost (std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
-    void initWeights();
-    void updateWeights();
+    void initParams();
+    void updateParams();
     void fwdProp();
     void bwdProp();
-
+    
+    void checkGradient();
 };
 
 #endif /* defined(__NeuralNetworks__NeuralNetwork__) */

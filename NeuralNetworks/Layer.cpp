@@ -22,7 +22,7 @@ Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc
     prevLayer = nullptr;
     nextLayer = nullptr;
     
-    initWeights();
+    initParams();
 }
 Layer::~Layer()
 {
@@ -36,19 +36,28 @@ void Layer::setDCost(const std::vector<double> &dc)
         delta[i] = da[i]*dc[i];
 }
 //
-void Layer::initWeights()
+void Layer::initParams()
 {
+    std::default_random_engine       gen;
+    std::normal_distribution<double> norm(0.,1.0);
+    
     for (size_t i=0; i<bias.size(); ++i)
-        bias[i]   = -0.05 + ((double)rand() / RAND_MAX)*0.1;
+        bias[i]   = norm(gen);
     for (size_t i=0; i<weight.size(); ++i)
-        weight[i] = -0.05 + ((double)rand() / RAND_MAX)*0.1;
+        weight[i] = norm(gen);
 }
-void Layer::updateWeights(double alpha)
+void Layer::updateParams(double alpha)
 {
     for (size_t i=0; i<bias.size(); ++i)
-        bias[i]  -= alpha*bias[i];
+    {
+        bias[i]  -= alpha*dbias[i];
+        dbias[i]  = 0.;
+    }
     for (size_t i=0; i<weight.size(); ++i)
-        weight[i]-= alpha*dweight[i];
+    {
+        weight[i] -= alpha*dweight[i];
+        dweight[i] = 0.;
+    }
 }
 //
 void FCLayer::fwdProp()
@@ -92,8 +101,8 @@ void FCLayer::calcGrad()
     
     for (size_t o=0; o<outputSize; ++o)
     {
-        dbias[o] = delta[o];
+        dbias[o] += delta[o];
         for (size_t i=0; i<inputSize; ++i)
-            dweight[o*inputSize+i] = delta[o] * prevA[i];
+            dweight[o*inputSize+i] += delta[o] * prevA[i];
     }
 }

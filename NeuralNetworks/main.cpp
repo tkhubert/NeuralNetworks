@@ -20,15 +20,15 @@ int main(int argc, const char * argv[])
     std::string testData    = dir + "t10k-images-idx3-ubyte";
 
     MNistDataContainer data(trainLabels, testLabels, trainData, testData);
-    size_t inputSize = data.getDataSize();
+    size_t iS = data.getDataSize();
     
     SigmoidFunc AFunc;
     MSECostFunc CFunc;
-    Optimizer   Optim(0.5, 0., 10, 30);
+    Optimizer   Optim(3., 0., 2, 30);
     
-    FCLayer Layer0(0, inputSize, AFunc);
-    FCLayer Layer1(inputSize, 100, AFunc);
-    FCLayer Layer2(100, 10, AFunc);
+    FCLayer Layer0(0 , iS, AFunc);
+    FCLayer Layer1(iS, 30, AFunc);
+    FCLayer Layer2(30, 10, AFunc);
     
     std::vector<Layer*> layers;
     layers.push_back(&Layer0);
@@ -37,7 +37,6 @@ int main(int argc, const char * argv[])
     
     NeuralNetwork FCNN(CFunc, Optim, layers);
     FCNN.train(data);
-    std::cout << FCNN.getCost() << ", " << FCNN.getErrRate() << std::endl;
     
     return 0;
 }

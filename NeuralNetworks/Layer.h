@@ -37,15 +37,17 @@ public:
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
-    void setA        (const std::vector<double>& _a)     {a = _a;}
-    void setDelta    (const std::vector<double>& _delta) {delta = _delta;}
+    void setA        (const std::vector<double>& _a)      {a      = _a;}
+    void setDelta    (const std::vector<double>& _delta)  {delta  = _delta;}
+    void setWeight   (const std::vector<double>& _weight) {weight = _weight;}
+    void setBias     (const std::vector<double>& _bias)   {bias   = _bias;}
     
     virtual void setDCost(const std::vector<double>& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
-    void         initWeights();
-    void         updateWeights(double alpha);
+    void         initParams();
+    void         updateParams(double alpha);
     
 protected:
     size_t              inputSize;

@@ -62,7 +62,7 @@ protected:
 class MNistDataContainer : public DataContainer
 {
 public:
-    MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=10)
+    MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=6)
     {
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
