@@ -19,6 +19,8 @@ class NeuralNetwork
 {
 public:
     NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer*>& _layers);
+    
+    std::string getName()    const;
     std::string getDetails() const;
     
     double getCost()    const {return cost;}

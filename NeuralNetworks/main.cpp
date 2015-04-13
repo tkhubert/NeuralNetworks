@@ -23,8 +23,14 @@ int main(int argc, const char * argv[])
     size_t iS = data.getDataSize();
     
     SigmoidFunc AFunc;
-    MSECostFunc CFunc;
-    Optimizer   Optim(3., 0., 2, 30);
+    MSECostFunc MSECFunc;
+    CECostFunc  CECFunc;
+    
+    double learningRate = 3.;
+    double lamba        = 0.;
+    int    batchSize    = 10;
+    int    nbEpochs     = 30;
+    Optimizer   Optim(learningRate, lamba, batchSize, nbEpochs);
     
     FCLayer Layer0(0 , iS, AFunc);
     FCLayer Layer1(iS, 30, AFunc);
@@ -35,7 +41,7 @@ int main(int argc, const char * argv[])
     layers.push_back(&Layer1);
     layers.push_back(&Layer2);
     
-    NeuralNetwork FCNN(CFunc, Optim, layers);
+    NeuralNetwork FCNN(CECFunc, Optim, layers);
     FCNN.train(data);
     
     return 0;

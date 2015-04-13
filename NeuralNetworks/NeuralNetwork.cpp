@@ -28,7 +28,22 @@ NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, st
     inputSize  = layers[0]->getOutputSize();
     outputSize = layers[nbLayers-1]->getOutputSize();
     
-    debugFile  = std::ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/debugNN.csv");
+    debugFile  = std::ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+getName());
+}
+//
+std::string NeuralNetwork::getName() const
+{
+    std:: string name = "";
+    std::stringstream ss;
+    for (size_t i=0; i<nbLayers; ++i)
+        ss << layers[i]->getOutputSize() << "_";
+
+    ss << CFunc.getName() << "_" << layers[nbLayers-1]->getAFunc().getName() << "_";
+    ss << Optim.alpha << "_" << Optim.lambda << "_" << Optim.batchSize << "_" << Optim.nbEpochs;
+    ss << ".csv";
+    name = ss.str();
+    
+    return name;
 }
 //
 void NeuralNetwork::initParams()
@@ -77,6 +92,7 @@ void NeuralNetwork::train(const DataContainer& data)
     debugFile << "Start training -------------------------------------"<<std::endl;
     
     size_t nbBatches  = (inputs.size()-1)/Optim.batchSize + 1;
+    std::vector<double> dc(outputSize);
     
     for (size_t t=0; t<Optim.nbEpochs; ++t)
     {
@@ -89,65 +105,16 @@ void NeuralNetwork::train(const DataContainer& data)
             size_t start = batch*Optim.batchSize;
             size_t end   = std::min(start+Optim.batchSize, inputs.size());
             
-            double batchCost = 0.;
-            std::vector<double> dc(outputSize);
             for (size_t i=start; i<end; ++i)
             {
                 fwdProp(inputs[i]);
                 
-                batchCost += calcCost(labels[i])/(end-start);
                 calcDCost(labels[i], dc);
                 for (size_t j=0; j<outputSize; ++j)
                     dc[j] /=(end-start);
                 
                 bwdProp(dc);
             }
-            
-//            const double tweakSize = 0.0001;
-//            for (size_t k=1; k<nbLayers; ++k)
-//            {
-//                Layer*              l = layers[k];
-//                std::vector<double> w = l->getWeight();
-//                
-//                for (int j=0; j<2; ++j)
-//                {
-//                    int    idx = rand() % w.size();
-//                    double tmp = w[idx];
-//                    w[idx] +=tweakSize;
-//                    l->setWeight(w);
-//                    
-//                    double batchCost2 = 0.;
-//                    for (size_t i=start; i<end; ++i)
-//                    {
-//                        setInput(inputs[i]);
-//                        fwdProp();
-//                        
-//                        batchCost2 += calcCost(labels[i]);
-//                    }
-//                    batchCost2 /= (end-start);
-//                    w[idx] = tmp-tweakSize;
-//                    l->setWeight(w);
-//                    
-//                    double batchCost3 = 0.;
-//                    for (size_t i=start; i<end; ++i)
-//                    {
-//                        setInput(inputs[i]);
-//                        fwdProp();
-//                        
-//                        batchCost3 += calcCost(labels[i]);
-//                    }
-//                    batchCost3 /= (end-start);
-//                    w[idx] = tmp;
-//                    l->setWeight(w);
-//                    
-//                    double grad  = (batchCost2 - batchCost3)/(2*tweakSize);
-//                    double grad2 = l->getdWeight()[idx];
-//                    double error = grad2==0 ? 0 : grad==0 ? 0 : 1-grad2/grad;
-//                    if (abs(error)>0.01)
-//                        std:: cout << "PROBLEM" << k << end;;
-//                }
-//            }
-            
             
             updateParams();
         }
@@ -161,15 +128,19 @@ void NeuralNetwork::train(const DataContainer& data)
         double trainCost    = cost;
         
         test(data.getCrossData(), data.getCrossLabels());
-        debugFile << trainErrRate << "," << errRate << ",";
-        debugFile << trainCost    << "," << cost << std::endl;
-        std::cout << trainErrRate << "," << errRate << ", ";
-        std::cout << trainCost    << "," << cost << std::endl;
+        double crossErrRate = errRate;
+        double crossCost    = cost;
+        
+        test(data.getTestData(), data.getTestLabels());
+        double testErrRate = errRate;
+        double testCost    = cost;
+        
+        debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
+        debugFile << trainCost    << "," << crossCost    << "," << testCost    << std::endl;
+        std::cout << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
+        std::cout << trainCost    << "," << crossCost    << "," << testCost    << std::endl;
     }
     
-    test(data.getTestData(), data.getTestLabels());
-    debugFile << "Test," << " , " << errRate << ", , " << cost << std::endl;
-    std::cout << "Test," << " , " << errRate << ", , " << cost << std::endl;
     debugFile.close();
 }
 //

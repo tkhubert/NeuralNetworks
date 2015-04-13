@@ -15,22 +15,27 @@ class ActivationFunc
 {
 public:
     ActivationFunc() {}
-    virtual double  f(double x) const = 0;
-    virtual double df(double f) const = 0;
+    virtual std::string getName()    const = 0;
+    virtual double      f(double x)  const = 0;
+    virtual double      df(double f) const = 0;
 };
 //
 class SigmoidFunc : public ActivationFunc
 {
 public:
     SigmoidFunc() {}
-    double f (double x) const {return 1./(1+std::exp(-x));}
-    double df(double f) const {return f*(1-f);}
+    
+    std::string getName() const {return "SigAFunc";}
+    double f (double x)   const {return 1./(1+std::exp(-x));}
+    double df(double f)   const {return f*(1-f);}
 };
 //
 class TanHFunc : public ActivationFunc
 {
 public:
     TanHFunc() {}
+    
+    std::string getName() const {return "TanHAFunc";}
     double f (double x) const
     {
         double tmp1 = std::exp(x);
@@ -43,6 +48,7 @@ public:
 class RLFunc : public ActivationFunc
 {
 public:
+    std::string getName() const {return "RLAFunc";}
     RLFunc(double _a=1.0, double _b=0.) : a(_a), b(_b) {}
     double f (double x) const {return a*std::max(x,0.)-b*std::max(-x,0.);}
     double df(double f) const {return f>=0 ? a : b;}

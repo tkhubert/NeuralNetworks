@@ -15,14 +15,18 @@ class CostFunc
 {
 public:
     CostFunc() {}
-    virtual double  f(const std::vector<double>& a, int y) const = 0;
-    virtual void   df(const std::vector<double>& a, int y, std::vector<double>& dc) const = 0;
+    virtual std::string getName() const = 0;
+    virtual double      f(const std::vector<double>& a, int y) const = 0;
+    virtual void        df(const std::vector<double>& a, int y, std::vector<double>& dc) const = 0;
 };
 //
 class MSECostFunc : public CostFunc
 {
 public:
     MSECostFunc() {}
+    
+    std::string getName() const {return "MSECFunc";}
+    
     double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;
@@ -48,6 +52,9 @@ class CECostFunc : public CostFunc
 {
 public:
     CECostFunc() {}
+    
+    std::string getName() const {return "CECFunc";}
+    
     double  f(const std::vector<double>& a, int y) const
     {
         double val=0.;

@@ -34,6 +34,7 @@ public:
 
     const Layer*               getNextLayer()  const {return nextLayer;}
     const Layer*               getPrevLayer()  const {return prevLayer;}
+    const ActivationFunc&      getAFunc()      const {return AFunc;}
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
