@@ -36,6 +36,13 @@ void Layer::setDCost(const std::vector<double> &dc)
         delta[i] = da[i]*dc[i];
 }
 //
+void Layer::calcWeightSqSum()
+{
+    weightSqSum = 0.;
+    for (size_t i=0; i<weight.size(); ++i)
+        weightSqSum += weight[i]*weight[i];
+}
+//
 void Layer::initParams()
 {
     std::default_random_engine       gen;
@@ -45,8 +52,10 @@ void Layer::initParams()
         bias[i]   = norm(gen);
     for (size_t i=0; i<weight.size(); ++i)
         weight[i] = norm(gen);
+    
+    calcWeightSqSum();
 }
-void Layer::updateParams(double alpha)
+void Layer::updateParams(double alpha, double lambdaOverN)
 {
     for (size_t i=0; i<bias.size(); ++i)
     {
@@ -55,8 +64,22 @@ void Layer::updateParams(double alpha)
     }
     for (size_t i=0; i<weight.size(); ++i)
     {
-        weight[i] -= alpha*dweight[i];
+        weight[i] -= alpha*(dweight[i]+lambdaOverN*weight[i]);
         dweight[i] = 0.;
+    }
+    
+    calcWeightSqSum();
+}
+//
+void FCLayer::calcGrad()
+{
+    const std::vector<double>& prevA = prevLayer->getA();
+    
+    for (size_t o=0; o<outputSize; ++o)
+    {
+        dbias[o] += delta[o];
+        for (size_t i=0; i<inputSize; ++i)
+            dweight[o*inputSize+i] += delta[o] * prevA[i];
     }
 }
 //
@@ -92,17 +115,5 @@ void FCLayer::bwdProp()
             val += delta[o]*weight[o*inputSize+i];
         
         prevDelta[i] = prevdA[i]*val;
-    }
-}
-//
-void FCLayer::calcGrad()
-{
-    const std::vector<double>& prevA = prevLayer->getA();
-    
-    for (size_t o=0; o<outputSize; ++o)
-    {
-        dbias[o] += delta[o];
-        for (size_t i=0; i<inputSize; ++i)
-            dweight[o*inputSize+i] += delta[o] * prevA[i];
     }
 }

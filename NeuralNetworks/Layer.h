@@ -21,20 +21,21 @@ public:
     virtual std::string getName()    const = 0;
     virtual std::string getDetails() const = 0;
     
-    size_t                     getInputSize()  const {return inputSize;}
-    size_t                     getOutputSize() const {return outputSize;}
-    const std::vector<double>& getA()          const {return a; }
-    const std::vector<double>& getBias()       const {return bias; }
-    const std::vector<double>& getWeight()     const {return weight; }
+    size_t                     getInputSize()   const {return inputSize;}
+    size_t                     getOutputSize()  const {return outputSize;}
+    const std::vector<double>& getA()           const {return a; }
+    const std::vector<double>& getBias()        const {return bias; }
+    const std::vector<double>& getWeight()      const {return weight; }
+    double                     getWeightSqSum() const {return weightSqSum; }
     
-    const std::vector<double>& getdA()         const {return da; }
-    std::vector<double>&       getDelta()            {return delta; }
-    std::vector<double>&       getdBias()            {return dbias; }
-    std::vector<double>&       getdWeight()          {return dweight; }
+    const std::vector<double>& getdA()          const {return da; }
+    std::vector<double>&       getDelta()             {return delta; }
+    std::vector<double>&       getdBias()             {return dbias; }
+    std::vector<double>&       getdWeight()           {return dweight; }
 
-    const Layer*               getNextLayer()  const {return nextLayer;}
-    const Layer*               getPrevLayer()  const {return prevLayer;}
-    const ActivationFunc&      getAFunc()      const {return AFunc;}
+    const Layer*               getNextLayer()   const {return nextLayer;}
+    const Layer*               getPrevLayer()   const {return prevLayer;}
+    const ActivationFunc&      getAFunc()       const {return AFunc;}
 
     void setNextLayer(Layer* next)    { nextLayer=next; }
     void setPrevLayer(Layer* prev)    { prevLayer=prev; }
@@ -48,7 +49,8 @@ public:
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
     void         initParams();
-    void         updateParams(double alpha);
+    void         updateParams(double alpha, double lambdaOverN);
+    void         calcWeightSqSum();
     
 protected:
     size_t              inputSize;
@@ -58,6 +60,8 @@ protected:
     std::vector<double> bias;
     std::vector<double> weight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
+    
+    double weightSqSum;
     
     std::vector<double> da;
     std::vector<double> dbias;

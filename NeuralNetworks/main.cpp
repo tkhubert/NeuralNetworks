@@ -26,15 +26,15 @@ int main(int argc, const char * argv[])
     MSECostFunc MSECFunc;
     CECostFunc  CECFunc;
     
-    double learningRate = 3.;
-    double lamba        = 0.;
+    double learningRate = .25;
+    double lamba        = 5.;
     int    batchSize    = 10;
-    int    nbEpochs     = 30;
+    int    nbEpochs     = 65;
     Optimizer   Optim(learningRate, lamba, batchSize, nbEpochs);
     
     FCLayer Layer0(0 , iS, AFunc);
-    FCLayer Layer1(iS, 30, AFunc);
-    FCLayer Layer2(30, 10, AFunc);
+    FCLayer Layer1(iS, 100, AFunc);
+    FCLayer Layer2(100, 10, AFunc);
     
     std::vector<Layer*> layers;
     layers.push_back(&Layer0);

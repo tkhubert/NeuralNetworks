@@ -23,8 +23,9 @@ public:
     std::string getName()    const;
     std::string getDetails() const;
     
-    double getCost()    const {return cost;}
-    double getErrRate() const {return errRate;}
+    double getCost()        const {return cost;}
+    double getErrRate()     const {return errRate;}
+    double getWeightSqSum() const {return weightSqSum; }
     
     void train(const DataContainer& data);
     void test (const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels);
@@ -43,20 +44,22 @@ private:
     
     double               cost;
     double               errRate;
+    double               weightSqSum;
     
     std::ofstream        debugFile;
     
     // methods
-    void setInput(const std::vector<double>& input) { layers[0]->setA(input);}
+    void  setInput(const std::vector<double>& input) { layers[0]->setA(input);}
     const std::vector<double>& getOutput() const {return layers[nbLayers-1]->getA();}
     
     bool   isCorrect(int label) const;
-    double calcCost (int label) const         { return CFunc.f (getOutput(), label);}
-    void calcDCost(int label, std::vector<double>& dc)     { return CFunc.df(getOutput(), label, dc); }
-    void   setDCost (const std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    double calcCost (int label) const                    { return CFunc.f (getOutput(), label);}
+    void   calcDCost(int label, std::vector<double>& dc) { return CFunc.df(getOutput(), label, dc); }
+    void   setDCost (const std::vector<double>& dc)      { return layers[nbLayers-1]->setDCost(dc);}
     
     void initParams();
-    void updateParams();
+    void updateParams(size_t totalISize);
+    void calcWeightSqSum();
     void fwdProp(const std::vector<double>& input);
     void bwdProp(const std::vector<double>& dc);
     

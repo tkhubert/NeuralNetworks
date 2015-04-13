@@ -69,10 +69,9 @@ public:
     void df(const std::vector<double>& a, int y, std::vector<double>& dc) const
     {
         for (size_t i=0; i<a.size(); ++i)
-        {
-            int label = i==y;
-            dc[i] = -(label-a[i])/(a[i]*(1-a[i]));
-        }
+            dc[i] = 1/(1-a[i]);
+        
+        dc[y] = -1/a[y];
     }
 };
 
