@@ -93,12 +93,11 @@ bool NeuralNetwork::isCorrect(int label) const
 //
 void NeuralNetwork::train(const DataContainer& data)
 {
-    const std::vector<std::vector<double> >& inputs = data.getTrainData();
-    const std::vector<int>&                  labels = data.getTrainLabels();
+    std::vector<LabelData> ldata = data.getTrainLabelData();
     
     std::cout << "Start training -------------------------------------"<<std::endl;
     
-    size_t totalISize = inputs.size();
+    size_t totalISize = ldata.size();
     size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
     std::vector<double> dc(outputSize);
     
@@ -106,18 +105,20 @@ void NeuralNetwork::train(const DataContainer& data)
     {
         debugFile << t << ", ";
         std::cout << "Epoch: " << t << ", ";
-        std::clock_t startTimeEpoch = std::clock();;
+        std::clock_t startTimeEpoch = std::clock();
+        
+        std::random_shuffle(ldata.begin(), ldata.end());
         
         for (size_t batch=0; batch<nbBatches; ++batch)
         {
             size_t start = batch*Optim.batchSize;
-            size_t end   = std::min(start+Optim.batchSize, inputs.size());
+            size_t end   = std::min(start+Optim.batchSize, ldata.size());
             
             for (size_t i=start; i<end; ++i)
             {
-                fwdProp(inputs[i]);
+                fwdProp(ldata[i].data);
                 
-                calcDCost(labels[i], dc);
+                calcDCost(ldata[i].label, dc);
                 for (size_t j=0; j<outputSize; ++j)
                     dc[j] /=(end-start);
                 
@@ -131,15 +132,15 @@ void NeuralNetwork::train(const DataContainer& data)
         debugFile << "time " << timeEpoch << "s,";
         //std::cout << "time " << timeEpoch << "s,";
         
-        test(inputs, labels);
+        test(data.getTrainLabelData());
         double trainErrRate = errRate;
         double trainCost    = cost;
         
-        test(data.getCrossData(), data.getCrossLabels());
+        test(data.getCrossLabelData());
         double crossErrRate = errRate;
         double crossCost    = cost;
         
-        test(data.getTestData(), data.getTestLabels());
+        test(data.getTestLabelData());
         double testErrRate = errRate;
         double testCost    = cost;
         
@@ -152,19 +153,19 @@ void NeuralNetwork::train(const DataContainer& data)
     debugFile.close();
 }
 //
-void NeuralNetwork::test(const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels)
+void NeuralNetwork::test(const std::vector<LabelData>& lData)
 {
     cost   =0.;
     errRate=0.;
     
-    for (size_t i=0; i<inputs.size(); ++i)
+    for (size_t i=0; i<lData.size(); ++i)
     {
-        fwdProp(inputs[i]);
-        cost    += calcCost(labels[i]);
-        errRate += isCorrect(labels[i]);
+        fwdProp(lData[i].data);
+        cost    += calcCost(lData[i].label);
+        errRate += isCorrect(lData[i].label);
     }
     
-    cost    += 0.5*Optim.lambda*weightSqSum;
-    cost    /= inputs.size();
-    errRate  = 1.-errRate/inputs.size();
+    //cost    += 0.5*Optim.lambda*weightSqSum;
+    cost    /= lData.size();
+    errRate  = 1.-errRate/lData.size();
 }

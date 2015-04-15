@@ -12,51 +12,55 @@
 #include "includes.h"
 #include "MNistParser.h"
 
+struct LabelData
+{
+    int                 label;
+    std::vector<double> data;
+};
+//
 class DataContainer
 {
 public:
     DataContainer() {}
     
-    size_t getDataSize() const {return trainData[0].size();}
+    size_t getDataSize() const {return trainLabelData[0].data.size();}
     
-    const std::vector<int>& getTrainLabels() const { return trainLabels;}
-    const std::vector<int>& getCrossLabels() const { return crossLabels;}
-    const std::vector<int>& getTestLabels()  const { return testLabels;}
+    const std::vector<LabelData>& getTrainLabelData() const { return trainLabelData;}
+    const std::vector<LabelData>& getCrossLabelData() const { return crossLabelData;}
+    const std::vector<LabelData>& getTestLabelData()  const { return testLabelData;}
     
-    const std::vector<std::vector<double> >& getTrainData() const {return trainData;}
-    const std::vector<std::vector<double> >& getCrossData() const {return crossData;}
-    const std::vector<std::vector<double> >& getTestData()  const {return testData;}
-    
-
-    void constructCrossData(size_t fractionSize)
+    void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<double> > trainData, const std::vector<std::vector<double> > testData, size_t fractionSize)
     {
         size_t trainSize = trainLabels.size();
         size_t crossSize = trainSize/fractionSize;
+        size_t testSize  = testLabels.size();
         
-        crossLabels.reserve(crossSize);
-        crossData.reserve(crossSize);
+        trainLabelData.resize(trainSize);
+        crossLabelData.resize(crossSize);
+        testLabelData.resize(testSize);
         
-        for (size_t i=0; i<trainSize; i+=fractionSize)
+        for (size_t i=0; i<trainSize; ++i)
         {
-            crossLabels.push_back(trainLabels[i]);
-            crossData.push_back  (trainData[i]);
+            trainLabelData[i].label = trainLabels[i];
+            trainLabelData[i].data  = trainData[i];
         }
-        for (size_t i=0; i<crossSize; i++)
+        std::random_shuffle(trainLabelData.begin(), trainLabelData.end());
+        
+        for (size_t i=0; i<crossSize; ++i)
+            crossLabelData[i] = trainLabelData[trainSize-crossSize+i];
+        trainLabelData.erase(trainLabelData.begin()+trainSize-crossSize, trainLabelData.end());
+        
+        for (size_t i=0; i<testSize; ++i)
         {
-            size_t idx = (crossSize-1-i)*fractionSize;
-            trainLabels.erase(trainLabels.begin()+idx);
-            trainData.erase  (trainData.begin()+idx);
+            testLabelData[i].label = testLabels[i];
+            testLabelData[i].data  = testData[i];
         }
     }
 
 protected:
-    std::vector<int> trainLabels;
-    std::vector<int> crossLabels;
-    std::vector<int> testLabels;
-    
-    std::vector<std::vector<double> > trainData;
-    std::vector<std::vector<double> > crossData;
-    std::vector<std::vector<double> > testData;
+    std::vector<LabelData> trainLabelData;
+    std::vector<LabelData> crossLabelData;
+    std::vector<LabelData> testLabelData;
 };
 //
 class MNistDataContainer : public DataContainer
@@ -64,12 +68,14 @@ class MNistDataContainer : public DataContainer
 public:
     MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=6)
     {
+        std::vector<int>                  trainLabels, testLabels;
+        std::vector<std::vector<double> > trainData, testData;
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
         parseImages(trainDataFN , trainData);
         parseImages(testDataFN  , testData);
         
-        constructCrossData(crossFraction);
+        constructLabelData(trainLabels, testLabels, trainData, testData, crossFraction);
     }
 };
 

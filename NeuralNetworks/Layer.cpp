@@ -51,7 +51,7 @@ void Layer::initParams()
     for (size_t i=0; i<bias.size(); ++i)
         bias[i]   = norm(gen);
     for (size_t i=0; i<weight.size(); ++i)
-        weight[i] = norm(gen);
+        weight[i] = norm(gen)/sqrt(inputSize);
     
     calcWeightSqSum();
 }

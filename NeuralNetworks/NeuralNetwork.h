@@ -28,7 +28,7 @@ public:
     double getWeightSqSum() const {return weightSqSum; }
     
     void train(const DataContainer& data);
-    void test (const std::vector<std::vector<double> >& inputs, const std::vector<int>& labels);
+    void test (const std::vector<LabelData>& lData);
     
     const std::vector<double>& predict(const std::vector<double> & inputs);
     
