@@ -33,17 +33,14 @@ NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, st
 //
 std::string NeuralNetwork::getName() const
 {
-    std:: string name = "";
     std::stringstream ss;
     for (size_t i=0; i<nbLayers; ++i)
         ss << layers[i]->getOutputSize() << "_";
 
-    ss << CFunc.getName() << "_" << layers[nbLayers-1]->getAFunc().getName() << "_";
-    ss << Optim.alpha << "_" << Optim.lambda << "_" << Optim.batchSize << "_" << Optim.nbEpochs;
+    ss << CFunc.getName() << "_" << layers[nbLayers-1]->getAFunc().getName() << "_" << Optim.getName();
     ss << ".csv";
-    name = ss.str();
-    
-    return name;
+
+    return ss.str();
 }
 //
 void NeuralNetwork::calcWeightSqSum()
@@ -59,10 +56,10 @@ void NeuralNetwork::initParams()
         layers[i]->initParams();
 }
 //
-void NeuralNetwork::updateParams(size_t totalISize)
+void NeuralNetwork::updateParams()
 {
     for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->updateParams(Optim.alpha, Optim.lambda/totalISize);
+        layers[i]->updateParams(Optim.alpha, Optim.lambda);
 }
 //
 void NeuralNetwork::fwdProp(const std::vector<double>& input)
@@ -117,15 +114,11 @@ void NeuralNetwork::train(const DataContainer& data)
             for (size_t i=start; i<end; ++i)
             {
                 fwdProp(ldata[i].data);
-                
                 calcDCost(ldata[i].label, dc);
-                for (size_t j=0; j<outputSize; ++j)
-                    dc[j] /=(end-start);
-                
                 bwdProp(dc);
             }
             
-            updateParams(totalISize);
+            updateParams();
         }
         
         double timeEpoch = ( std::clock() - startTimeEpoch ) / (double) CLOCKS_PER_SEC;

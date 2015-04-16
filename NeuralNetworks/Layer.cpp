@@ -55,7 +55,7 @@ void Layer::initParams()
     
     calcWeightSqSum();
 }
-void Layer::updateParams(double alpha, double lambdaOverN)
+void Layer::updateParams(double alpha, double lambda)
 {
     for (size_t i=0; i<bias.size(); ++i)
     {
@@ -64,7 +64,7 @@ void Layer::updateParams(double alpha, double lambdaOverN)
     }
     for (size_t i=0; i<weight.size(); ++i)
     {
-        weight[i] -= alpha*(dweight[i]+lambdaOverN*weight[i]);
+        weight[i] -= alpha*(dweight[i]+lambda*weight[i]);
         dweight[i] = 0.;
     }
     

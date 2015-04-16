@@ -58,7 +58,7 @@ private:
     void   setDCost (const std::vector<double>& dc)      { return layers[nbLayers-1]->setDCost(dc);}
     
     void initParams();
-    void updateParams(size_t totalISize);
+    void updateParams();
     void calcWeightSqSum();
     void fwdProp(const std::vector<double>& input);
     void bwdProp(const std::vector<double>& dc);

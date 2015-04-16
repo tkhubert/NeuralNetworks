@@ -9,12 +9,20 @@
 #ifndef NeuralNetworks_Optimizer_h
 #define NeuralNetworks_Optimizer_h
 
+#include "includes.h"
 struct Optimizer
 {
-    Optimizer(double _alpha, double _lambda, size_t _batchSize, size_t _nbEpochs) : alpha(_alpha), lambda(_lambda), batchSize(_batchSize), nbEpochs(_nbEpochs) {};
+    Optimizer(double _alpha, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) : alpha(_alpha/_batchSize), lambda(_lambda*_batchSize/trainSetSize), batchSize(_batchSize), nbEpochs(_nbEpochs), alphaBase(_alpha), lambdaBase(_lambda) {};
     
-    double alpha;
-    double lambda;
+    std::string getName() const
+    {
+        std::stringstream ss;
+        ss << alphaBase << "_" << lambdaBase << "_" << batchSize << "_" << nbEpochs;
+        return ss.str();
+    }
+    
+    double alpha , alphaBase;
+    double lambda, lambdaBase;
     size_t batchSize;
     size_t nbEpochs;
 };
