@@ -28,7 +28,7 @@ int main(int argc, const char * argv[])
     CECostFunc  CECFunc;
     
     double learningRate = 0.25;
-    double lambda       = 5;
+    double lambda       = 3;
     int    batchSize    = 10;
     int    nbEpochs     = 65;
     

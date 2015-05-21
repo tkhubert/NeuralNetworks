@@ -135,16 +135,16 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.show()
     
 def main():
-    size = [784, 100, 10]
-    CFunc = 'MSECFunc'
+    size = [784, 100, 100, 10]
+    CFunc = 'CECFunc'
     AFunc = 'SigAFunc'
-    learningRate = 0.05
-    lbda         = 5
+    learningRate = 0.25
+    lbda         = 3
     batchSize    = 10
     nbEpoch      = 65
     
-    lRV   = [0.05, 0.1, 0.2, 0.5, 1]
-    lbdaV = [0.2, 0.5, 1   , 3  , 5]
+    lRV   = [0.05, 0.1, 0.25, 0.5, 1]
+    lbdaV = [0.25, 0.5, 1   , 3  , 5]
     plotFile      (size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
     plotVsLR      (size, CFunc, AFunc, lRV         , lbda, batchSize, nbEpoch)
     plotVsLambda  (size, CFunc, AFunc, learningRate, lbdaV, batchSize, nbEpoch)
