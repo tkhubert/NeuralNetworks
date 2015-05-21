@@ -59,7 +59,7 @@ def plotVsLR(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch):
     plot('epoch', learningRate, epoch, dataErr, dataCost, name)
 
 def plotGridVslR(size, CFunc, AFunc, learningRateV, lbdaV, batchSize, nbEpoch):
-    name = ''
+    name = 'minVsLR'
     minErr  = []
     minCost = []
     for lbda in lbdaV:
@@ -80,7 +80,7 @@ def plotGridVslR(size, CFunc, AFunc, learningRateV, lbdaV, batchSize, nbEpoch):
     print
     
 def plotGridVslbda(size, CFunc, AFunc, learningRateV, lbdaV, batchSize, nbEpoch):
-    name = ''
+    name = 'minVsLbda'
     minErr  = []
     minCost = []
     for lR in learningRateV:
@@ -135,21 +135,21 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.show()
     
 def main():
-    size = [784, 50, 30, 10]
-    CFunc = 'CECFunc'
+    size = [784, 100, 10]
+    CFunc = 'MSECFunc'
     AFunc = 'SigAFunc'
-    learningRate = 0.2
-    lbda         = 3
+    learningRate = 0.05
+    lbda         = 5
     batchSize    = 10
     nbEpoch      = 65
     
-    lRV = [0.1, 0.2]
-    lbdaV = [3, 5]
-    plotFile(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
-    plotVsLR(size, CFunc, AFunc, lRV, lbda, batchSize, nbEpoch)
-    plotVsLambda(size, CFunc, AFunc, learningRate, lbdaV, batchSize, nbEpoch)
-    plotGridVslR(size, CFunc, AFunc, lRV, lbdaV, batchSize, nbEpoch)
-    plotGridVslbda(size, CFunc, AFunc, lRV, lbdaV, batchSize, nbEpoch)
+    lRV   = [0.05, 0.1, 0.2, 0.5, 1]
+    lbdaV = [0.2, 0.5, 1   , 3  , 5]
+    plotFile      (size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
+    plotVsLR      (size, CFunc, AFunc, lRV         , lbda, batchSize, nbEpoch)
+    plotVsLambda  (size, CFunc, AFunc, learningRate, lbdaV, batchSize, nbEpoch)
+    plotGridVslR  (size, CFunc, AFunc, lRV         , lbdaV, batchSize, nbEpoch)
+    plotGridVslbda(size, CFunc, AFunc, lRV         , lbdaV, batchSize, nbEpoch)
     
 if __name__ == '__main__':
     main()
