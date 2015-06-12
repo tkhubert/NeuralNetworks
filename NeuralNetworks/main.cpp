@@ -6,6 +6,11 @@
 //  Copyright (c) 2015 Thomas Hubert. All rights reserved.
 //
 
+// TKH TO DO
+// 1. center/normalize data
+// 2. use other loss function -> SVM and Softmax
+// 3. use better than gradient descent method
+// 4. internalize the hyperparameter search : can we back prop?
 
 #include "includes.h"
 #include "Data.h"
@@ -33,10 +38,10 @@ int main(int argc, const char * argv[])
     int    nbEpochs     = 65;
     
     std::vector<Layer*> layers;
-    FCLayer Layer0(0 , iS, SigFunc); layers.push_back(&Layer0);
-    FCLayer Layer1(iS, 100, SigFunc); layers.push_back(&Layer1);
+    FCLayer Layer0(0  , iS , SigFunc); layers.push_back(&Layer0);
+    FCLayer Layer1(iS , 100, SigFunc); layers.push_back(&Layer1);
     FCLayer Layer2(100, 100, SigFunc); layers.push_back(&Layer2);
-    FCLayer Layer3(100, 10, SigFunc); layers.push_back(&Layer3);
+    FCLayer Layer3(100, 10 , SigFunc); layers.push_back(&Layer3);
     
     Optimizer     Optim(learningRate, lambda, batchSize, nbEpochs, data.getTrainLabelData().size());
     NeuralNetwork FCNN(CECFunc, Optim, layers);
