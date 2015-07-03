@@ -74,5 +74,71 @@ public:
         dc[y] = -1/a[y];
     }
 };
+//
+class SMCostFunc : public CostFunc
+{
+public:
+    SMCostFunc() {}
+    
+    std::string getName() const {return "SMCFunc";}
+    
+    double f(const std::vector<double>& a, int y) const
+    {
+        double maxA = *(std::max_element(a.begin(), a.end()));
+        std::vector<double> expA(a.size());
+        
+        double sum = 0.;
+        for (size_t i=0; i<a.size(); ++i)
+        {
+            expA[i] = exp(a[i]-maxA);
+            sum += expA[i];
+        }
+        
+        return -log(expA[y]/sum);
+    }
+    //
+    void df(const std::vector<double>&a, int y, std::vector<double>& dc) const
+    {
+        std::vector<double> expA(a.size());
+        
+        double sum = 0.;
+        for (size_t i=0; i<a.size(); ++i)
+        {
+            expA[i] = exp(a[i]);
+            sum += expA[i];
+        }
+        
+        for (size_t i=0; i<a.size(); ++i)
+            dc[i] = expA[i]/sum;
+        
+        dc[y] -=1;
+    }
+};
+//
+class SVMCostFunc : public CostFunc
+{
+public:
+    SVMCostFunc() {}
+    
+    std::string getName() const {return "SVMCFunc";}
+    
+    double f(const std::vector<double>& a, int y) const
+    {
+        double val = -1.;
+        for (size_t i=0; i<a.size(); ++i)
+            val += std::max(0.,a[i]-a[y]+1);
+        return val;
+    }
+    //
+    void df(const std::vector<double>&a, int y, std::vector<double>& dc) const
+    {
+        for (size_t i=0; i<a.size(); ++i)
+            dc[i] = a[i]-a[y]>-1 ? 1. : 0.;
+
+        for (size_t i=0; i<a.size(); ++i)
+            dc[y] += a[i]-a[y]>-1 ? -1. : 0;
+    }
+};
+//
 
 #endif

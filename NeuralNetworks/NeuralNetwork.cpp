@@ -92,7 +92,7 @@ void NeuralNetwork::train(const DataContainer& data)
 {
     std::vector<LabelData> ldata = data.getTrainLabelData();
     
-    std::cout << "Start training -------------------------------------"<<std::endl;
+    std::cout << "Start training " << getName() << "-------------"<<std::endl;
     
     size_t totalISize = ldata.size();
     size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
@@ -123,7 +123,7 @@ void NeuralNetwork::train(const DataContainer& data)
         
         double timeEpoch = ( std::clock() - startTimeEpoch ) / (double) CLOCKS_PER_SEC;
         debugFile << "time " << timeEpoch << "s,";
-        //std::cout << "time " << timeEpoch << "s,";
+        std::cout << "time " << timeEpoch << "s,";
         
         test(data.getTrainLabelData());
         double trainErrRate = errRate;

@@ -28,50 +28,43 @@ int main(int argc, const char * argv[])
     size_t iS = data.getDataSize();
     
     SigmoidFunc SigFunc;
-    RLFunc      RFunc(1, 0.1);
+    RLFunc      RFunc(1, 0.001);
     MSECostFunc MSECFunc;
     CECostFunc  CECFunc;
-    
-    double learningRate = 0.25;
-    double lambda       = 3;
+    SMCostFunc  SMCFunc;
+    SVMCostFunc SVMCFunc;
+
     int    batchSize    = 10;
-    int    nbEpochs     = 65;
+    int    nbEpochs     = 100;
     
-    std::vector<Layer*> layers;
-    FCLayer Layer0(0  , iS , SigFunc); layers.push_back(&Layer0);
-    FCLayer Layer1(iS , 100, SigFunc); layers.push_back(&Layer1);
-    FCLayer Layer2(100, 100, SigFunc); layers.push_back(&Layer2);
-    FCLayer Layer3(100, 10 , SigFunc); layers.push_back(&Layer3);
+    std::vector<double> lambdaV = {2};//{0.1, 0.5, 1, 2, 3, 4, 5};
+    std::vector<double> lRV     = {0.1};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    std::vector<CostFunc*> CFV;
     
-    Optimizer     Optim(learningRate, lambda, batchSize, nbEpochs, data.getTrainLabelData().size());
-    NeuralNetwork FCNN(CECFunc, Optim, layers);
-    FCNN.train(data);
+    //CFV.push_back(&MSECFunc);
+    //CFV.push_back(&CECFunc);
+    //CFV.push_back(&SVMCFunc);
+    CFV.push_back(&SMCFunc);
     
-    
-//    std::vector<double> lambdaV = {0.25, 0.5, 1   , 3  , 5};
-//    std::vector<double> lRV     = {0.05, 0.1, 0.25, 0.5, 1};
-//    std::vector<CostFunc*> CFV;
-//    CFV.push_back(&MSECFunc);
-//    CFV.push_back(&CECFunc);
-//    
-//    for (size_t k=0; k<CFV.size(); ++k)
-//    {
-//        for (size_t i=0; i<lambdaV.size(); ++i)
-//        {
-//            for (size_t j=0; j<lRV.size(); ++j)
-//            {
-//                std::vector<Layer*> layers;
-//                FCLayer Layer0(0 , iS, RFunc) ; layers.push_back(&Layer0);
-//                FCLayer Layer1(iS , 100, RFunc); layers.push_back(&Layer1);
-//                FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
-//                FCLayer Layer3(100, 10 , RFunc); layers.push_back(&Layer3);
-//                
-//                Optimizer     Optim(lRV[j], lambdaV[i], batchSize, nbEpochs, data.getTrainLabelData().size());
-//                NeuralNetwork FCNN(*CFV[k], Optim, layers);
-//                FCNN.train(data);
-//            }
-//        }
-//    }
-//    return 0;
+    for (size_t k=0; k<CFV.size(); ++k)
+    {
+        for (size_t i=0; i<lambdaV.size(); ++i)
+        {
+            for (size_t j=0; j<lRV.size(); ++j)
+            {
+                std::vector<Layer*> layers;
+                FCLayer Layer0(0 , iS, RFunc)  ; layers.push_back(&Layer0);
+                FCLayer Layer1(iS , 100, RFunc); layers.push_back(&Layer1);
+                FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
+                //FCLayer Layer3(100, 100, RFunc); layers.push_back(&Layer3);
+                FCLayer Layer4(100, 10 , RFunc); layers.push_back(&Layer4);
+                
+                Optimizer     Optim(lRV[j], lambdaV[i], batchSize, nbEpochs, data.getTrainLabelData().size());
+                NeuralNetwork FCNN(*CFV[k], Optim, layers);
+                FCNN.train(data);
+            }
+        }
+    }
+    return 0;
 }
 
