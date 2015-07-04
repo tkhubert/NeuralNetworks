@@ -26,7 +26,6 @@ public:
     const std::vector<double>& getA()           const {return a; }
     const std::vector<double>& getBias()        const {return bias; }
     const std::vector<double>& getWeight()      const {return weight; }
-    double                     getWeightSqSum() const {return weightSqSum; }
     
     const std::vector<double>& getdA()          const {return da; }
     std::vector<double>&       getDelta()             {return delta; }
@@ -50,7 +49,6 @@ public:
     virtual void calcGrad() = 0;
     void         initParams();
     void         updateParams(double alpha, double lambdaOverN);
-    void         calcWeightSqSum();
     
 protected:
     size_t              inputSize;

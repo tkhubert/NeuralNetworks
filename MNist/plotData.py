@@ -1,5 +1,6 @@
 __author__ = 'tkhubert'
 
+import numpy
 import csv
 import matplotlib.pyplot as plt
 
@@ -117,7 +118,8 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.subplot(2,1,1)
     plt.title('Error: '+title)
     for d in data1:
-        plt.plot(x, d)
+    	d1 = [numpy.log10(max(0.1,float(err)*100)) for err in d]
+        plt.plot(x, d1)
     plt.legend(labels)
     plt.ylabel('Error')
     plt.xlabel(xlabel)
@@ -125,7 +127,8 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.subplot(2,1,2)
     plt.title('Cost: '+title)
     for d in data2:
-        plt.plot(x, d)
+        d2 = [numpy.log10(max(0.0001,float(err))) for err in d]
+        plt.plot(x, d2)
     plt.legend(labels)
     plt.ylabel('Cost')
     plt.xlabel(xlabel)
@@ -136,15 +139,15 @@ def plot(xlabel, labels, x, data1, data2, title):
     
 def main():
     size = [784, 100, 100, 10]
-    CFunc = 'MSECFunc'
+    CFunc = 'SMCFunc'
     AFunc = 'RLAFunc'
-    learningRate = 0.1
-    lbda         = 0.1
+    learningRate = 0.05
+    lbda         = 2
     batchSize    = 10
     nbEpoch      = 40
     
     lRV   = [0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15]
-    lbdaV = [0.1, 0.5, 1, 2, 3, 4, 5]
+    lbdaV = [0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10]
     plotFile      (size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
     plotVsLR      (size, CFunc, AFunc, lRV         , lbda, batchSize, nbEpoch)
     plotVsLambda  (size, CFunc, AFunc, learningRate, lbdaV, batchSize, nbEpoch)

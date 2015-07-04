@@ -36,13 +36,6 @@ void Layer::setDCost(const std::vector<double> &dc)
         delta[i] = da[i]*dc[i];
 }
 //
-void Layer::calcWeightSqSum()
-{
-    weightSqSum = 0.;
-    for (size_t i=0; i<weight.size(); ++i)
-        weightSqSum += weight[i]*weight[i];
-}
-//
 void Layer::initParams()
 {
     std::default_random_engine       gen;
@@ -52,8 +45,6 @@ void Layer::initParams()
         bias[i]   = norm(gen);
     for (size_t i=0; i<weight.size(); ++i)
         weight[i] = norm(gen)/sqrt(inputSize);
-    
-    calcWeightSqSum();
 }
 void Layer::updateParams(double alpha, double lambda)
 {
@@ -67,8 +58,6 @@ void Layer::updateParams(double alpha, double lambda)
         weight[i] -= alpha*(dweight[i]+lambda*weight[i]);
         dweight[i] = 0.;
     }
-    
-    calcWeightSqSum();
 }
 //
 void FCLayer::calcGrad()

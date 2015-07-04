@@ -8,7 +8,7 @@
 
 // TKH TO DO
 // 1. center/normalize data
-// 2. use other loss function -> SVM and Softmax
+// 2. use dropout
 // 3. use better than gradient descent method
 // 4. internalize the hyperparameter search : can we back prop?
 
@@ -35,7 +35,7 @@ int main(int argc, const char * argv[])
     SVMCostFunc SVMCFunc;
 
     int    batchSize    = 10;
-    int    nbEpochs     = 100;
+    int    nbEpochs     = 150;
     
     std::vector<double> lambdaV = {2};//{0.1, 0.5, 1, 2, 3, 4, 5};
     std::vector<double> lRV     = {0.1};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};

@@ -25,7 +25,6 @@ public:
     
     double getCost()        const {return cost;}
     double getErrRate()     const {return errRate;}
-    double getWeightSqSum() const {return weightSqSum; }
     
     void train(const DataContainer& data);
     void test (const std::vector<LabelData>& lData);
@@ -44,7 +43,6 @@ private:
     
     double               cost;
     double               errRate;
-    double               weightSqSum;
     
     std::ofstream        debugFile;
     
@@ -59,7 +57,6 @@ private:
     
     void initParams();
     void updateParams();
-    void calcWeightSqSum();
     void fwdProp(const std::vector<double>& input);
     void bwdProp(const std::vector<double>& dc);
     

@@ -43,13 +43,6 @@ std::string NeuralNetwork::getName() const
     return ss.str();
 }
 //
-void NeuralNetwork::calcWeightSqSum()
-{
-    weightSqSum = 0.;
-    for (size_t i=1; i<nbLayers; ++i)
-        weightSqSum += layers[i]->getWeightSqSum();
-}
-//
 void NeuralNetwork::initParams()
 {
     for (size_t i=1; i<nbLayers; ++i)
