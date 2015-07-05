@@ -58,9 +58,7 @@ protected:
     std::vector<double> bias;
     std::vector<double> weight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
-    
-    double weightSqSum;
-    
+
     std::vector<double> da;
     std::vector<double> dbias;
     std::vector<double> dweight;
@@ -70,19 +68,6 @@ protected:
 
     const ActivationFunc& AFunc;
 };
-//
-class FCLayer : public Layer
-{
-public:
-    FCLayer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : Layer(_inputSize, _outputSize, _AFunc) {};
-    std::string getName()    const {return "FCLayer";}
-    std::string getDetails() const {return "";}
-    
-    void fwdProp();
-    void bwdProp();
-    void calcGrad();
-};
-
 
 
 #endif /* defined(__NeuralNetworks__Layer__) */

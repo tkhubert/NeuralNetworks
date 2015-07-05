@@ -13,6 +13,7 @@
 #include "CostFunc.h"
 #include "Optimizer.h"
 #include "Layer.h"
+#include "FCLayer.h"
 #include "Data.h"
 
 class NeuralNetwork

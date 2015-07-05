@@ -12,7 +12,14 @@
 #include "includes.h"
 struct Optimizer
 {
-    Optimizer(double _alpha, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) : alpha(_alpha/_batchSize), lambda(_lambda*_batchSize/trainSetSize), batchSize(_batchSize), nbEpochs(_nbEpochs), alphaBase(_alpha), lambdaBase(_lambda) {};
+    Optimizer(double _alpha, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
+        alpha(_alpha/_batchSize),
+        lambda(_lambda*_batchSize/trainSetSize),
+        batchSize(_batchSize),
+        nbEpochs(_nbEpochs),
+        alphaBase(_alpha),
+        lambdaBase(_lambda)
+    {};
     
     std::string getName() const
     {

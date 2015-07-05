@@ -35,8 +35,8 @@ int main(int argc, const char * argv[])
     SVMCostFunc SVMCFunc;
 
     int    batchSize    = 10;
-    int    nbEpochs     = 150;
-    
+    int    nbEpochs     = 40;
+
     std::vector<double> lambdaV = {2};//{0.1, 0.5, 1, 2, 3, 4, 5};
     std::vector<double> lRV     = {0.1};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     std::vector<CostFunc*> CFV;
@@ -53,7 +53,7 @@ int main(int argc, const char * argv[])
             for (size_t j=0; j<lRV.size(); ++j)
             {
                 std::vector<Layer*> layers;
-                FCLayer Layer0(0 , iS, RFunc)  ; layers.push_back(&Layer0);
+                FCLayer Layer0(0  , iS , RFunc) ; layers.push_back(&Layer0);
                 FCLayer Layer1(iS , 100, RFunc); layers.push_back(&Layer1);
                 FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
                 //FCLayer Layer3(100, 100, RFunc); layers.push_back(&Layer3);
