@@ -12,8 +12,9 @@
 #include "includes.h"
 struct Optimizer
 {
-    Optimizer(double _alpha, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
+    Optimizer(double _alpha, double _friction, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
         alpha(_alpha/_batchSize),
+        friction(_friction),
         lambda(_lambda*_batchSize/trainSetSize),
         batchSize(_batchSize),
         nbEpochs(_nbEpochs),
@@ -24,11 +25,12 @@ struct Optimizer
     std::string getName() const
     {
         std::stringstream ss;
-        ss << alphaBase << "_" << lambdaBase << "_" << batchSize << "_" << nbEpochs;
+        ss << alphaBase << "_" << friction << "_" << lambdaBase << "_" << batchSize << "_" << nbEpochs;
         return ss.str();
     }
     
     double alpha , alphaBase;
+    double friction;
     double lambda, lambdaBase;
     size_t batchSize;
     size_t nbEpochs;

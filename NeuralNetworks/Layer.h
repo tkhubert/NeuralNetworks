@@ -48,7 +48,7 @@ public:
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
     void         initParams();
-    void         updateParams(double alpha, double lambdaOverN);
+    void         updateParams(double alpha, double friction, double lambdaOverN);
     
 protected:
     size_t              inputSize;
@@ -62,6 +62,8 @@ protected:
     std::vector<double> da;
     std::vector<double> dbias;
     std::vector<double> dweight;
+    std::vector<double> vbias;
+    std::vector<double> vweight;
     std::vector<double> delta;
     Layer* nextLayer;
     Layer* prevLayer;

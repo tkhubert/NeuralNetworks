@@ -10,7 +10,7 @@ def getFileName(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch):
         filename += str(s) + "_"
     filename   += CFunc+"_"+AFunc+"_"
     filename   += str(learningRate)+"_"+str(lbda)+"_"+str(batchSize)+"_"+str(nbEpoch)
-    inputFile   = filename + '.csv'
+    inputFile = filename+".csv"
     return [filename, inputFile]
 
 def getColumn(filename, column):
@@ -68,49 +68,129 @@ def plotGridVslR(size, CFunc, AFunc, learningRateV, lbdaV, batchSize, nbEpoch):
         mCost = []
         for lR in learningRateV:
             filename, inputFile = getFileName(size, CFunc, AFunc, lR, lbda, batchSize, nbEpoch)
-            mErr.append(min(getDataW(inputFile, 'test', 'err')))
-            mCost.append(min(getDataW(inputFile, 'test', 'cost')))
+            mErr.append(min(getDataW(inputFile, 'cross', 'err')))
+            mCost.append(min(getDataW(inputFile, 'cross', 'cost')))
         minErr.append(mErr)
         minCost.append(mCost)
     
     plot('learningRate', lbdaV, learningRateV, minErr, minCost, name)
     
-    print '     ', learningRateV
-    for (l,mV) in zip(lbdaV, minErr):
-        print 'lambda: ', l, mV
-    print
-    
 def plotGridVslbda(size, CFunc, AFunc, learningRateV, lbdaV, batchSize, nbEpoch):
     name = 'minVsLbda'
-    minErr  = []
-    minCost = []
+    minErrCV  = []
+    minCostCV = []
+    minErrT  = []
+    minCostT = []
     for lR in learningRateV:
-        mErr  = []
-        mCost = []
+        mErrCV  = []
+        mCostCV = []
+        mErrT   = []
+        mCostT  = []
         for lbda in lbdaV:
             filename, inputFile = getFileName(size, CFunc, AFunc, lR, lbda, batchSize, nbEpoch)
-            mErr.append(min(getDataW(inputFile, 'test', 'err')))
-            mCost.append(min(getDataW(inputFile, 'test', 'cost')))
-        minErr.append(mErr)
-        minCost.append(mCost)
+            crossErr  = getDataW(inputFile, 'cross', 'err')
+            crossCost = getDataW(inputFile, 'cross', 'cost')
+            testErr  = getDataW(inputFile, 'test', 'err')
+            testCost = getDataW(inputFile, 'test', 'cost')
+            index = crossCost.index(min(crossCost))
+            mErrCV.append(crossErr[index])
+            mCostCV.append(crossCost[index])
+            mErrT.append(testErr[index])
+            mCostT.append(testCost[index])
+        minErrCV.append(mErrCV)
+        minCostCV.append(mCostCV)
+        minErrT.append(mErrT)
+        minCostT.append(mCostT)   
+         
+    plot('lambda', learningRateV, lbdaV, minErrCV, minCostCV, name)
     
-    plot('lambda', learningRateV, lbdaV, minErr, minCost, name)
+    lbdacost = [min(c) for c in minCostCV]
+    lbdaIdx  = [c.index(min(c)) for c in minCostCV]
+    lRIdx    = lbdacost.index(min(lbdacost))
+    filename, inputFile = getFileName(size, CFunc, AFunc, learningRateV[lRIdx], lbdaV[lbdaIdx[lRIdx]], batchSize, nbEpoch)
+    crossCost  = getDataW(inputFile, 'cross', 'err')
+    index = crossCost.index(min(crossCost))
     
-    print '     ', lbdaV
-    for (lR,mV) in zip(learningRateV, minErr):
-        print 'lR: ', lR, mV
-    print
+    print 'Best Cost at', learningRateV[lRIdx], lbdaV[lbdaIdx[lRIdx]], str(index)+'/'+str(nbEpoch), ':',
+    print minCostCV[lRIdx][lbdaIdx[lRIdx]], minErrCV[lRIdx][lbdaIdx[lRIdx]], "," ,
+    print minCostT[lRIdx][lbdaIdx[lRIdx]] , minErrT[lRIdx][lbdaIdx[lRIdx]]
 
-     
-def plotFile(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch):
-    filename, inputFile = getFileName(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
+    name = 'minVsLbda'
+    minErrCV  = []
+    minCostCV = []
+    minErrT  = []
+    minCostT = []
+    x = [[] for i in xrange(len(lbdaV))]
+    y = [[] for i in xrange(len(lbdaV))]
+    for lR in learningRateV:
+        mErrCV  = []
+        mCostCV = []
+        mErrT   = []
+        mCostT  = []
+        
+        idxLbda = 0
+        for lbda in lbdaV:
+            filename, inputFile = getFileName(size, CFunc, AFunc, lR, lbda, batchSize, nbEpoch)
+            crossErr  = getDataW(inputFile, 'cross', 'err')
+            crossCost = getDataW(inputFile, 'cross', 'cost')
+            testErr   = getDataW(inputFile, 'test', 'err')
+            testCost  = getDataW(inputFile, 'test', 'cost')
+            
+            for cC, tC, cE, tE in zip(crossCost, testCost, crossErr, testErr):
+            	x[idxLbda].append(cC)
+            	x[idxLbda].append(tC)
+            	y[idxLbda].append(cE)
+            	y[idxLbda].append(tE)
+            index = crossErr.index(min(crossErr))
+            mErrCV.append(crossErr[index])
+            mCostCV.append(crossCost[index])
+            mErrT.append(testErr[index])
+            mCostT.append(testCost[index])
+            idxLbda+=1
+            
+        minErrCV.append(mErrCV)
+        minCostCV.append(mCostCV)
+        minErrT.append(mErrT)
+        minCostT.append(mCostT)   
+         
+    plot('lambda', learningRateV, lbdaV, minErrCV, minCostCV, name)
     
+    lbdacost = [min(c) for c in minErrCV]
+    lbdaIdx  = [c.index(min(c)) for c in minErrCV]
+    lRIdx    = lbdacost.index(min(lbdacost))
+    filename, inputFile = getFileName(size, CFunc, AFunc, learningRateV[lRIdx], lbdaV[lbdaIdx[lRIdx]], batchSize, nbEpoch)
+    crossErr  = getDataW(inputFile, 'cross', 'err')
+    index = crossErr.index(min(crossErr))
+    
+    print 'Best Err at', learningRateV[lRIdx], lbdaV[lbdaIdx[lRIdx]], str(index)+'/'+str(nbEpoch), ':',
+    print minCostCV[lRIdx][lbdaIdx[lRIdx]], minErrCV[lRIdx][lbdaIdx[lRIdx]], "," ,
+    print minCostT[lRIdx][lbdaIdx[lRIdx]] , minErrT[lRIdx][lbdaIdx[lRIdx]]
+    print 
+    
+    for i in range(len(lbdaV)):
+    	plt.plot(x[i],y[i], linestyle='None', marker='o')
+    plt.legend(lbdaV)
+    plt.ylabel('Error')
+    plt.xlabel('Cost')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.show()
+    
+    return learningRateV[lRIdx], lbdaV[lbdaIdx[lRIdx]]
+    
+def plotFilename(filename):
+    inputFile = filename+'.csv'
     labels = ['train', 'cross', 'test']
     epoch  = getColumn(inputFile, 0)
     err  = getData(inputFile, 'err')
     cost = getData(inputFile, 'cost')
 
     plot('epoch', labels, epoch, err, cost, filename)
+    
+def plotFile(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch):
+    filename, dummy = getFileName(size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
+    
+    plotFilename(filename)
 
 def plot(xlabel, labels, x, data1, data2, title):
     
@@ -118,20 +198,22 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.subplot(2,1,1)
     plt.title('Error: '+title)
     for d in data1:
-    	d1 = [numpy.log10(max(0.1,float(err)*100)) for err in d]
+    	d1 = [max(0.001,float(err)) for err in d]
         plt.plot(x, d1)
     plt.legend(labels)
     plt.ylabel('Error')
     plt.xlabel(xlabel)
+    plt.yscale('log')
     
     plt.subplot(2,1,2)
     plt.title('Cost: '+title)
     for d in data2:
-        d2 = [numpy.log10(max(0.0001,float(err))) for err in d]
+        d2 = [max(0.0001,float(err)) for err in d]
         plt.plot(x, d2)
     plt.legend(labels)
     plt.ylabel('Cost')
     plt.xlabel(xlabel)
+    plt.yscale('log')
     
     plt.savefig(title+'.pdf')
     
@@ -141,18 +223,16 @@ def main():
     size = [784, 100, 100, 10]
     CFunc = 'SMCFunc'
     AFunc = 'RLAFunc'
-    learningRate = 0.05
-    lbda         = 2
     batchSize    = 10
     nbEpoch      = 40
     
     lRV   = [0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15]
     lbdaV = [0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10]
+
+    learningRate, lbda = plotGridVslbda(size, CFunc, AFunc, lRV, lbdaV, batchSize, nbEpoch)
     plotFile      (size, CFunc, AFunc, learningRate, lbda, batchSize, nbEpoch)
     plotVsLR      (size, CFunc, AFunc, lRV         , lbda, batchSize, nbEpoch)
     plotVsLambda  (size, CFunc, AFunc, learningRate, lbdaV, batchSize, nbEpoch)
-    plotGridVslR  (size, CFunc, AFunc, lRV         , lbdaV, batchSize, nbEpoch)
-    plotGridVslbda(size, CFunc, AFunc, lRV         , lbdaV, batchSize, nbEpoch)
     
 if __name__ == '__main__':
     main()

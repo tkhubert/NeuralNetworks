@@ -17,6 +17,8 @@ Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc
     da.resize     (outputSize);
     dbias.resize  (outputSize);
     dweight.resize(inputSize*outputSize);
+    vbias.resize  (outputSize);
+    vweight.resize(inputSize*outputSize);
     delta.resize  (outputSize);
     
     prevLayer = nullptr;
@@ -46,16 +48,19 @@ void Layer::initParams()
     for (size_t i=0; i<weight.size(); ++i)
         weight[i] = norm(gen)/sqrt(inputSize);
 }
-void Layer::updateParams(double alpha, double lambda)
+//
+void Layer::updateParams(double alpha, double friction, double lambda)
 {
     for (size_t i=0; i<bias.size(); ++i)
     {
-        bias[i]  -= alpha*dbias[i];
+        vbias[i]  = friction*vbias[i] - alpha*dbias[i];
+        bias[i]  += vbias[i];
         dbias[i]  = 0.;
     }
     for (size_t i=0; i<weight.size(); ++i)
     {
-        weight[i] -= alpha*(dweight[i]+lambda*weight[i]);
-        dweight[i] = 0.;
+        vweight[i]  = friction*vweight[i] - alpha*(dweight[i]+lambda*weight[i]);
+        weight[i]  += vweight[i];
+        dweight[i]  = 0.;
     }
 }

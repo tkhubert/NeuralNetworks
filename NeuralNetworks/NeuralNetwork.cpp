@@ -52,7 +52,7 @@ void NeuralNetwork::initParams()
 void NeuralNetwork::updateParams()
 {
     for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->updateParams(Optim.alpha, Optim.lambda);
+        layers[i]->updateParams(Optim.alpha, Optim.friction, Optim.lambda);
 }
 //
 void NeuralNetwork::fwdProp(const std::vector<double>& input)
@@ -151,7 +151,6 @@ void NeuralNetwork::test(const std::vector<LabelData>& lData)
         errRate += isCorrect(lData[i].label);
     }
     
-    //cost    += 0.5*Optim.lambda*weightSqSum;
     cost    /= lData.size();
     errRate  = 1.-errRate/lData.size();
 }

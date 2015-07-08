@@ -9,29 +9,16 @@
 #include "FCLayer.h"
 
 //
-void FCLayer::calcGrad()
-{
-    const std::vector<double>& prevA = prevLayer->getA();
-    
-    for (size_t o=0; o<outputSize; ++o)
-    {
-        dbias[o] += delta[o];
-        for (size_t i=0; i<inputSize; ++i)
-            dweight[o*inputSize+i] += delta[o] * prevA[i];
-    }
-}
-//
 void FCLayer::fwdProp()
 {
     const std::vector<double>& prevA = prevLayer->getA();
     
     for (size_t o=0; o<outputSize; ++o)
     {
-        double val=0.;
+        double val=bias[o];
         for (size_t i=0; i<inputSize; ++i)
             val+= weight[o*inputSize+i]*prevA[i];
         
-        val  += bias[o];
         val   = AFunc.f(val);
         
         a[o]  = val;
@@ -56,4 +43,15 @@ void FCLayer::bwdProp()
     }
 }
 //
-
+void FCLayer::calcGrad()
+{
+    const std::vector<double>& prevA = prevLayer->getA();
+    
+    for (size_t o=0; o<outputSize; ++o)
+    {
+        dbias[o] += delta[o];
+        for (size_t i=0; i<inputSize; ++i)
+            dweight[o*inputSize+i] += delta[o] * prevA[i];
+    }
+}
+//
