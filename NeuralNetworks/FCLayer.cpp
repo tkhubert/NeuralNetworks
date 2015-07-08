@@ -15,18 +15,18 @@ void FCLayer::fwdProp()
     // dA_(l+1) = dAFunc(A_(l+1))
     const std::vector<double>& prevA = prevLayer->getA();
     
-    for (size_t b=0; b<nbData; ++b)
+    for (size_t d=0; d<nbData; ++d)
     {
         for (size_t o=0; o<outputSize; ++o)
         {
             double val=bias[o];
             for (size_t i=0; i<inputSize; ++i)
-                val+= weight[o*inputSize+i]*prevA[i*nbData+b];
+                val+= weight[o*inputSize+i]*prevA[d*inputSize+i];
             
             val   = AFunc.f(val);
             
-            a[o*nbData+b]  = val;
-            da[o*nbData+b] = AFunc.df(val);
+            a[d*outputSize+o]  = val;
+            da[d*outputSize+o] = AFunc.df(val);
         }
     }
 }
@@ -39,15 +39,15 @@ void FCLayer::bwdProp()
     const std::vector<double>& prevdA = prevLayer->getdA();
     std::vector<double>& prevDelta    = prevLayer->getDelta();
     
-    for (size_t b=0; b<nbData; ++b)
+    for (size_t d=0; d<nbData; ++d)
     {
         for (size_t i=0; i<inputSize; ++i)
         {
             double val=0.;
             for (size_t o=0; o<outputSize; ++o)
-                val += delta[o*nbData+b]*weight[o*inputSize+i];
+                val += delta[d*outputSize+o]*weight[o*inputSize+i];
             
-            prevDelta[i*nbData+b] = prevdA[i*nbData+b]*val;
+            prevDelta[d*inputSize+i] = prevdA[d*inputSize+i]*val;
         }
     }
 }
@@ -56,13 +56,13 @@ void FCLayer::calcGrad()
 {
     const std::vector<double>& prevA = prevLayer->getA();
     
-    for (size_t b=0; b<nbData; ++b)
+    for (size_t d=0; d<nbData; ++d)
     {
         for (size_t o=0; o<outputSize; ++o)
         {
-            dbias[o] += delta[o*nbData+b];
+            dbias[o] += delta[d*outputSize+o];
             for (size_t i=0; i<inputSize; ++i)
-                dweight[o*inputSize+i] += delta[o*nbData+b] * prevA[i*nbData+b];
+                dweight[o*inputSize+i] += delta[d*outputSize+o] * prevA[d*inputSize+i];
         }
     }
 }
