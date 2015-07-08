@@ -138,8 +138,8 @@ size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator start, st
             double val = prediction[i*nbData+b];
             if (val>runningMax)
             {
-                val    = runningMax;
-                maxIdx = i;
+                runningMax = val;
+                maxIdx     = i;
             }
         }
         nbCorrect += (maxIdx==(start+b)->label);

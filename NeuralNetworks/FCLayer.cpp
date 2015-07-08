@@ -60,7 +60,7 @@ void FCLayer::calcGrad()
     {
         for (size_t o=0; o<outputSize; ++o)
         {
-            dbias[o] += delta[o];
+            dbias[o] += delta[o*nbData+b];
             for (size_t i=0; i<inputSize; ++i)
                 dweight[o*inputSize+i] += delta[o*nbData+b] * prevA[i*nbData+b];
         }
