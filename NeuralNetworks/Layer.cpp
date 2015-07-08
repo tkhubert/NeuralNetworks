@@ -8,33 +8,41 @@
 
 #include "Layer.h"
 
-Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : inputSize(_inputSize), outputSize(_outputSize), AFunc(_AFunc)
+Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) :
+    inputSize(_inputSize),
+    outputSize(_outputSize),
+    AFunc(_AFunc)
 {
-    a.resize      (outputSize);
     bias.resize   (outputSize);
-    weight.resize (inputSize*outputSize);
-    
-    da.resize     (outputSize);
     dbias.resize  (outputSize);
-    dweight.resize(inputSize*outputSize);
     vbias.resize  (outputSize);
+    weight.resize (inputSize*outputSize);
+    dweight.resize(inputSize*outputSize);
     vweight.resize(inputSize*outputSize);
-    delta.resize  (outputSize);
     
     prevLayer = nullptr;
     nextLayer = nullptr;
     
     initParams();
 }
+//
 Layer::~Layer()
 {
     prevLayer = nullptr;
     nextLayer = nullptr;
 }
 //
+void Layer::resize(size_t _nbData)
+{
+    nbData = _nbData;
+    a.resize      (outputSize*nbData);
+    da.resize     (outputSize*nbData);
+    delta.resize  (outputSize*nbData);
+}
+//
 void Layer::setDCost(const std::vector<double> &dc)
 {
-    for (size_t i=0; i<outputSize; ++i)
+    for (size_t i=0; i<outputSize*nbData; ++i)
         delta[i] = da[i]*dc[i];
 }
 //

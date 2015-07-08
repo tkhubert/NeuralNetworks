@@ -36,12 +36,13 @@ public:
     const Layer*               getPrevLayer()   const {return prevLayer;}
     const ActivationFunc&      getAFunc()       const {return AFunc;}
 
-    void setNextLayer(Layer* next)    { nextLayer=next; }
-    void setPrevLayer(Layer* prev)    { prevLayer=prev; }
-    void setA        (const std::vector<double>& _a)      {a      = _a;}
-    void setDelta    (const std::vector<double>& _delta)  {delta  = _delta;}
-    void setWeight   (const std::vector<double>& _weight) {weight = _weight;}
-    void setBias     (const std::vector<double>& _bias)   {bias   = _bias;}
+    void setNbData   (size_t _nbData)                     { resize(_nbData);}
+    void setNextLayer(Layer* next)                        { nextLayer = next; }
+    void setPrevLayer(Layer* prev)                        { prevLayer = prev; }
+    void setA        (const std::vector<double>& _a)      { a         = _a;}
+    void setDelta    (const std::vector<double>& _delta)  { delta     = _delta;}
+    void setWeight   (const std::vector<double>& _weight) { weight    = _weight;}
+    void setBias     (const std::vector<double>& _bias)   { bias      = _bias;}
     
     virtual void setDCost(const std::vector<double>& dc);
     virtual void fwdProp()  = 0;
@@ -53,22 +54,26 @@ public:
 protected:
     size_t              inputSize;
     size_t              outputSize;
+    size_t              nbData;
     
     std::vector<double> a;
+    std::vector<double> da;
+    std::vector<double> delta;
+    
     std::vector<double> bias;
+    std::vector<double> dbias;
+    std::vector<double> vbias;
     std::vector<double> weight;
+    std::vector<double> dweight;
+    std::vector<double> vweight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
 
-    std::vector<double> da;
-    std::vector<double> dbias;
-    std::vector<double> dweight;
-    std::vector<double> vbias;
-    std::vector<double> vweight;
-    std::vector<double> delta;
     Layer* nextLayer;
     Layer* prevLayer;
 
     const ActivationFunc& AFunc;
+    
+    void resize(size_t _nbData);
 };
 
 

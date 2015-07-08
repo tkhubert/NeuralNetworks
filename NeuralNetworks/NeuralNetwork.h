@@ -30,7 +30,7 @@ public:
     void train(const DataContainer& data);
     void test (const std::vector<LabelData>& lData);
     
-    const std::vector<double>& predict(const std::vector<double> & inputs);
+    const std::vector<double>& predict(const LabelData& lD);
     
 private:
     // members
@@ -48,18 +48,21 @@ private:
     std::ofstream        debugFile;
     
     // methods
-    void  setInput(const std::vector<double>& input) { layers[0]->setA(input);}
+    void  setInput(const LabelData& lD);
+    void  setInput(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end);
     const std::vector<double>& getOutput() const {return layers[nbLayers-1]->getA();}
     
-    bool   isCorrect(int label) const;
-    double calcCost (int label) const                    { return CFunc.f (getOutput(), label);}
-    void   calcDCost(int label, std::vector<double>& dc) { return CFunc.df(getOutput(), label, dc); }
-    void   setDCost (const std::vector<double>& dc)      { return layers[nbLayers-1]->setDCost(dc);}
+    size_t isCorrect(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end) const;
+    double calcCost (std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end) const;
+    void   calcDCost(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end, std::vector<double>& dC);
+    void   setDCost (const std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
+    void setNbData(size_t nbData);
     void initParams();
     void updateParams();
-    void fwdProp(const std::vector<double>& input);
-    void bwdProp(const std::vector<double>& dc);
+    void fwdProp(const LabelData& lD);
+    void fwdProp(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end);
+    void bwdProp(const std::vector<double>& dC);
     
     void checkGradient();
 };

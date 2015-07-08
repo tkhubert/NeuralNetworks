@@ -10,6 +10,7 @@
 #define NeuralNetworks_CostFunc_h
 
 #include "includes.h"
+#include "Data.h"
 
 class CostFunc
 {
@@ -18,6 +19,43 @@ public:
     virtual std::string getName() const = 0;
     virtual double      f(const std::vector<double>& a, int y) const = 0;
     virtual void        df(const std::vector<double>& a, int y, std::vector<double>& dc) const = 0;
+    //
+    
+    double f(const std::vector<double>& a, std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end) const
+    {
+        double tmp    = 0;
+        size_t nbData = std::distance(start, end);
+        
+        std::vector<double> aloc(a.size()/nbData);
+        
+        for (size_t b=0; b<nbData; ++b)
+        {
+            for (size_t i=0; i<aloc.size(); ++i)
+                aloc[i] = a[i*nbData+b];
+            tmp += f(aloc, (start+b)->label);
+        }
+        return tmp;
+    }
+    //
+    void df(const std::vector<double>& a, std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end, std::vector<double>& dc) const
+    {
+        size_t nbData = std::distance(start, end);
+        
+        std::vector<double> aloc(a.size()/nbData);
+        std::vector<double> dcloc(aloc.size());
+        
+        for (size_t b=0; b<nbData; ++b)
+        {
+            for (size_t i=0; i<aloc.size(); ++i)
+                aloc[i] = a[i*nbData+b];
+            df(aloc, (start+b)->label, dcloc);
+            
+            for (size_t i=0; i<dcloc.size(); ++i)
+            {
+                dc[i*nbData+b] = dcloc[i];
+            }
+        }
+    }
 };
 //
 class MSECostFunc : public CostFunc

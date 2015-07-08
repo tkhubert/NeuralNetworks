@@ -43,6 +43,12 @@ std::string NeuralNetwork::getName() const
     return ss.str();
 }
 //
+void NeuralNetwork::setNbData(size_t nbData)
+{
+    for (size_t i=0; i<nbLayers; ++i)
+        layers[i]->setNbData(nbData);
+}
+//
 void NeuralNetwork::initParams()
 {
     for (size_t i=1; i<nbLayers; ++i)
@@ -55,41 +61,100 @@ void NeuralNetwork::updateParams()
         layers[i]->updateParams(Optim.alpha, Optim.friction, Optim.lambda);
 }
 //
-void NeuralNetwork::fwdProp(const std::vector<double>& input)
+void NeuralNetwork::setInput(const LabelData& lD)
 {
-    setInput(input);
+    setNbData(1);
+    layers[0]->setA(lD.data);
+}
+//
+void NeuralNetwork::setInput(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end)
+{
+    size_t nbData   = std::distance(start, end);
+    size_t dataSize = start->data.size();
+    std::vector<double> input(nbData*dataSize);
+    
+    for (size_t b=0; b<nbData; ++b)
+    {
+        for (size_t i=0; i<dataSize; ++i)
+        {
+            input[i*nbData+b] = (start+b)->data[i];
+        }
+    }
+    
+    setNbData(nbData);
+    layers[0]->setA(input);
+}
+//
+void NeuralNetwork::fwdProp(const LabelData& lD)
+{
+    setInput(lD);
     for (size_t i=1; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
-void NeuralNetwork::bwdProp(const std::vector<double>& dc)
+void NeuralNetwork::fwdProp(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end)
 {
-    setDCost(dc);
+    setInput(start, end);
+    for (size_t i=1; i<nbLayers; ++i)
+        layers[i]->fwdProp();
+}
+//
+void NeuralNetwork::bwdProp(const std::vector<double>& dC)
+{
+    setDCost(dC);
     for (size_t i=nbLayers-1; i>=1; --i)
         layers[i]->bwdProp();
 }
 //
-const std::vector<double>& NeuralNetwork::predict(const std::vector<double>& input)
+double NeuralNetwork::calcCost(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end) const
 {
-    fwdProp(input);
+    return CFunc.f(getOutput(), start, end);
+}
+//
+void NeuralNetwork::calcDCost(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end, std::vector<double>& dC)
+{
+    return CFunc.df(getOutput(), start, end, dC);
+}
+//
+const std::vector<double>& NeuralNetwork::predict(const LabelData& lD)
+{
+    fwdProp(lD);
     return getOutput();
 }
 //
-bool NeuralNetwork::isCorrect(int label) const
+size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator start, std::vector<LabelData>::const_iterator end) const
 {
     const std::vector<double>& prediction = getOutput();
-    return std::distance(prediction.begin(), std::max_element(prediction.begin(), prediction.end()))==label;
+    size_t nbData = std::distance(start, end);
+    
+    size_t nbCorrect = 0;
+    for (size_t b=0; b<nbData; ++b)
+    {
+        size_t maxIdx = 0;
+        double runningMax = prediction[b];
+        
+        for (size_t i=0; i<outputSize; ++i)
+        {
+            double val = prediction[i*nbData+b];
+            if (val>runningMax)
+            {
+                val    = runningMax;
+                maxIdx = i;
+            }
+        }
+        nbCorrect += (maxIdx==(start+b)->label);
+    }
+    return nbCorrect;
 }
 //
 void NeuralNetwork::train(const DataContainer& data)
 {
-    std::vector<LabelData> ldata = data.getTrainLabelData();
+    std::vector<LabelData> lData = data.getTrainLabelData();
     
     std::cout << "Start training " << getName() << "-------------"<<std::endl;
     
-    size_t totalISize = ldata.size();
+    size_t totalISize = lData.size();
     size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
-    std::vector<double> dc(outputSize);
     
     for (size_t t=0; t<Optim.nbEpochs; ++t)
     {
@@ -97,19 +162,19 @@ void NeuralNetwork::train(const DataContainer& data)
         std::cout << "Epoch: " << t << ", ";
         std::clock_t startTimeEpoch = std::clock();
         
-        std::random_shuffle(ldata.begin(), ldata.end());
+        std::random_shuffle(lData.begin(), lData.end());
         
         for (size_t batch=0; batch<nbBatches; ++batch)
         {
-            size_t start = batch*Optim.batchSize;
-            size_t end   = std::min(start+Optim.batchSize, ldata.size());
+            size_t start  = batch*Optim.batchSize;
+            size_t end    = std::min(start+Optim.batchSize, lData.size());
+            size_t nbData = end-start;
             
-            for (size_t i=start; i<end; ++i)
-            {
-                fwdProp(ldata[i].data);
-                calcDCost(ldata[i].label, dc);
-                bwdProp(dc);
-            }
+            std::vector<double> dC(outputSize*nbData);
+            
+            fwdProp  (lData.begin()+start, lData.begin()+end);
+            calcDCost(lData.begin()+start, lData.begin()+end, dC);
+            bwdProp  (dC);
             
             updateParams();
         }
@@ -144,11 +209,20 @@ void NeuralNetwork::test(const std::vector<LabelData>& lData)
     cost   =0.;
     errRate=0.;
     
-    for (size_t i=0; i<lData.size(); ++i)
+    size_t totalISize = lData.size();
+    size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
+    
+    for (size_t batch=0; batch<nbBatches; ++batch)
     {
-        fwdProp(lData[i].data);
-        cost    += calcCost(lData[i].label);
-        errRate += isCorrect(lData[i].label);
+        size_t start  = batch*Optim.batchSize;
+        size_t end    = std::min(start+Optim.batchSize, lData.size());
+        size_t nbData = end-start;
+        
+        std::vector<double> dC(outputSize*nbData);
+        
+        fwdProp(lData.begin()+start, lData.begin()+end);
+        cost += calcCost(lData.begin()+start, lData.begin()+end);
+        errRate += isCorrect(lData.begin()+start, lData.begin()+end);
     }
     
     cost    /= lData.size();

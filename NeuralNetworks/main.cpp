@@ -35,11 +35,11 @@ int main(int argc, const char * argv[])
     SVMCostFunc SVMCFunc;
 
     int    batchSize    = 10;
-    int    nbEpochs     = 40;
+    int    nbEpochs     = 10;
 
     double friction = 0.9;
-    std::vector<double> lRV     = {0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    std::vector<double> lambdaV = {0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
+    std::vector<double> lRV     = {0.0075};//{0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    std::vector<double> lambdaV = {2};//{0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
     std::vector<CostFunc*> CFV;
     
     //CFV.push_back(&MSECFunc);
@@ -56,7 +56,7 @@ int main(int argc, const char * argv[])
                 std::vector<Layer*> layers;
                 FCLayer Layer0(0  , iS , RFunc) ; layers.push_back(&Layer0);
                 FCLayer Layer1(iS , 100, RFunc); layers.push_back(&Layer1);
-                //FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
+                FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
                 //FCLayer Layer3(100, 100, RFunc); layers.push_back(&Layer3);
                 FCLayer Layer4(100, 10 , RFunc); layers.push_back(&Layer4);
                 
