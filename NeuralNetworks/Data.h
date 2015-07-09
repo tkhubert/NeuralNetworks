@@ -15,7 +15,7 @@
 struct LabelData
 {
     int                 label;
-    std::vector<double> data;
+    std::vector<float> data;
 };
 //
 class DataContainer
@@ -29,7 +29,7 @@ public:
     const std::vector<LabelData>& getCrossLabelData() const { return crossLabelData;}
     const std::vector<LabelData>& getTestLabelData()  const { return testLabelData;}
     
-    void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<double> > trainData, const std::vector<std::vector<double> > testData, size_t fractionSize)
+    void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<float> > trainData, const std::vector<std::vector<float> > testData, size_t fractionSize)
     {
         size_t trainSize = trainLabels.size();
         size_t crossSize = trainSize/fractionSize;
@@ -69,7 +69,7 @@ public:
     MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=6)
     {
         std::vector<int>                  trainLabels, testLabels;
-        std::vector<std::vector<double> > trainData, testData;
+        std::vector<std::vector<float> > trainData, testData;
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
         parseImages(trainDataFN , trainData);

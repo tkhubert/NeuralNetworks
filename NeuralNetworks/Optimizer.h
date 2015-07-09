@@ -12,7 +12,7 @@
 #include "includes.h"
 struct Optimizer
 {
-    Optimizer(double _alpha, double _friction, double _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
+    Optimizer(float _alpha, float _friction, float _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
         alpha(_alpha/_batchSize),
         friction(_friction),
         lambda(_lambda*_batchSize/trainSetSize),
@@ -29,9 +29,9 @@ struct Optimizer
         return ss.str();
     }
     
-    double alpha , alphaBase;
-    double friction;
-    double lambda, lambdaBase;
+    float alpha , alphaBase;
+    float friction;
+    float lambda, lambdaBase;
     size_t batchSize;
     size_t nbEpochs;
 };

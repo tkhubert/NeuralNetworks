@@ -24,13 +24,13 @@ public:
     std::string getName()    const;
     std::string getDetails() const;
     
-    double getCost()        const {return cost;}
-    double getErrRate()     const {return errRate;}
+    float getCost()        const {return cost;}
+    float getErrRate()     const {return errRate;}
     
     void train(const DataContainer& data);
     void test (const std::vector<LabelData>& lData);
     
-    const std::vector<double>& predict(const LabelData& lD);
+    const std::vector<float>& predict(const LabelData& lD);
     
 private:
     // members
@@ -42,27 +42,27 @@ private:
     const Optimizer&    Optim;
     std::vector<Layer*> layers;
     
-    double               cost;
-    double               errRate;
+    float               cost;
+    float               errRate;
     
     std::ofstream        debugFile;
     
     // methods
     void  setInput(const LabelData& lD);
     void  setInput(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd);
-    const std::vector<double>& getOutput() const {return layers[nbLayers-1]->getA();}
+    const std::vector<float>& getOutput() const {return layers[nbLayers-1]->getA();}
     
     size_t isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
-    double calcCost (std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
-    void   calcDCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<double>& dC);
-    void   setDCost (const std::vector<double>& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    float calcCost (std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
+    void   calcDCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dC);
+    void   setDCost (const std::vector<float>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
     void setNbData(size_t nbData);
     void initParams();
     void updateParams();
     void fwdProp(const LabelData& lD);
     void fwdProp(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd);
-    void bwdProp(const std::vector<double>& dC);
+    void bwdProp(const std::vector<float>& dC);
     
     void checkGradient();
 };

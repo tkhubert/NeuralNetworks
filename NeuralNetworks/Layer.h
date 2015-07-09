@@ -23,14 +23,14 @@ public:
     
     size_t                     getInputSize()   const {return inputSize;}
     size_t                     getOutputSize()  const {return outputSize;}
-    const std::vector<double>& getA()           const {return a; }
-    const std::vector<double>& getBias()        const {return bias; }
-    const std::vector<double>& getWeight()      const {return weight; }
+    const std::vector<float>& getA()           const {return a; }
+    const std::vector<float>& getBias()        const {return bias; }
+    const std::vector<float>& getWeight()      const {return weight; }
     
-    const std::vector<double>& getdA()          const {return da; }
-    std::vector<double>&       getDelta()             {return delta; }
-    std::vector<double>&       getdBias()             {return dbias; }
-    std::vector<double>&       getdWeight()           {return dweight; }
+    const std::vector<float>& getdA()          const {return da; }
+    std::vector<float>&       getDelta()             {return delta; }
+    std::vector<float>&       getdBias()             {return dbias; }
+    std::vector<float>&       getdWeight()           {return dweight; }
 
     const Layer*               getNextLayer()   const {return nextLayer;}
     const Layer*               getPrevLayer()   const {return prevLayer;}
@@ -39,33 +39,33 @@ public:
     void setNbData   (size_t _nbData)                     { resize(_nbData);}
     void setNextLayer(Layer* next)                        { nextLayer = next; }
     void setPrevLayer(Layer* prev)                        { prevLayer = prev; }
-    void setA        (const std::vector<double>& _a)      { a         = _a;}
-    void setDelta    (const std::vector<double>& _delta)  { delta     = _delta;}
-    void setWeight   (const std::vector<double>& _weight) { weight    = _weight;}
-    void setBias     (const std::vector<double>& _bias)   { bias      = _bias;}
+    void setA        (const std::vector<float>& _a)      { a         = _a;}
+    void setDelta    (const std::vector<float>& _delta)  { delta     = _delta;}
+    void setWeight   (const std::vector<float>& _weight) { weight    = _weight;}
+    void setBias     (const std::vector<float>& _bias)   { bias      = _bias;}
     
-    virtual void setDCost(const std::vector<double>& dc);
+    virtual void setDCost(const std::vector<float>& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
     void         initParams();
-    void         updateParams(double alpha, double friction, double lambdaOverN);
+    void         updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
     size_t              inputSize;
     size_t              outputSize;
     size_t              nbData;
     
-    std::vector<double> a;
-    std::vector<double> da;
-    std::vector<double> delta;
+    std::vector<float> a;
+    std::vector<float> da;
+    std::vector<float> delta;
     
-    std::vector<double> bias;
-    std::vector<double> dbias;
-    std::vector<double> vbias;
-    std::vector<double> weight;
-    std::vector<double> dweight;
-    std::vector<double> vweight;
+    std::vector<float> bias;
+    std::vector<float> dbias;
+    std::vector<float> vbias;
+    std::vector<float> weight;
+    std::vector<float> dweight;
+    std::vector<float> vweight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
 
     Layer* nextLayer;

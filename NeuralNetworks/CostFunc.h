@@ -17,21 +17,21 @@ class CostFunc
 public:
     CostFunc() {}
     virtual std::string getName() const = 0;
-    virtual double      f(const std::vector<double>& a, int y) const = 0;
-    virtual void        df(const std::vector<double>& a, int y, std::vector<double>& dc) const = 0;
+    virtual float      f(const std::vector<float>& a, int y) const = 0;
+    virtual void        df(const std::vector<float>& a, int y, std::vector<float>& dc) const = 0;
     //
-    virtual double f(const std::vector<double>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    virtual float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
     {
-        double tmp        = 0;
+        float tmp        = 0;
         size_t nbData     = std::distance(dataStart, dataEnd);
         size_t outputSize = a.size()/nbData;
         
-        std::vector<double> aloc(outputSize);
+        std::vector<float> aloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<double>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<double>::const_iterator e = s + outputSize;
+            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
+            std::vector<float>::const_iterator e = s + outputSize;
             std::copy(s, e, aloc.begin());
             
             const LabelData& lD = *(dataStart+d);
@@ -40,18 +40,18 @@ public:
         return tmp;
     }
     //
-    virtual void df(const std::vector<double>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<double>& dc) const
+    virtual void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
     {
         size_t nbData     = std::distance(dataStart, dataEnd);
         size_t outputSize = a.size()/nbData;
         
-        std::vector<double> aloc(outputSize);
-        std::vector<double> dcloc(outputSize);
+        std::vector<float> aloc(outputSize);
+        std::vector<float> dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<double>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<double>::const_iterator e = s + outputSize;
+            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
+            std::vector<float>::const_iterator e = s + outputSize;
             std::copy(s, e, aloc.begin());
             
             const LabelData& lD = *(dataStart+d);
@@ -70,9 +70,9 @@ public:
     
     std::string getName() const {return "MSECFunc";}
     
-    double  f(const std::vector<double>& a, int y) const
+    float  f(const std::vector<float>& a, int y) const
     {
-        double val=0.;
+        float val=0.;
         for (size_t i=0; i<a.size(); ++i)
         {
             int label = i==y;
@@ -81,7 +81,7 @@ public:
         return 0.5*val;
     }
     //
-    void df(const std::vector<double>& a, int y, std::vector<double>& dc) const
+    void df(const std::vector<float>& a, int y, std::vector<float>& dc) const
     {
         for (size_t i=0; i<a.size(); ++i)
         {
@@ -98,9 +98,9 @@ public:
     
     std::string getName() const {return "CECFunc";}
     
-    double  f(const std::vector<double>& a, int y) const
+    float  f(const std::vector<float>& a, int y) const
     {
-        double val=0.;
+        float val=0.;
         for (size_t i=0; i<a.size(); ++i)
         {
             int label = i==y;
@@ -109,7 +109,7 @@ public:
         return val;
     }
     //
-    void df(const std::vector<double>& a, int y, std::vector<double>& dc) const
+    void df(const std::vector<float>& a, int y, std::vector<float>& dc) const
     {
         for (size_t i=0; i<a.size(); ++i)
             dc[i] = 1/(1-a[i]);
@@ -125,21 +125,21 @@ public:
     
     std::string getName() const {return "SMCFunc";}
     //
-    struct SExp : std::unary_function<double, double>
+    struct SExp : std::unary_function<float, float>
     {
-        double m;
+        float m;
         
-        SExp(double m) : m(m) {}
+        SExp(float m) : m(m) {}
         
-        double operator()(double x) const {return exp(x-m);}
+        float operator()(float x) const {return exp(x-m);}
     };
     //
-    double f(const std::vector<double>& a, int y) const
+    float f(const std::vector<float>& a, int y) const
     {
-        double maxA = *(std::max_element(a.begin(), a.end()));
-        std::vector<double> expA(a.size());
+        float maxA = *(std::max_element(a.begin(), a.end()));
+        std::vector<float> expA(a.size());
         
-        double sum = 0.;
+        float sum = 0.;
         for (size_t i=0; i<a.size(); ++i)
         {
             expA[i] = exp(a[i]-maxA);
@@ -149,11 +149,11 @@ public:
         return -log(expA[y]/sum);
     }
     //
-    void df(const std::vector<double>&a, int y, std::vector<double>& dc) const
+    void df(const std::vector<float>&a, int y, std::vector<float>& dc) const
     {
-        std::vector<double> expA(a.size());
+        std::vector<float> expA(a.size());
         
-        double sum = 0.;
+        float sum = 0.;
         for (size_t i=0; i<a.size(); ++i)
         {
             expA[i] = exp(a[i]);
@@ -166,47 +166,47 @@ public:
         dc[y] -=1;
     }
     //
-    double f(const std::vector<double>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
     {
-        double val        = 0;
+        float val        = 0;
         size_t nbData     = std::distance(dataStart, dataEnd);
         size_t outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<double>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<double>::const_iterator e = s + outputSize;
+            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
+            std::vector<float>::const_iterator e = s + outputSize;
             
             int y = (dataStart+d)->label;
             
-            double maxA = *(std::max_element(s, e));
-            std::vector<double> expA(outputSize);
+            float maxA = *(std::max_element(s, e));
+            std::vector<float> expA(outputSize);
             
             std::transform(s, e, expA.begin(), SExp(maxA));
-            double sum = std::accumulate(expA.begin(), expA.end(), 0.);
+            float sum = std::accumulate(expA.begin(), expA.end(), 0.);
 
             val -= log(expA[y]/sum);
         }
         return val;
     }
     //
-    void df(const std::vector<double>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<double>& dc) const
+    void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
     {
         size_t nbData     = std::distance(dataStart, dataEnd);
         size_t outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<double>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<double>::const_iterator e = s + outputSize;
+            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
+            std::vector<float>::const_iterator e = s + outputSize;
             
             int y = (dataStart+d)->label;
-            std::vector<double> expA(outputSize);
+            std::vector<float> expA(outputSize);
             
-            double maxA = *(std::max_element(s, e));
+            float maxA = *(std::max_element(s, e));
             
             std::transform(s, e, expA.begin(), SExp(maxA));
-            double sum = std::accumulate(expA.begin(), expA.end(), 0.);
+            float sum = std::accumulate(expA.begin(), expA.end(), 0.);
             
             for (size_t o=0; o<outputSize; ++o)
                 dc[d*outputSize+o] = expA[o]/sum;
@@ -223,15 +223,15 @@ public:
     
     std::string getName() const {return "SVMCFunc";}
     
-    double f(const std::vector<double>& a, int y) const
+    float f(const std::vector<float>& a, int y) const
     {
-        double val = -1.;
+        float val = -1.;
         for (size_t i=0; i<a.size(); ++i)
-            val += std::max(0.,a[i]-a[y]+1);
+            val += std::max(0.f,a[i]-a[y]+1.f);
         return val;
     }
     //
-    void df(const std::vector<double>&a, int y, std::vector<double>& dc) const
+    void df(const std::vector<float>&a, int y, std::vector<float>& dc) const
     {
         for (size_t i=0; i<a.size(); ++i)
             dc[i] = a[i]-a[y]>-1 ? 1. : 0.;

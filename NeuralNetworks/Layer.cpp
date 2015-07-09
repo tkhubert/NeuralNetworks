@@ -40,7 +40,7 @@ void Layer::resize(size_t _nbData)
     delta.resize  (outputSize*nbData);
 }
 //
-void Layer::setDCost(const std::vector<double> &dc)
+void Layer::setDCost(const std::vector<float> &dc)
 {
     for (size_t i=0; i<outputSize*nbData; ++i)
         delta[i] = da[i]*dc[i];
@@ -49,7 +49,7 @@ void Layer::setDCost(const std::vector<double> &dc)
 void Layer::initParams()
 {
     std::default_random_engine       gen;
-    std::normal_distribution<double> norm(0.,1.0);
+    std::normal_distribution<float> norm(0.,1.0);
     
     for (size_t i=0; i<bias.size(); ++i)
         bias[i]   = norm(gen);
@@ -57,7 +57,7 @@ void Layer::initParams()
         weight[i] = norm(gen)/sqrt(inputSize);
 }
 //
-void Layer::updateParams(double alpha, double friction, double lambda)
+void Layer::updateParams(float alpha, float friction, float lambda)
 {
     for (size_t i=0; i<bias.size(); ++i)
     {

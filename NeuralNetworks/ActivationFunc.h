@@ -16,8 +16,8 @@ class ActivationFunc
 public:
     ActivationFunc() {}
     virtual std::string getName()    const = 0;
-    virtual double      f(double x)  const = 0;
-    virtual double      df(double f) const = 0;
+    virtual float      f(float x)  const = 0;
+    virtual float      df(float f) const = 0;
 };
 //
 class SigmoidFunc : public ActivationFunc
@@ -26,8 +26,8 @@ public:
     SigmoidFunc() {}
     
     std::string getName() const {return "SigAFunc";}
-    double f (double x)   const {return 1./(1+std::exp(-x));}
-    double df(double f)   const {return f*(1-f);}
+    float f (float x)   const {return 1./(1+std::exp(-x));}
+    float df(float f)   const {return f*(1-f);}
 };
 //
 class TanHFunc : public ActivationFunc
@@ -36,25 +36,25 @@ public:
     TanHFunc() {}
     
     std::string getName() const {return "TanHAFunc";}
-    double f (double x) const
+    float f (float x) const
     {
-        double tmp1 = std::exp(x);
-        double tmp2 = 1/tmp1;
+        float tmp1 = std::exp(x);
+        float tmp2 = 1/tmp1;
         return (tmp1-tmp2)/(tmp1+tmp2);
     }
-    double df(double f) const {return 1.-f*f;}
+    float df(float f) const {return 1.-f*f;}
 };
 //
 class RLFunc : public ActivationFunc
 {
 public:
     std::string getName() const {return "RLAFunc";}
-    RLFunc(double _a=1.0, double _b=0.) : a(_a), b(_b) {}
-    double f (double x) const {return a*std::max(x,0.)-b*std::max(-x,0.);}
-    double df(double f) const {return f>=0 ? a : b;}
+    RLFunc(float _a=1., float _b=0.) : a(_a), b(_b) {}
+    float f (float x) const {return x>=0.f ? a*x : b*x;}
+    float df(float f) const {return f>=0.f ? a   : b;}
     
 private:
-    double a;
-    double b;
+    float a;
+    float b;
 };
 #endif

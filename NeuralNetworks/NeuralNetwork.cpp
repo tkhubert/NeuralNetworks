@@ -71,7 +71,7 @@ void NeuralNetwork::setInput(std::vector<LabelData>::const_iterator dataStart, s
 {
     size_t nbData   = std::distance(dataStart, dataEnd);
     size_t dataSize = dataStart->data.size();
-    std::vector<double> input(nbData*dataSize);
+    std::vector<float> input(nbData*dataSize);
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -99,24 +99,24 @@ void NeuralNetwork::fwdProp(std::vector<LabelData>::const_iterator dataStart, st
         layers[i]->fwdProp();
 }
 //
-void NeuralNetwork::bwdProp(const std::vector<double>& dC)
+void NeuralNetwork::bwdProp(const std::vector<float>& dC)
 {
     setDCost(dC);
     for (size_t i=nbLayers-1; i>=1; --i)
         layers[i]->bwdProp();
 }
 //
-double NeuralNetwork::calcCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+float NeuralNetwork::calcCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
 {
     return CFunc.f(getOutput(), dataStart, dataEnd);
 }
 //
-void NeuralNetwork::calcDCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<double>& dC)
+void NeuralNetwork::calcDCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dC)
 {
     return CFunc.df(getOutput(), dataStart, dataEnd, dC);
 }
 //
-const std::vector<double>& NeuralNetwork::predict(const LabelData& lD)
+const std::vector<float>& NeuralNetwork::predict(const LabelData& lD)
 {
     fwdProp(lD);
     return getOutput();
@@ -124,14 +124,14 @@ const std::vector<double>& NeuralNetwork::predict(const LabelData& lD)
 //
 size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
 {
-    const std::vector<double>& prediction = getOutput();
+    const std::vector<float>& prediction = getOutput();
     size_t nbData = std::distance(dataStart, dataEnd);
     
     size_t nbCorrect = 0;
     for (size_t d=0; d<nbData; ++d)
     {
-        std::vector<double>::const_iterator s = prediction.begin()+d*outputSize;
-        std::vector<double>::const_iterator e = s + outputSize;
+        std::vector<float>::const_iterator s = prediction.begin()+d*outputSize;
+        std::vector<float>::const_iterator e = s + outputSize;
         const LabelData& lD = *(dataStart+d);
         
         nbCorrect += std::distance(s, std::max_element(s, e))==lD.label;
@@ -162,7 +162,7 @@ void NeuralNetwork::train(const DataContainer& data)
             size_t end    = std::min(start+Optim.batchSize, lData.size());
             size_t nbData = end-start;
             
-            std::vector<double> dC(outputSize*nbData);
+            std::vector<float> dC(outputSize*nbData);
             std::vector<LabelData>::const_iterator dataStart = lData.begin()+start;
             std::vector<LabelData>::const_iterator dataEnd   = dataStart+nbData;
             
@@ -173,21 +173,21 @@ void NeuralNetwork::train(const DataContainer& data)
             updateParams();
         }
         
-        double timeEpoch = ( std::clock() - startTimeEpoch ) / (double) CLOCKS_PER_SEC;
+        float timeEpoch = ( std::clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
         debugFile << "time " << timeEpoch << "s,";
         std::cout << "time " << timeEpoch << "s,";
         
         test(data.getTrainLabelData());
-        double trainErrRate = errRate;
-        double trainCost    = cost;
+        float trainErrRate = errRate;
+        float trainCost    = cost;
         
         test(data.getCrossLabelData());
-        double crossErrRate = errRate;
-        double crossCost    = cost;
+        float crossErrRate = errRate;
+        float crossCost    = cost;
         
         test(data.getTestLabelData());
-        double testErrRate = errRate;
-        double testCost    = cost;
+        float testErrRate = errRate;
+        float testCost    = cost;
         
         debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         debugFile << trainCost    << "," << crossCost    << "," << testCost    << std::endl;

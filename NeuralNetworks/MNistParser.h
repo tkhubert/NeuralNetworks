@@ -48,7 +48,7 @@ inline void parseLabels(std::string lblFileName, std::vector<int>& labels)
     }
 }
 //
-inline void parseImage (std::ifstream& file, std::vector<double>& img, int nbRows, int nbCols, double scaleMin, double scaleMax)
+inline void parseImage (std::ifstream& file, std::vector<float>& img, int nbRows, int nbCols, float scaleMin, float scaleMax)
 {
     std::vector<uint8_t> imgVec(nbRows*nbCols);
     file.read((char *) &imgVec[0], nbRows*nbCols);
@@ -59,7 +59,7 @@ inline void parseImage (std::ifstream& file, std::vector<double>& img, int nbRow
             img[i*nbCols+j] = (imgVec[i*nbCols+j]/255.)*(scaleMax-scaleMin)+scaleMin;
 }
 //
-inline void parseImages(std::string imgFileName, std::vector<std::vector<double> >& images, double scaleMin=0, double scaleMax=1.)
+inline void parseImages(std::string imgFileName, std::vector<std::vector<float> >& images, float scaleMin=0, float scaleMax=1.)
 {
     std::ifstream file(imgFileName, std::ios::in | std::ios::binary);
     
