@@ -49,7 +49,7 @@ class RLFunc : public ActivationFunc
 {
 public:
     std::string getName() const {return "RLAFunc";}
-    RLFunc(float _a=1., float _b=0.) : a(_a), b(_b) {}
+    RLFunc(float _a=1., float _b=0.001) : a(_a), b(_b) {}
     float f (float x) const {return x>=0.f ? a*x : b*x;}
     float df(float f) const {return f>=0.f ? a   : b;}
     

@@ -28,7 +28,7 @@ int main(int argc, const char * argv[])
     size_t iS = data.getDataSize();
     
     SigmoidFunc SigFunc;
-    RLFunc      RFunc(1, 0.001);
+    RLFunc      RFunc;
     MSECostFunc MSECFunc;
     CECostFunc  CECFunc;
     SMCostFunc  SMCFunc;
