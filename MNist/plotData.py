@@ -218,8 +218,34 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.savefig(title+'.pdf')
     
     plt.show()
+
+def compareFiles(files):
+    epoch  = getColumn(files[0], 0)
+    
+    err  = []
+    cost = []
+    for file in files:
+        err.append(getData(file, 'err'))
+        cost.append(getData(file, 'cost'))
+    
+    newErr = [[] for x in range(3)]
+    newCost = [ [] for x in range(3)]
+    for i in range(len(files)):
+        for j in range(3):
+            newErr[j].append(err[i][j])
+            newCost[j].append(cost[i][j])
+
+    titles = ['train', 'cross', 'test']
+    labels = [x for x in range(len(files))]
+    for j in range(3):
+        plot('epoch', labels, epoch, newErr[j], newCost[j], titles[j]) 
     
 def main():
+    file0 = '784_100_100_10_SMCFunc_RLAFunc_0.08_1_10_40.csv'
+    file1 = '784_100_100_10_SMCFunc_RLAFunc_0.0075_0.9_2_10_100_fori.csv'
+    file2 = '784_100_100_10_SMCFunc_RLAFunc_0.0075_0.9_2_10_100_forinew.csv'
+    compareFiles([file1, file2])
+	
     size = [784, 100, 100, 10]
     CFunc = 'SMCFunc'
     AFunc = 'RLAFunc'

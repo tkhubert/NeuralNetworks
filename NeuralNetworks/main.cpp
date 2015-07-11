@@ -35,10 +35,10 @@ int main(int argc, const char * argv[])
     SVMCostFunc SVMCFunc;
 
     int    batchSize    = 10;
-    int    nbEpochs     = 10;
+    int    nbEpochs     = 40;
 
     float friction = 0.9;
-    std::vector<float> lRV     = {0.0075};//{0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    std::vector<float> lRV     = {0.01};//{0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     std::vector<float> lambdaV = {2};//{0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
     std::vector<CostFunc*> CFV;
     
