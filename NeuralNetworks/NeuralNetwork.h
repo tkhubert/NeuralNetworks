@@ -45,7 +45,7 @@ private:
     float               cost;
     float               errRate;
     
-    std::ofstream        debugFile;
+    std::ofstream       debugFile;
     
     // methods
     void  setInput(const LabelData& lD);
@@ -53,7 +53,7 @@ private:
     const std::vector<float>& getOutput() const {return layers[nbLayers-1]->getA();}
     
     size_t isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
-    float calcCost (std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
+    float  calcCost (std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
     void   calcDCost(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dC);
     void   setDCost (const std::vector<float>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     

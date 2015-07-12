@@ -49,6 +49,8 @@ public:
     void         updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
+    static size_t      layerCount;
+    size_t             layerNb;
     size_t             inputSize;
     size_t             outputSize;
     size_t             nbData;

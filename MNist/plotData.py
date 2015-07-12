@@ -241,10 +241,14 @@ def compareFiles(files):
         plot('epoch', labels, epoch, newErr[j], newCost[j], titles[j]) 
     
 def main():
-    file0 = '784_100_100_10_SMCFunc_RLAFunc_0.08_1_10_40.csv'
-    file1 = '784_100_100_10_SMCFunc_RLAFunc_0.0075_0.9_2_10_100_fori.csv'
-    file2 = '784_100_100_10_SMCFunc_RLAFunc_0.0075_0.9_2_10_100_forinew.csv'
-    compareFiles([file1, file2])
+    files = []
+    file0 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40_CPU.csv'
+    file1 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40_CPU2.csv'
+    file2 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40.csv'
+    files.append(file0)
+    files.append(file1)
+    files.append(file2)
+    compareFiles(files)
 	
     size = [784, 100, 100, 10]
     CFunc = 'SMCFunc'

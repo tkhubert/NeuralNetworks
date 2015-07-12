@@ -7,12 +7,15 @@
 //
 
 #include "Layer.h"
-
+size_t Layer::layerCount = 0;
+//
 Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) :
     inputSize(_inputSize),
     outputSize(_outputSize),
     AFunc(_AFunc)
 {
+    layerNb = layerCount++;
+    
     bias.resize   (outputSize);
     dbias.resize  (outputSize);
     vbias.resize  (outputSize);
@@ -50,7 +53,7 @@ void Layer::initParams()
     if (inputSize==0)
         return;
     
-    std::default_random_engine      gen;
+    std::default_random_engine      gen((int)layerNb);
     std::normal_distribution<float> norm(0.,1.);
     
     for (size_t i=0; i<bias.size(); ++i)
