@@ -21,23 +21,21 @@ public:
     virtual std::string getName()    const = 0;
     virtual std::string getDetails() const = 0;
     
-    size_t                     getInputSize()   const {return inputSize;}
-    size_t                     getOutputSize()  const {return outputSize;}
+    size_t                    getInputSize()   const {return inputSize;}
+    size_t                    getOutputSize()  const {return outputSize;}
     const std::vector<float>& getA()           const {return a; }
     const std::vector<float>& getBias()        const {return bias; }
     const std::vector<float>& getWeight()      const {return weight; }
     
     std::vector<float>&       getDelta()             {return delta; }
-    std::vector<float>&       getdBias()             {return dbias; }
-    std::vector<float>&       getdWeight()           {return dweight; }
 
-    const Layer*               getNextLayer()   const {return nextLayer;}
-    const Layer*               getPrevLayer()   const {return prevLayer;}
-    const ActivationFunc&      getAFunc()       const {return AFunc;}
+    const Layer*              getNextLayer()   const {return nextLayer;}
+    const Layer*              getPrevLayer()   const {return prevLayer;}
+    const ActivationFunc&     getAFunc()       const {return AFunc;}
 
-    void setNbData   (size_t _nbData)                     { resize(_nbData);}
-    void setNextLayer(Layer* next)                        { nextLayer = next; }
-    void setPrevLayer(Layer* prev)                        { prevLayer = prev; }
+    void setNbData   (size_t _nbData)                    { resize(_nbData);}
+    void setNextLayer(Layer* next)                       { nextLayer = next; }
+    void setPrevLayer(Layer* prev)                       { prevLayer = prev; }
     void setA        (const std::vector<float>& _a)      { a         = _a;}
     void setDelta    (const std::vector<float>& _delta)  { delta     = _delta;}
     void setWeight   (const std::vector<float>& _weight) { weight    = _weight;}
@@ -51,9 +49,9 @@ public:
     void         updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
-    size_t              inputSize;
-    size_t              outputSize;
-    size_t              nbData;
+    size_t             inputSize;
+    size_t             outputSize;
+    size_t             nbData;
     
     std::vector<float> a;
     std::vector<float> delta;

@@ -48,12 +48,14 @@ void Layer::setDCost(const std::vector<float> &dc)
 void Layer::initParams()
 {
     std::default_random_engine       gen;
-    std::normal_distribution<float> norm(0.,1.0);
+    std::normal_distribution<float> norm(0.,1.);
     
     for (size_t i=0; i<bias.size(); ++i)
         bias[i]   = norm(gen);
+    
+    float normalizer = 1./sqrt(inputSize);
     for (size_t i=0; i<weight.size(); ++i)
-        weight[i] = norm(gen)/sqrt(inputSize);
+        weight[i] = norm(gen)*normalizer;
 }
 //
 void Layer::updateParams(float alpha, float friction, float lambda)
