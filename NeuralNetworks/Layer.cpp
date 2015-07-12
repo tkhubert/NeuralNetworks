@@ -47,7 +47,10 @@ void Layer::setDCost(const std::vector<float> &dc)
 //
 void Layer::initParams()
 {
-    std::default_random_engine       gen;
+    if (inputSize==0)
+        return;
+    
+    std::default_random_engine      gen;
     std::normal_distribution<float> norm(0.,1.);
     
     for (size_t i=0; i<bias.size(); ++i)
