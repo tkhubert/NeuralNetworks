@@ -27,7 +27,6 @@ public:
     const std::vector<float>& getBias()        const {return bias; }
     const std::vector<float>& getWeight()      const {return weight; }
     
-    const std::vector<float>& getdA()          const {return da; }
     std::vector<float>&       getDelta()             {return delta; }
     std::vector<float>&       getdBias()             {return dbias; }
     std::vector<float>&       getdWeight()           {return dweight; }
@@ -57,7 +56,6 @@ protected:
     size_t              nbData;
     
     std::vector<float> a;
-    std::vector<float> da;
     std::vector<float> delta;
     
     std::vector<float> bias;

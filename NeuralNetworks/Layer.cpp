@@ -36,14 +36,13 @@ void Layer::resize(size_t _nbData)
 {
     nbData = _nbData;
     a.resize      (outputSize*nbData);
-    da.resize     (outputSize*nbData);
     delta.resize  (outputSize*nbData);
 }
 //
 void Layer::setDCost(const std::vector<float> &dc)
 {
     for (size_t i=0; i<outputSize*nbData; ++i)
-        delta[i] = da[i]*dc[i];
+        delta[i] = AFunc.df(a[i])*dc[i];
 }
 //
 void Layer::initParams()

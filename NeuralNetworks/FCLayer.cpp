@@ -26,7 +26,6 @@ void FCLayer::fwdProp()
             val = AFunc.f(val);
             
             a[d*outputSize+o]  = val;
-            da[d*outputSize+o] = AFunc.df(val);
         }
     }
 }
@@ -36,8 +35,8 @@ void FCLayer::bwdProp()
     calcGrad();
     
     // D_l = (W'_(l+1) D(l+1)) . dA_l
-    const std::vector<float>& prevdA = prevLayer->getdA();
-    std::vector<float>& prevDelta    = prevLayer->getDelta();
+    const std::vector<float>& prevA = prevLayer->getA();
+    std::vector<float>& prevDelta   = prevLayer->getDelta();
     
     float tmp[inputSize][outputSize];
     for (size_t i=0; i<inputSize; ++i)
@@ -52,7 +51,7 @@ void FCLayer::bwdProp()
             for (size_t o=0; o<outputSize; ++o)
                 val += delta[d*outputSize+o]*tmp[i][o];
             
-            prevDelta[d*inputSize+i] = prevdA[d*inputSize+i]*val;
+            prevDelta[d*inputSize+i] = AFunc.df(prevA[d*inputSize+i])*val;
         }
     }
 }
