@@ -49,12 +49,6 @@ void NeuralNetwork::setNbData(size_t nbData)
         layers[i]->setNbData(nbData);
 }
 //
-void NeuralNetwork::initParams()
-{
-    for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->initParams();
-}
-//
 void NeuralNetwork::updateParams()
 {
     for (size_t i=1; i<nbLayers; ++i)

@@ -58,7 +58,6 @@ private:
     void   setDCost (const std::vector<float>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
     void setNbData(size_t nbData);
-    void initParams();
     void updateParams();
     void fwdProp(const LabelData& lD);
     void fwdProp(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd);

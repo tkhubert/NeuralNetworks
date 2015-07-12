@@ -14,7 +14,7 @@
 
 struct LabelData
 {
-    int                 label;
+    int                label;
     std::vector<float> data;
 };
 //
@@ -68,7 +68,7 @@ class MNistDataContainer : public DataContainer
 public:
     MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=6)
     {
-        std::vector<int>                  trainLabels, testLabels;
+        std::vector<int>                 trainLabels, testLabels;
         std::vector<std::vector<float> > trainData, testData;
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
