@@ -118,14 +118,14 @@ const std::vector<float>& NeuralNetwork::predict(const LabelData& lD)
 //
 size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
 {
-    const std::vector<float>& prediction = getOutput();
+    const auto& prediction = getOutput();
     size_t nbData = std::distance(dataStart, dataEnd);
     
     size_t nbCorrect = 0;
     for (size_t d=0; d<nbData; ++d)
     {
-        std::vector<float>::const_iterator s = prediction.begin()+d*outputSize;
-        std::vector<float>::const_iterator e = s + outputSize;
+        auto s = prediction.cbegin()+d*outputSize;
+        auto e = s + outputSize;
         const LabelData& lD = *(dataStart+d);
         
         nbCorrect += std::distance(s, std::max_element(s, e))==lD.label;
@@ -135,7 +135,7 @@ size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator dataStart
 //
 void NeuralNetwork::train(const DataContainer& data)
 {
-    std::vector<LabelData> lData = data.getTrainLabelData();
+    auto lData = data.getTrainLabelData();
     
     std::cout << "Start training " << getName() << "-------------"<<std::endl;
     
@@ -157,8 +157,8 @@ void NeuralNetwork::train(const DataContainer& data)
             size_t nbData = end-start;
             
             std::vector<float> dC(outputSize*nbData);
-            std::vector<LabelData>::const_iterator dataStart = lData.begin()+start;
-            std::vector<LabelData>::const_iterator dataEnd   = dataStart+nbData;
+            auto dataStart = lData.cbegin()+start;
+            auto dataEnd   = dataStart+nbData;
             
             fwdProp  (dataStart, dataEnd);
             calcDCost(dataStart, dataEnd, dC);
@@ -206,8 +206,8 @@ void NeuralNetwork::test(const std::vector<LabelData>& lData)
         size_t end    = std::min(start+Optim.batchSize, lData.size());
         size_t nbData = end-start;
         
-        std::vector<LabelData>::const_iterator dataStart = lData.begin()+start;
-        std::vector<LabelData>::const_iterator dataEnd   = dataStart+nbData;
+        auto dataStart = lData.cbegin()+start;
+        auto dataEnd   = dataStart+nbData;
         
         fwdProp(dataStart, dataEnd);
         cost    += calcCost (dataStart, dataEnd);

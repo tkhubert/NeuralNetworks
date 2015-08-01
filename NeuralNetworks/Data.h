@@ -25,9 +25,9 @@ public:
     
     size_t getDataSize() const {return trainLabelData[0].data.size();}
     
-    const std::vector<LabelData>& getTrainLabelData() const { return trainLabelData;}
-    const std::vector<LabelData>& getCrossLabelData() const { return crossLabelData;}
-    const std::vector<LabelData>& getTestLabelData()  const { return testLabelData;}
+    const auto& getTrainLabelData() const { return trainLabelData;}
+    const auto& getCrossLabelData() const { return crossLabelData;}
+    const auto& getTestLabelData()  const { return testLabelData;}
     
     void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<float> > trainData, const std::vector<std::vector<float> > testData, size_t fractionSize)
     {

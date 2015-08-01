@@ -17,21 +17,21 @@ class CostFunc
 public:
     CostFunc() {}
     virtual std::string getName() const = 0;
-    virtual float      f(const std::vector<float>& a, int y) const = 0;
+    virtual float        f(const std::vector<float>& a, int y) const = 0;
     virtual void        df(const std::vector<float>& a, int y, std::vector<float>& dc) const = 0;
     //
     virtual float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
     {
         float tmp        = 0;
-        size_t nbData     = std::distance(dataStart, dataEnd);
-        size_t outputSize = a.size()/nbData;
+        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  outputSize = a.size()/nbData;
         
         std::vector<float> aloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<float>::const_iterator e = s + outputSize;
+            auto s = a.cbegin() + d*outputSize;
+            auto e = s + outputSize;
             std::copy(s, e, aloc.begin());
             
             const LabelData& lD = *(dataStart+d);
@@ -42,16 +42,16 @@ public:
     //
     virtual void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
     {
-        size_t nbData     = std::distance(dataStart, dataEnd);
-        size_t outputSize = a.size()/nbData;
+        auto nbData     = std::distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
         
         std::vector<float> aloc(outputSize);
         std::vector<float> dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<float>::const_iterator e = s + outputSize;
+            auto s = a.cbegin() + d*outputSize;
+            auto e = s + outputSize;
             std::copy(s, e, aloc.begin());
             
             const LabelData& lD = *(dataStart+d);
@@ -125,15 +125,6 @@ public:
     
     std::string getName() const {return "SMCFunc";}
     //
-    struct SExp : std::unary_function<float, float>
-    {
-        float m;
-        
-        SExp(float m) : m(m) {}
-        
-        float operator()(float x) const {return exp(x-m);}
-    };
-    //
     float f(const std::vector<float>& a, int y) const
     {
         float maxA = *(std::max_element(a.begin(), a.end()));
@@ -174,17 +165,15 @@ public:
 
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<float>::const_iterator e = s + outputSize;
+            auto s    = a.cbegin() + d*outputSize;
+            auto e    = s + outputSize;
+            auto y    = (dataStart+d)->label;
+            auto maxA = *(std::max_element(s, e));
             
-            int y = (dataStart+d)->label;
-            
-            float maxA = *(std::max_element(s, e));
             std::vector<float> expA(outputSize);
-            
-            std::transform(s, e, expA.begin(), SExp(maxA));
+            std::transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
             float sum = std::accumulate(expA.begin(), expA.end(), 0.);
-
+            
             val -= log(expA[y]/sum);
         }
         return val;
@@ -197,15 +186,13 @@ public:
 
         for (size_t d=0; d<nbData; ++d)
         {
-            std::vector<float>::const_iterator s = a.begin() + d*outputSize;
-            std::vector<float>::const_iterator e = s + outputSize;
+            auto s    = a.cbegin() + d*outputSize;
+            auto e    = s + outputSize;
+            auto y    = (dataStart+d)->label;
+            auto maxA = *(std::max_element(s, e));
             
-            int y = (dataStart+d)->label;
             std::vector<float> expA(outputSize);
-            
-            float maxA = *(std::max_element(s, e));
-            
-            std::transform(s, e, expA.begin(), SExp(maxA));
+            std::transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
             float sum = std::accumulate(expA.begin(), expA.end(), 0.);
             
             for (size_t o=0; o<outputSize; ++o)

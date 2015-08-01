@@ -13,7 +13,7 @@ void FCLayer::fwdProp()
 {
     // A_(l+1)  = AFunc( W_(l+1) A_l + B_(l+1))
     // dA_(l+1) = dAFunc(A_(l+1))
-    const std::vector<float>& prevA = prevLayer->getA();
+    const auto& prevA = prevLayer->getA();
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -35,8 +35,8 @@ void FCLayer::bwdProp()
     calcGrad();
     
     // D_l = (W'_(l+1) D(l+1)) . dA_l
-    const std::vector<float>& prevA = prevLayer->getA();
-    std::vector<float>& prevDelta   = prevLayer->getDelta();
+    const auto& prevA = prevLayer->getA();
+    auto& prevDelta   = prevLayer->getDelta();
     
     float tmp[inputSize][outputSize];
     for (size_t i=0; i<inputSize; ++i)
@@ -58,7 +58,7 @@ void FCLayer::bwdProp()
 //
 void FCLayer::calcGrad()
 {
-    const std::vector<float>& prevA = prevLayer->getA();
+    const auto& prevA = prevLayer->getA();
     
     for (size_t d=0; d<nbData; ++d)
     {
