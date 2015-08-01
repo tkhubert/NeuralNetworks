@@ -21,17 +21,16 @@ public:
     virtual std::string getName()    const = 0;
     virtual std::string getDetails() const = 0;
     
-    size_t                    getInputSize()   const {return inputSize;}
-    size_t                    getOutputSize()  const {return outputSize;}
-    const std::vector<float>& getA()           const {return a; }
-    const std::vector<float>& getBias()        const {return bias; }
-    const std::vector<float>& getWeight()      const {return weight; }
-    
-    std::vector<float>&       getDelta()             {return delta; }
+    auto        getInputSize()   const {return inputSize;}
+    auto        getOutputSize()  const {return outputSize;}
+    const auto& getA()           const {return a; }
+    const auto& getBias()        const {return bias; }
+    const auto& getWeight()      const {return weight; }
+    auto&       getDelta()             {return delta; }
 
-    const Layer*              getNextLayer()   const {return nextLayer;}
-    const Layer*              getPrevLayer()   const {return prevLayer;}
-    const ActivationFunc&     getAFunc()       const {return AFunc;}
+    const Layer*          getNextLayer() const {return nextLayer;}
+    const Layer*          getPrevLayer() const {return prevLayer;}
+    const ActivationFunc& getAFunc()     const {return AFunc;}
 
     void setNbData   (size_t _nbData)                    { resize(_nbData);}
     void setNextLayer(Layer* next)                       { nextLayer = next; }

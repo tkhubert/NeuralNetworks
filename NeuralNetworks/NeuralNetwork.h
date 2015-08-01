@@ -30,7 +30,7 @@ public:
     void train(const DataContainer& data);
     void test (const std::vector<LabelData>& lData);
     
-    const std::vector<float>& predict(const LabelData& lD);
+    const auto& predict(const LabelData& lD);
     
 private:
     // members
@@ -50,7 +50,7 @@ private:
     // methods
     void  setInput(const LabelData& lD);
     void  setInput(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd);
-    const std::vector<float>& getOutput() const {return layers[nbLayers-1]->getA();}
+    const auto& getOutput() const {return layers[nbLayers-1]->getA();}
     
     size_t isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;
     float  calcCost (std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const;

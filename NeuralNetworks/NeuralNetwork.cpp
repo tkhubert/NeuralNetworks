@@ -63,8 +63,8 @@ void NeuralNetwork::setInput(const LabelData& lD)
 //
 void NeuralNetwork::setInput(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd)
 {
-    size_t nbData   = std::distance(dataStart, dataEnd);
-    size_t dataSize = dataStart->data.size();
+    auto nbData   = std::distance(dataStart, dataEnd);
+    auto dataSize = dataStart->data.size();
     std::vector<float> input(nbData*dataSize);
     
     for (size_t d=0; d<nbData; ++d)
@@ -110,7 +110,7 @@ void NeuralNetwork::calcDCost(std::vector<LabelData>::const_iterator dataStart, 
     return CFunc.df(getOutput(), dataStart, dataEnd, dC);
 }
 //
-const std::vector<float>& NeuralNetwork::predict(const LabelData& lD)
+const auto& NeuralNetwork::predict(const LabelData& lD)
 {
     fwdProp(lD);
     return getOutput();
@@ -119,7 +119,7 @@ const std::vector<float>& NeuralNetwork::predict(const LabelData& lD)
 size_t NeuralNetwork::isCorrect(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
 {
     const auto& prediction = getOutput();
-    size_t nbData = std::distance(dataStart, dataEnd);
+    auto nbData = std::distance(dataStart, dataEnd);
     
     size_t nbCorrect = 0;
     for (size_t d=0; d<nbData; ++d)
@@ -139,8 +139,8 @@ void NeuralNetwork::train(const DataContainer& data)
     
     std::cout << "Start training " << getName() << "-------------"<<std::endl;
     
-    size_t totalISize = lData.size();
-    size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
+    auto totalISize = lData.size();
+    auto nbBatches  = (totalISize-1)/Optim.batchSize + 1;
     
     for (size_t t=0; t<Optim.nbEpochs; ++t)
     {
@@ -167,7 +167,7 @@ void NeuralNetwork::train(const DataContainer& data)
             updateParams();
         }
         
-        float timeEpoch = ( std::clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
+        auto timeEpoch = ( std::clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
         debugFile << "time " << timeEpoch << "s,";
         std::cout << "time " << timeEpoch << "s,";
         
@@ -197,14 +197,14 @@ void NeuralNetwork::test(const std::vector<LabelData>& lData)
     cost   =0.;
     errRate=0.;
     
-    size_t totalISize = lData.size();
-    size_t nbBatches  = (totalISize-1)/Optim.batchSize + 1;
+    auto totalISize = lData.size();
+    auto nbBatches  = (totalISize-1)/Optim.batchSize + 1;
     
     for (size_t batch=0; batch<nbBatches; ++batch)
     {
-        size_t start  = batch*Optim.batchSize;
-        size_t end    = std::min(start+Optim.batchSize, lData.size());
-        size_t nbData = end-start;
+        auto start  = batch*Optim.batchSize;
+        auto end    = std::min(start+Optim.batchSize, lData.size());
+        auto nbData = end-start;
         
         auto dataStart = lData.cbegin()+start;
         auto dataEnd   = dataStart+nbData;
