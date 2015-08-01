@@ -8,25 +8,24 @@
 
 #include "NeuralNetwork.h"
 
-NeuralNetwork::NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer*>& _layers) : nbLayers(0) , CFunc(_CFunc), Optim(_Optim)
+NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, std::vector<std::unique_ptr<Layer>>&& _layers) :
+    CFunc(CFunc),
+    Optim(Optim),
+    nbLayers(_layers.size()),
+    layers(std::move(_layers))
 {
-    nbLayers = _layers.size();
-    layers.resize(nbLayers);
-    
-    layers[0] = _layers[0];
     for (size_t i=1; i<nbLayers; ++i)
     {
-        Layer* pLayer = layers[i-1];
-        Layer* cLayer = _layers[i];
+        auto& pLayer = layers[i-1];
+        auto& cLayer = layers[i];
         assert(pLayer->getOutputSize()==cLayer->getInputSize());
         
-        pLayer->setNextLayer(cLayer);
-        cLayer->setPrevLayer(pLayer);
-        layers[i] = cLayer;
+        pLayer->setNextLayer(cLayer.get());
+        cLayer->setPrevLayer(pLayer.get());
     }
     
-    inputSize  = layers[0]->getOutputSize();
-    outputSize = layers[nbLayers-1]->getOutputSize();
+    inputSize  = layers.front()->getOutputSize();
+    outputSize = layers.back()->getOutputSize();
     
     debugFile  = std::ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+getName());
 }
@@ -37,7 +36,7 @@ std::string NeuralNetwork::getName() const
     for (size_t i=0; i<nbLayers; ++i)
         ss << layers[i]->getOutputSize() << "_";
 
-    ss << CFunc.getName() << "_" << layers[nbLayers-1]->getAFunc().getName() << "_" << Optim.getName();
+    ss << CFunc.getName() << "_" << layers.back()->getAFunc().getName() << "_" << Optim.getName();
     ss << ".csv";
 
     return ss.str();
@@ -58,7 +57,7 @@ void NeuralNetwork::updateParams()
 void NeuralNetwork::setInput(const LabelData& lD)
 {
     setNbData(1);
-    layers[0]->setA(lD.data);
+    layers.front()->setA(lD.data);
 }
 //
 void NeuralNetwork::setInput(std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd)
@@ -76,7 +75,7 @@ void NeuralNetwork::setInput(std::vector<LabelData>::const_iterator dataStart, s
     }
     
     setNbData(nbData);
-    layers[0]->setA(input);
+    layers.front()->setA(input);
 }
 //
 void NeuralNetwork::fwdProp(const LabelData& lD)
@@ -152,9 +151,9 @@ void NeuralNetwork::train(const DataContainer& data)
         
         for (size_t batch=0; batch<nbBatches; ++batch)
         {
-            size_t start  = batch*Optim.batchSize;
-            size_t end    = std::min(start+Optim.batchSize, lData.size());
-            size_t nbData = end-start;
+            auto start  = batch*Optim.batchSize;
+            auto end    = std::min(start+Optim.batchSize, lData.size());
+            auto nbData = end-start;
             
             std::vector<float> dC(outputSize*nbData);
             auto dataStart = lData.cbegin()+start;
@@ -172,16 +171,16 @@ void NeuralNetwork::train(const DataContainer& data)
         std::cout << "time " << timeEpoch << "s,";
         
         test(data.getTrainLabelData());
-        float trainErrRate = errRate;
-        float trainCost    = cost;
+        auto trainErrRate = errRate;
+        auto trainCost    = cost;
         
         test(data.getCrossLabelData());
-        float crossErrRate = errRate;
-        float crossCost    = cost;
+        auto crossErrRate = errRate;
+        auto crossCost    = cost;
         
         test(data.getTestLabelData());
-        float testErrRate = errRate;
-        float testCost    = cost;
+        auto testErrRate = errRate;
+        auto testCost    = cost;
         
         debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         debugFile << trainCost    << "," << crossCost    << "," << testCost    << std::endl;

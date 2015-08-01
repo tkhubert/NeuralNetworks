@@ -19,13 +19,11 @@ void FCLayer::fwdProp()
     {
         for (size_t o=0; o<outputSize; ++o)
         {
-            float val=bias[o];
+            auto val=bias[o];
             for (size_t i=0; i<inputSize; ++i)
                 val+= weight[o*inputSize+i]*prevA[d*inputSize+i];
             
-            val = AFunc.f(val);
-            
-            a[d*outputSize+o]  = val;
+            a[d*outputSize+o]  = AFunc.f(val);
         }
     }
 }
@@ -64,7 +62,7 @@ void FCLayer::calcGrad()
     {
         for (size_t o=0; o<outputSize; ++o)
         {
-            float tmpDelta = delta[d*outputSize+o];
+            auto tmpDelta = delta[d*outputSize+o];
             
             dbias[o] += tmpDelta;
             for (size_t i=0; i<inputSize; ++i)

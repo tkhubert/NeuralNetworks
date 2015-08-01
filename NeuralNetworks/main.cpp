@@ -25,27 +25,23 @@ int main(int argc, const char * argv[])
     std::string testData    = dir + "t10k-images-idx3-ubyte";
 
     MNistDataContainer data(trainLabels, testLabels, trainData, testData);
-    size_t iS = data.getDataSize();
+    auto iS = data.getDataSize();
     
     SigmoidFunc SigFunc;
     RLFunc      RFunc;
-    MSECostFunc MSECFunc;
-    CECostFunc  CECFunc;
-    SMCostFunc  SMCFunc;
-    SVMCostFunc SVMCFunc;
 
     int    batchSize    = 10;
-    int    nbEpochs     = 40;
+    int    nbEpochs     = 10;
 
     float friction = 0.9;
-    std::vector<float> lRV     = {0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    std::vector<float> lambdaV = {0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
-    std::vector<CostFunc*> CFV;
+    std::vector<float> lRV     = {0.0075};//{0.001, 0.0025, 0.005, 0.0075, 0.01, 0.02, 0.03};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    std::vector<float> lambdaV = {4};//{0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
     
-    //CFV.push_back(&MSECFunc);
-    //CFV.push_back(&CECFunc);
-    //CFV.push_back(&SVMCFunc);
-    CFV.push_back(&SMCFunc);
+    std::vector<std::unique_ptr<CostFunc>> CFV;
+    //CFV.emplace_back(std::make_unique<MSECFunc>());
+    //CFV.emplace_back(std::make_unique<CECostFunc>());
+    //CFV.emplace_back(std::make_unique<SVMCostFunc>());
+    CFV.emplace_back(std::make_unique<SMCostFunc>());
     
     for (size_t k=0; k<CFV.size(); ++k)
     {
@@ -53,15 +49,15 @@ int main(int argc, const char * argv[])
         {
             for (size_t j=0; j<lRV.size(); ++j)
             {
-                std::vector<Layer*> layers;
-                FCLayer Layer0(0  , iS , RFunc) ; layers.push_back(&Layer0);
-                FCLayer Layer1(iS , 100, RFunc); layers.push_back(&Layer1);
-                FCLayer Layer2(100, 100, RFunc); layers.push_back(&Layer2);
-                //FCLayer Layer3(100, 100, RFunc); layers.push_back(&Layer3);
-                FCLayer Layer4(100, 10 , RFunc); layers.push_back(&Layer4);
+                std::vector<std::unique_ptr<Layer>> layers;
+                layers.emplace_back(std::make_unique<FCLayer>(0  , iS , RFunc));
+                layers.emplace_back(std::make_unique<FCLayer>(iS , 100, RFunc));
+                layers.emplace_back(std::make_unique<FCLayer>(100, 100, RFunc));
+                //layers.emplace_back(std::make_unique<FCLayer>(100, 100, RFunc));
+                layers.emplace_back(std::make_unique<FCLayer>(100, 10 , RFunc));
                 
                 Optimizer     Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, data.getTrainLabelData().size());
-                NeuralNetwork FCNN(*CFV[k], Optim, layers);
+                NeuralNetwork FCNN (*CFV[k], Optim, std::move(layers));
                 FCNN.train(data);
             }
         }

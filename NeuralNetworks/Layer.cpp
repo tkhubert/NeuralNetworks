@@ -57,7 +57,7 @@ void Layer::initParams()
     std::normal_distribution<float> norm(0.,1.);
     
     for (size_t i=0; i<bias.size(); ++i)
-        bias[i]   = norm(gen);
+        bias[i] = norm(gen);
     
     float normalizer = 1./sqrt(inputSize);
     for (size_t i=0; i<weight.size(); ++i)
@@ -68,14 +68,14 @@ void Layer::updateParams(float alpha, float friction, float lambda)
 {
     for (size_t i=0; i<bias.size(); ++i)
     {
-        float vtmp = vbias[i];
+        auto vtmp = vbias[i];
         vbias[i]  = friction*vbias[i] - alpha*dbias[i];
         bias[i]  += -friction*vtmp + (1+friction) * vbias[i];
         dbias[i]  = 0.;
     }
     for (size_t i=0; i<weight.size(); ++i)
     {
-        float vtmp = vweight[i];
+        auto vtmp   = vweight[i];
         vweight[i]  = friction*vweight[i] - alpha*(dweight[i]+lambda*weight[i]);
         weight[i]  += -friction*vtmp + (1+friction)*vweight[i];
         dweight[i]  = 0.;

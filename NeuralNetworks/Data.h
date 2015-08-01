@@ -31,9 +31,9 @@ public:
     
     void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<float> > trainData, const std::vector<std::vector<float> > testData, size_t fractionSize)
     {
-        size_t trainSize = trainLabels.size();
-        size_t crossSize = trainSize/fractionSize;
-        size_t testSize  = testLabels.size();
+        auto trainSize = trainLabels.size();
+        auto crossSize = trainSize/fractionSize;
+        auto testSize  = testLabels.size();
         
         trainLabelData.resize(trainSize);
         crossLabelData.resize(crossSize);

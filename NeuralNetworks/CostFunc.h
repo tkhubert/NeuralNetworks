@@ -160,8 +160,8 @@ public:
     float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
     {
         float val        = 0;
-        size_t nbData     = std::distance(dataStart, dataEnd);
-        size_t outputSize = a.size()/nbData;
+        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {
@@ -181,8 +181,8 @@ public:
     //
     void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
     {
-        size_t nbData     = std::distance(dataStart, dataEnd);
-        size_t outputSize = a.size()/nbData;
+        auto nbData     = std::distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {

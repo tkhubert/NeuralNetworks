@@ -19,7 +19,7 @@
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(const CostFunc& _CFunc, const Optimizer& _Optim, std::vector<Layer*>& _layers);
+    NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, std::vector<std::unique_ptr<Layer>>&& layers);
     
     std::string getName()    const;
     std::string getDetails() const;
@@ -40,7 +40,7 @@ private:
     
     const CostFunc&     CFunc;
     const Optimizer&    Optim;
-    std::vector<Layer*> layers;
+    std::vector<std::unique_ptr<Layer>> layers;
     
     float               cost;
     float               errRate;
