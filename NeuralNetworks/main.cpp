@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
     std::vector<float> lambdaV = {4};//{0.1, 0.5, 1, 2, 3, 4, 5, 7, 10};
     
     std::vector<std::unique_ptr<CostFunc>> CFV;
-    //CFV.emplace_back(std::make_unique<MSECFunc>());
+    //CFV.emplace_back(std::make_unique<MSECostFunc>());
     //CFV.emplace_back(std::make_unique<CECostFunc>());
     //CFV.emplace_back(std::make_unique<SVMCostFunc>());
     CFV.emplace_back(std::make_unique<SMCostFunc>());
