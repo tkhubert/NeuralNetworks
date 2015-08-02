@@ -9,13 +9,15 @@
 #ifndef NeuralNetworks_Data_h
 #define NeuralNetworks_Data_h
 
-#include "includes.h"
+#include "NN.h"
 #include "MNistParser.h"
+
+namespace NN {
 
 struct LabelData
 {
     int                label;
-    std::vector<float> data;
+    vector<float> data;
 };
 //
 class DataContainer
@@ -29,7 +31,7 @@ public:
     const auto& getCrossLabelData() const { return crossLabelData;}
     const auto& getTestLabelData()  const { return testLabelData;}
     
-    void constructLabelData(const std::vector<int>& trainLabels, const std::vector<int>& testLabels, const std::vector<std::vector<float> > trainData, const std::vector<std::vector<float> > testData, size_t fractionSize)
+    void constructLabelData(const vector<int>& trainLabels, const vector<int>& testLabels, const vector<vector<float> > trainData, const vector<vector<float> > testData, size_t fractionSize)
     {
         auto trainSize = trainLabels.size();
         auto crossSize = trainSize/fractionSize;
@@ -44,7 +46,7 @@ public:
             trainLabelData[i].label = trainLabels[i];
             trainLabelData[i].data  = trainData[i];
         }
-        std::random_shuffle(trainLabelData.begin(), trainLabelData.end());
+        random_shuffle(trainLabelData.begin(), trainLabelData.end());
         
         for (size_t i=0; i<crossSize; ++i)
             crossLabelData[i] = trainLabelData[trainSize-crossSize+i];
@@ -58,18 +60,18 @@ public:
     }
 
 protected:
-    std::vector<LabelData> trainLabelData;
-    std::vector<LabelData> crossLabelData;
-    std::vector<LabelData> testLabelData;
+    vector<LabelData> trainLabelData;
+    vector<LabelData> crossLabelData;
+    vector<LabelData> testLabelData;
 };
 //
 class MNistDataContainer : public DataContainer
 {
 public:
-    MNistDataContainer(std::string trainLabelFN, std::string testLabelFN, std::string trainDataFN, std::string testDataFN, size_t crossFraction=6)
+    MNistDataContainer(string trainLabelFN, string testLabelFN, string trainDataFN, string testDataFN, size_t crossFraction=6)
     {
-        std::vector<int>                 trainLabels, testLabels;
-        std::vector<std::vector<float> > trainData, testData;
+        vector<int>                 trainLabels, testLabels;
+        vector<vector<float> > trainData, testData;
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
         parseImages(trainDataFN , trainData);
@@ -79,4 +81,5 @@ public:
     }
 };
 
+}
 #endif

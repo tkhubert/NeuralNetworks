@@ -8,6 +8,8 @@
 
 #include "FCLayer.h"
 
+namespace NN {
+    
 //
 void FCLayer::fwdProp()
 {
@@ -71,3 +73,4 @@ void FCLayer::calcGrad()
     }
 }
 //
+}

@@ -9,8 +9,10 @@
 #ifndef NeuralNetworks_MNistParser_h
 #define NeuralNetworks_MNistParser_h
 
-#include "includes.h"
+#include "NN.h"
 
+namespace NN {
+    
 inline int reverseInt (int i)
 {
     unsigned char c1, c2, c3, c4;
@@ -23,9 +25,9 @@ inline int reverseInt (int i)
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 //
-inline void parseLabels(std::string lblFileName, std::vector<int>& labels)
+inline void parseLabels(string lblFileName, vector<int>& labels)
 {
-    std::ifstream file(lblFileName, std::ios::in | std::ios::binary);
+    ifstream file(lblFileName, ios::in | ios::binary);
     if (file.bad() || file.fail())
         throw "failed to open file:" + lblFileName;
     
@@ -48,9 +50,9 @@ inline void parseLabels(std::string lblFileName, std::vector<int>& labels)
     }
 }
 //
-inline void parseImage (std::ifstream& file, std::vector<float>& img, int nbRows, int nbCols, float scaleMin, float scaleMax)
+inline void parseImage (ifstream& file, vector<float>& img, int nbRows, int nbCols, float scaleMin, float scaleMax)
 {
-    std::vector<uint8_t> imgVec(nbRows*nbCols);
+    vector<uint8_t> imgVec(nbRows*nbCols);
     file.read((char *) &imgVec[0], nbRows*nbCols);
     
     img.resize(nbRows*nbCols);
@@ -59,9 +61,9 @@ inline void parseImage (std::ifstream& file, std::vector<float>& img, int nbRows
             img[i*nbCols+j] = (imgVec[i*nbCols+j]/255.)*(scaleMax-scaleMin)+scaleMin;
 }
 //
-inline void parseImages(std::string imgFileName, std::vector<std::vector<float> >& images, float scaleMin=0, float scaleMax=1.)
+inline void parseImages(string imgFileName, vector<vector<float> >& images, float scaleMin=0, float scaleMax=1.)
 {
-    std::ifstream file(imgFileName, std::ios::in | std::ios::binary);
+    ifstream file(imgFileName, ios::in | ios::binary);
     
     if (file.bad() || file.fail())
         throw "failed to open file:" + imgFileName;
@@ -82,4 +84,5 @@ inline void parseImages(std::string imgFileName, std::vector<std::vector<float> 
         parseImage(file, images[i], nbRows, nbCols, scaleMin, scaleMax);
 }
 
+}
 #endif

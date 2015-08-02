@@ -11,17 +11,20 @@
 
 #include "Layer.h"
 
+namespace NN {
+    
 //
 class FCLayer : public Layer
 {
 public:
     FCLayer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : Layer(_inputSize, _outputSize, _AFunc) {};
-    std::string getName()    const {return "FCLayer";}
-    std::string getDetails() const {return "";}
+    string getName()    const {return "FCLayer";}
+    string getDetails() const {return "";}
     
     void fwdProp();
     void bwdProp();
     void calcGrad();
 };
 
+}
 #endif /* defined(__NeuralNetworks__FCLayer__) */

@@ -23,5 +23,9 @@
 #include <string>
 #include <random>
 
+namespace NN
+{
+    using namespace std;
+}
 
 #endif

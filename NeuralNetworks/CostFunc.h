@@ -9,18 +9,21 @@
 #ifndef NeuralNetworks_CostFunc_h
 #define NeuralNetworks_CostFunc_h
 
-#include "includes.h"
+#include "NN.h"
 #include "Data.h"
 
+namespace NN {
+
+using LabelDataCItr = vector<LabelData>::const_iterator;
+    
 class CostFunc
 {
 public:
     CostFunc() {}
-    virtual std::string getName() const = 0;
+    virtual string getName() const = 0;
 
-    virtual float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const = 0;
-    //
-    virtual void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const = 0;
+    virtual float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
+    virtual void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const = 0;
 };
 //
 class MSECostFunc : public CostFunc
@@ -28,12 +31,12 @@ class MSECostFunc : public CostFunc
 public:
     MSECostFunc() {}
     
-    std::string getName() const {return "MSECFunc";}
+    string getName() const {return "MSECFunc";}
     //
-    float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
         float val        = 0;
-        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  nbData     = distance(dataStart, dataEnd);
         auto  outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
@@ -51,13 +54,13 @@ public:
         return val;
     }
     //
-    void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
+    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
     {
-        auto nbData     = std::distance(dataStart, dataEnd);
+        auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        std::vector<float> aloc(outputSize);
-        std::vector<float> dcloc(outputSize);
+        vector<float> aloc(outputSize);
+        vector<float> dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -80,12 +83,12 @@ class CECostFunc : public CostFunc
 public:
     CECostFunc() {}
     
-    std::string getName() const {return "CECFunc";}
+    string getName() const {return "CECFunc";}
     //
-    float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
         float val        = 0;
-        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  nbData     = distance(dataStart, dataEnd);
         auto  outputSize = a.size()/nbData;
         
         for (size_t d=0; d<nbData; ++d)
@@ -97,19 +100,19 @@ public:
             {
                 auto label = i==y;
                 auto aVal  = *(s+i);
-                val+= -label*std::log(aVal) - (1-label)*std::log(1-aVal);
+                val+= -label*log(aVal) - (1-label)*log(1-aVal);
             }
         }
         return val;
     }
     //
-    void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
+    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
     {
-        auto nbData     = std::distance(dataStart, dataEnd);
+        auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        std::vector<float> aloc(outputSize);
-        std::vector<float> dcloc(outputSize);
+        vector<float> aloc(outputSize);
+        vector<float> dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -132,12 +135,12 @@ class SMCostFunc : public CostFunc
 public:
     SMCostFunc() {}
     
-    std::string getName() const {return "SMCFunc";}
+    string getName() const {return "SMCFunc";}
     //
-    float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
         float val        = 0;
-        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  nbData     = distance(dataStart, dataEnd);
         auto  outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
@@ -145,20 +148,20 @@ public:
             auto s    = a.cbegin() + d*outputSize;
             auto e    = s + outputSize;
             auto y    = (dataStart+d)->label;
-            auto maxA = *(std::max_element(s, e));
+            auto maxA = *(max_element(s, e));
             
-            std::vector<float> expA(outputSize);
-            std::transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
-            float sum = std::accumulate(expA.begin(), expA.end(), 0.);
+            vector<float> expA(outputSize);
+            transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
+            auto sum = accumulate(expA.begin(), expA.end(), 0.);
             
             val -= log(expA[y]/sum);
         }
         return val;
     }
     //
-    void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
+    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
     {
-        auto nbData     = std::distance(dataStart, dataEnd);
+        auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
@@ -166,11 +169,11 @@ public:
             auto s    = a.cbegin() + d*outputSize;
             auto e    = s + outputSize;
             auto y    = (dataStart+d)->label;
-            auto maxA = *(std::max_element(s, e));
+            auto maxA = *(max_element(s, e));
             
-            std::vector<float> expA(outputSize);
-            std::transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
-            float sum = std::accumulate(expA.begin(), expA.end(), 0.);
+            vector<float> expA(outputSize);
+            transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
+            auto sum = accumulate(expA.begin(), expA.end(), 0.);
             
             for (size_t o=0; o<outputSize; ++o)
                 dc[d*outputSize+o] = expA[o]/sum;
@@ -185,12 +188,12 @@ class SVMCostFunc : public CostFunc
 public:
     SVMCostFunc() {}
     
-    std::string getName() const {return "SVMCFunc";}
+    string getName() const {return "SVMCFunc";}
     //
-    float f(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd) const
+    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
         float val        = 0;
-        auto  nbData     = std::distance(dataStart, dataEnd);
+        auto  nbData     = distance(dataStart, dataEnd);
         auto  outputSize = a.size()/nbData;
         
         for (size_t d=0; d<nbData; ++d)
@@ -202,20 +205,20 @@ public:
             for (size_t i=0; i<outputSize; ++i)
             {
                 auto aVal  = *(s+i);
-                val+= std::max(0.f,aVal-aLabel+1.f);
+                val+= max(0.f,aVal-aLabel+1.f);
             }
             val -=1;
         }
         return val;
     }
     //
-    void df(const std::vector<float>& a, std::vector<LabelData>::const_iterator dataStart, std::vector<LabelData>::const_iterator dataEnd, std::vector<float>& dc) const
+    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
     {
-        auto nbData     = std::distance(dataStart, dataEnd);
+        auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        std::vector<float> aloc(outputSize);
-        std::vector<float> dcloc(outputSize);
+        vector<float> aloc(outputSize);
+        vector<float> dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -237,5 +240,7 @@ public:
     }
 };
 //
+
+}
 
 #endif

@@ -9,7 +9,9 @@
 #ifndef NeuralNetworks_Optimizer_h
 #define NeuralNetworks_Optimizer_h
 
-#include "includes.h"
+#include "NN.h"
+namespace NN {
+    
 struct Optimizer
 {
     Optimizer(float _alpha, float _friction, float _lambda, size_t _batchSize, size_t _nbEpochs, size_t trainSetSize) :
@@ -22,9 +24,9 @@ struct Optimizer
         lambdaBase(_lambda)
     {};
     
-    std::string getName() const
+    string getName() const
     {
-        std::stringstream ss;
+        stringstream ss;
         ss << alphaBase << "_" << friction << "_" << lambdaBase << "_" << batchSize << "_" << nbEpochs;
         return ss.str();
     }
@@ -35,5 +37,7 @@ struct Optimizer
     size_t batchSize;
     size_t nbEpochs;
 };
+    
+}
 
 #endif

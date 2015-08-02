@@ -9,17 +9,19 @@
 #ifndef __NeuralNetworks__Layer__
 #define __NeuralNetworks__Layer__
 
-#include "includes.h"
+#include "NN.h"
 #include "ActivationFunc.h"
 
+namespace NN {
+    
 class Layer
 {
 public:
     Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc);
     ~Layer();
     
-    virtual std::string getName()    const = 0;
-    virtual std::string getDetails() const = 0;
+    virtual string getName()    const = 0;
+    virtual string getDetails() const = 0;
     
     auto        getInputSize()   const {return inputSize;}
     auto        getOutputSize()  const {return outputSize;}
@@ -35,12 +37,12 @@ public:
     void setNbData   (size_t _nbData)                    { resize(_nbData);}
     void setNextLayer(Layer* next)                       { nextLayer = next; }
     void setPrevLayer(Layer* prev)                       { prevLayer = prev; }
-    void setA        (const std::vector<float>& _a)      { a         = _a;}
-    void setDelta    (const std::vector<float>& _delta)  { delta     = _delta;}
-    void setWeight   (const std::vector<float>& _weight) { weight    = _weight;}
-    void setBias     (const std::vector<float>& _bias)   { bias      = _bias;}
+    void setA        (const vector<float>& _a)      { a         = _a;}
+    void setDelta    (const vector<float>& _delta)  { delta     = _delta;}
+    void setWeight   (const vector<float>& _weight) { weight    = _weight;}
+    void setBias     (const vector<float>& _bias)   { bias      = _bias;}
     
-    virtual void setDCost(const std::vector<float>& dc);
+    virtual void setDCost(const vector<float>& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
@@ -54,15 +56,15 @@ protected:
     size_t             outputSize;
     size_t             nbData;
     
-    std::vector<float> a;
-    std::vector<float> delta;
+    vector<float> a;
+    vector<float> delta;
     
-    std::vector<float> bias;
-    std::vector<float> dbias;
-    std::vector<float> vbias;
-    std::vector<float> weight;
-    std::vector<float> dweight;
-    std::vector<float> vweight;
+    vector<float> bias;
+    vector<float> dbias;
+    vector<float> vbias;
+    vector<float> weight;
+    vector<float> dweight;
+    vector<float> vweight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
 
     Layer* nextLayer;
@@ -73,5 +75,6 @@ protected:
     void resize(size_t _nbData);
 };
 
+}
 
 #endif /* defined(__NeuralNetworks__Layer__) */

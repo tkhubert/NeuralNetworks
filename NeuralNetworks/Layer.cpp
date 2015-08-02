@@ -7,6 +7,8 @@
 //
 
 #include "Layer.h"
+namespace NN {
+    
 size_t Layer::layerCount = 0;
 //
 Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) :
@@ -42,7 +44,7 @@ void Layer::resize(size_t _nbData)
     delta.resize  (outputSize*nbData);
 }
 //
-void Layer::setDCost(const std::vector<float> &dc)
+void Layer::setDCost(const vector<float> &dc)
 {
     for (size_t i=0; i<outputSize*nbData; ++i)
         delta[i] = AFunc.df(a[i])*dc[i];
@@ -53,8 +55,8 @@ void Layer::initParams()
     if (inputSize==0)
         return;
     
-    std::default_random_engine      gen((int)layerNb);
-    std::normal_distribution<float> norm(0.,1.);
+    default_random_engine      gen((int)layerNb);
+    normal_distribution<float> norm(0.,1.);
     
     for (size_t i=0; i<bias.size(); ++i)
         bias[i] = norm(gen);
@@ -80,4 +82,6 @@ void Layer::updateParams(float alpha, float friction, float lambda)
         weight[i]  += -friction*vtmp + (1+friction)*vweight[i];
         dweight[i]  = 0.;
     }
+}
+
 }

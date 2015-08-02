@@ -28,7 +28,7 @@
 /* Begin PBXFileReference section */
 		80018F481AD487E4007C81CD /* NeuralNetworks */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NeuralNetworks; sourceTree = BUILT_PRODUCTS_DIR; };
 		80018F4B1AD487E4007C81CD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		80018F521AD5C294007C81CD /* includes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
+		80018F521AD5C294007C81CD /* NN.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NN.h; sourceTree = "<group>"; };
 		80018F531AD5C2A0007C81CD /* ActivationFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivationFunc.h; sourceTree = "<group>"; };
 		80018F541AD5C6D1007C81CD /* Layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Layer.cpp; sourceTree = "<group>"; };
 		80018F551AD5C6D1007C81CD /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
@@ -73,7 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				80018F4B1AD487E4007C81CD /* main.cpp */,
-				80018F521AD5C294007C81CD /* includes.h */,
+				80018F521AD5C294007C81CD /* NN.h */,
 				80018F531AD5C2A0007C81CD /* ActivationFunc.h */,
 				80018F571AD5D572007C81CD /* CostFunc.h */,
 				80B3E9B01AD92E9900B9726C /* MNistParser.h */,
