@@ -16,7 +16,7 @@ namespace NN {
 
 struct LabelData
 {
-    int                label;
+    int           label;
     vector<float> data;
 };
 //
@@ -31,7 +31,7 @@ public:
     const auto& getCrossLabelData() const { return crossLabelData;}
     const auto& getTestLabelData()  const { return testLabelData;}
     
-    void constructLabelData(const vector<int>& trainLabels, const vector<int>& testLabels, const vector<vector<float> > trainData, const vector<vector<float> > testData, size_t fractionSize)
+    void constructLabelData(const vector<int>& trainLabels, const vector<int>& testLabels, const vector<vector<float> > trainData, const vector<vector<float>> testData, size_t fractionSize)
     {
         auto trainSize = trainLabels.size();
         auto crossSize = trainSize/fractionSize;

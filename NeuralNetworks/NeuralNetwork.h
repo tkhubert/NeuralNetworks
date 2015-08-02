@@ -26,8 +26,8 @@ public:
     string getName()    const;
     string getDetails() const;
     
-    float getCost()        const {return cost;}
-    float getErrRate()     const {return errRate;}
+    float getCost()    const {return cost;}
+    float getErrRate() const {return errRate;}
     
     void train(const DataContainer& data);
     void test (const vector<LabelData>& lData);

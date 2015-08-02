@@ -34,9 +34,9 @@ public:
     const Layer*          getPrevLayer() const {return prevLayer;}
     const ActivationFunc& getAFunc()     const {return AFunc;}
 
-    void setNbData   (size_t _nbData)                    { resize(_nbData);}
-    void setNextLayer(Layer* next)                       { nextLayer = next; }
-    void setPrevLayer(Layer* prev)                       { prevLayer = prev; }
+    void setNbData   (size_t _nbData)               { resize(_nbData);}
+    void setNextLayer(Layer* next)                  { nextLayer = next; }
+    void setPrevLayer(Layer* prev)                  { prevLayer = prev; }
     void setA        (const vector<float>& _a)      { a         = _a;}
     void setDelta    (const vector<float>& _delta)  { delta     = _delta;}
     void setWeight   (const vector<float>& _weight) { weight    = _weight;}
@@ -50,11 +50,11 @@ public:
     void         updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
-    static size_t      layerCount;
-    size_t             layerNb;
-    size_t             inputSize;
-    size_t             outputSize;
-    size_t             nbData;
+    static size_t layerCount;
+    size_t        layerNb;
+    size_t        inputSize;
+    size_t        outputSize;
+    size_t        nbData;
     
     vector<float> a;
     vector<float> delta;
