@@ -66,18 +66,16 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
     auto nbData   = distance(dataStart, dataEnd);
     auto dataSize = dataStart->data.size();
-    vector<float> input(nbData*dataSize);
     
+    vector<float> input(nbData*dataSize);
     for (size_t d=0; d<nbData; ++d)
     {
-        const LabelData& lD = *(dataStart+d);
-        
-        for (size_t i=0; i<dataSize; ++i)
-            input[d*inputSize+i] = lD.data[i];
+        auto data = (dataStart+d)->data;
+        copy(data.begin(), data.end(), input.begin()+d*inputSize);
     }
     
     setNbData(nbData);
-    layers.front()->setA(input);
+    layers.front()->setA(move(input));
 }
 //
 void NeuralNetwork::fwdProp(const LabelData& lD)

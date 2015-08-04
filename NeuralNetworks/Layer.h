@@ -34,13 +34,11 @@ public:
     const Layer*          getPrevLayer() const {return prevLayer;}
     const ActivationFunc& getAFunc()     const {return AFunc;}
 
-    void setNbData   (size_t _nbData)               { resize(_nbData);}
-    void setNextLayer(Layer* next)                  { nextLayer = next; }
-    void setPrevLayer(Layer* prev)                  { prevLayer = prev; }
-    void setA        (const vector<float>& _a)      { a         = _a;}
-    void setDelta    (const vector<float>& _delta)  { delta     = _delta;}
-    void setWeight   (const vector<float>& _weight) { weight    = _weight;}
-    void setBias     (const vector<float>& _bias)   { bias      = _bias;}
+    void setNbData   (size_t _nbData)          { resize(_nbData);}
+    void setNextLayer(Layer* next)             { nextLayer = next; }
+    void setPrevLayer(Layer* prev)             { prevLayer = prev; }
+    void setA        (const vector<float>& _a) { a = _a;}
+    void setA        (vector<float>&&      _a) { a = move(_a);}
     
     virtual void setDCost(const vector<float>& dc);
     virtual void fwdProp()  = 0;
