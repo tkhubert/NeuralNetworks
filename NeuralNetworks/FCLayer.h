@@ -17,7 +17,9 @@ namespace NN {
 class FCLayer : public Layer
 {
 public:
-    FCLayer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) : Layer(_inputSize, _outputSize, _AFunc) {};
+    FCLayer(size_t inputSize, size_t outputSize, float dropRate, const ActivationFunc& AFunc)
+        : Layer(inputSize, outputSize, dropRate, AFunc) {};
+    
     string getName()    const {return "FCLayer";}
     string getDetails() const {return "";}
     

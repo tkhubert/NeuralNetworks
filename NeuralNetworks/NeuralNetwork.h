@@ -60,6 +60,9 @@ private:
     void   setDCost (const vector<float>& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
     void setNbData(size_t nbData);
+    void setPhase (Phase phase);
+    void setDrop  ();
+    
     void updateParams();
     void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);

@@ -13,6 +13,15 @@ namespace NN {
 //
 void FCLayer::fwdProp()
 {
+    if (prevLayer==nullptr)
+    {
+        for (size_t d=0; d<nbData; ++d)
+            for (size_t o=0; o<outputSize; ++o)
+                a[d*outputSize+o] *= drop[d*outputSize+o];
+        
+        return;
+    }
+    
     // A_(l+1)  = AFunc( W_(l+1) A_l + B_(l+1))
     // dA_(l+1) = dAFunc(A_(l+1))
     const auto& prevA = prevLayer->getA();
@@ -25,7 +34,7 @@ void FCLayer::fwdProp()
             for (size_t i=0; i<inputSize; ++i)
                 val+= weight[o*inputSize+i]*prevA[d*inputSize+i];
             
-            a[d*outputSize+o]  = AFunc.f(val);
+            a[d*outputSize+o]  = AFunc.f(val)*drop[d*outputSize+o];
         }
     }
 }
@@ -35,8 +44,9 @@ void FCLayer::bwdProp()
     calcGrad();
     
     // D_l = (W'_(l+1) D(l+1)) . dA_l
-    const auto& prevA = prevLayer->getA();
-    auto& prevDelta   = prevLayer->getDelta();
+    const auto& prevA    = prevLayer->getA();
+    const auto& prevDrop = prevLayer->getDrop();
+    auto& prevDelta      = prevLayer->getDelta();
     
     float tmp[inputSize][outputSize];
     for (size_t i=0; i<inputSize; ++i)
@@ -51,7 +61,7 @@ void FCLayer::bwdProp()
             for (size_t o=0; o<outputSize; ++o)
                 val += delta[d*outputSize+o]*tmp[i][o];
             
-            prevDelta[d*inputSize+i] = AFunc.df(prevA[d*inputSize+i])*val;
+            prevDelta[d*inputSize+i] = AFunc.df(prevA[d*inputSize+i])*val*prevDrop[d*inputSize+i];
         }
     }
 }

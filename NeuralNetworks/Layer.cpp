@@ -11,10 +11,12 @@ namespace NN {
     
 size_t Layer::layerCount = 0;
 //
-Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc) :
-    inputSize(_inputSize),
-    outputSize(_outputSize),
-    AFunc(_AFunc)
+Layer::Layer(size_t inputSize, size_t outputSize, float dropRate, const ActivationFunc& AFunc) :
+    inputSize(inputSize),
+    outputSize(outputSize),
+    dropRate(dropRate),
+    phase(Phase::TEST),
+    AFunc(AFunc)
 {
     layerNb = layerCount++;
     
@@ -28,6 +30,7 @@ Layer::Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc
     prevLayer = nullptr;
     nextLayer = nullptr;
     
+    gen.seed((int) layerNb);
     initParams();
 }
 //
@@ -40,8 +43,38 @@ Layer::~Layer()
 void Layer::resize(size_t _nbData)
 {
     nbData = _nbData;
-    a.resize      (outputSize*nbData);
-    delta.resize  (outputSize*nbData);
+    a.resize    (outputSize*nbData);
+    delta.resize(outputSize*nbData);
+    drop.resize (outputSize*nbData);
+}
+//
+void Layer::setDrop()
+{
+    if (phase==Phase::TEST)
+    {
+        fill(drop.begin(), drop.end(), 1.-dropRate);
+    }
+    else
+    {
+//        if (layerNb==0 || layerNb==layerCount-1)
+//        {
+//            fill(drop.begin(), drop.end(), 1.);
+//            return;
+//        }
+//        
+//        for (size_t d=0; d<nbData; ++d)
+//        {
+//            for (size_t i=0; i<50; ++i)
+//                drop[d*100+i] = 1;
+//            for (size_t i=50; i<100; ++i)
+//                drop[d*100+i] = 0;
+//        }
+        
+        bernoulli_distribution bern(1.-dropRate);
+        
+        for (size_t i=0; i<drop.size(); ++i)
+            drop[i] = bern(gen);
+    }
 }
 //
 void Layer::setDCost(const vector<float> &dc)
@@ -55,32 +88,37 @@ void Layer::initParams()
     if (inputSize==0)
         return;
     
-    default_random_engine      gen((int)layerNb);
     normal_distribution<float> norm(0.,1.);
     
-    for (size_t i=0; i<bias.size(); ++i)
-        bias[i] = norm(gen);
+    for (size_t o=0; o<outputSize; ++o)
+        bias[o] = norm(gen);
     
     float normalizer = 1./sqrt(inputSize);
-    for (size_t i=0; i<weight.size(); ++i)
-        weight[i] = norm(gen)*normalizer;
+    for (size_t o=0; o<outputSize; ++o)
+        for (size_t i=0; i<inputSize; ++i)
+            weight[o*inputSize+i] = norm(gen)*normalizer;
 }
 //
 void Layer::updateParams(float alpha, float friction, float lambda)
 {
-    for (size_t i=0; i<bias.size(); ++i)
+    for (size_t o=0; o<outputSize; ++o)
     {
-        auto vtmp = vbias[i];
-        vbias[i]  = friction*vbias[i] - alpha*dbias[i];
-        bias[i]  += -friction*vtmp + (1+friction) * vbias[i];
-        dbias[i]  = 0.;
+        auto vtmp = vbias[o];
+        vbias[o]  = friction*vbias[o] - alpha*dbias[o];
+        bias[o]  += -friction*vtmp + (1+friction) * vbias[o];
+        dbias[o]  = 0.;
     }
-    for (size_t i=0; i<weight.size(); ++i)
+    
+    for (size_t o=0; o<outputSize; ++o)
     {
-        auto vtmp   = vweight[i];
-        vweight[i]  = friction*vweight[i] - alpha*(dweight[i]+lambda*weight[i]);
-        weight[i]  += -friction*vtmp + (1+friction)*vweight[i];
-        dweight[i]  = 0.;
+        for (size_t i=0; i<inputSize; ++i)
+        {
+            auto idx      = o*inputSize+i;
+            auto vtmp     = vweight[idx];
+            vweight[idx]  = friction*vweight[idx] - alpha*(dweight[idx]+lambda*weight[idx]);
+            weight[idx]  += -friction*vtmp + (1+friction)*vweight[idx];
+            dweight[idx]  = 0.;
+        }
     }
 }
 

@@ -13,11 +13,13 @@
 #include "ActivationFunc.h"
 
 namespace NN {
-    
+
+enum class Phase {TRAIN, TEST};
+//
 class Layer
 {
 public:
-    Layer(size_t _inputSize, size_t _outputSize, const ActivationFunc& _AFunc);
+    Layer(size_t inputSize, size_t outputSize, float dropRate, const ActivationFunc& AFunc);
     ~Layer();
     
     virtual string getName()    const = 0;
@@ -26,6 +28,7 @@ public:
     auto        getInputSize()   const {return inputSize;}
     auto        getOutputSize()  const {return outputSize;}
     const auto& getA()           const {return a; }
+    const auto& getDrop()        const {return drop; }
     const auto& getBias()        const {return bias; }
     const auto& getWeight()      const {return weight; }
     auto&       getDelta()             {return delta; }
@@ -37,8 +40,10 @@ public:
     void setNbData   (size_t _nbData)          { resize(_nbData);}
     void setNextLayer(Layer* next)             { nextLayer = next; }
     void setPrevLayer(Layer* prev)             { prevLayer = prev; }
+    void setPhase    (Phase  p)                { phase = p; }
     void setA        (const vector<float>& _a) { a = _a;}
     void setA        (vector<float>&&      _a) { a = move(_a);}
+    void setDrop     ();
     
     virtual void setDCost(const vector<float>& dc);
     virtual void fwdProp()  = 0;
@@ -53,9 +58,12 @@ protected:
     size_t        inputSize;
     size_t        outputSize;
     size_t        nbData;
+    float         dropRate;
+    Phase         phase;
     
     vector<float> a;
     vector<float> delta;
+    vector<float> drop;
     
     vector<float> bias;
     vector<float> dbias;
@@ -69,6 +77,7 @@ protected:
     Layer* prevLayer;
 
     const ActivationFunc& AFunc;
+    default_random_engine gen;
     
     void resize(size_t _nbData);
 };

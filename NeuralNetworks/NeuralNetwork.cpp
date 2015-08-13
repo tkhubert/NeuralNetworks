@@ -50,6 +50,18 @@ void NeuralNetwork::setNbData(size_t nbData)
         layers[i]->setNbData(nbData);
 }
 //
+void NeuralNetwork::setPhase(Phase phase)
+{
+    for (size_t i=0; i<nbLayers; ++i)
+        layers[i]->setPhase(phase);
+}
+//
+void NeuralNetwork::setDrop()
+{
+    for (size_t i=0; i<nbLayers; ++i)
+        layers[i]->setDrop();
+}
+//
 void NeuralNetwork::updateParams()
 {
     for (size_t i=1; i<nbLayers; ++i)
@@ -81,14 +93,16 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 void NeuralNetwork::fwdProp(const LabelData& lD)
 {
     setInput(lD);
-    for (size_t i=1; i<nbLayers; ++i)
+    setDrop();
+    for (size_t i=0; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
 void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
     setInput(dataStart, dataEnd);
-    for (size_t i=1; i<nbLayers; ++i)
+    setDrop();
+    for (size_t i=0; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
@@ -147,6 +161,7 @@ void NeuralNetwork::train(const DataContainer& data)
         cout << "Epoch: " << t << ", ";
         clock_t startTimeEpoch = clock();
         
+        setPhase(Phase::TRAIN);
         random_shuffle(lData.begin(), lData.end());
         
         for (size_t batch=0; batch<nbBatches; ++batch)
@@ -193,6 +208,8 @@ void NeuralNetwork::train(const DataContainer& data)
 //
 void NeuralNetwork::test(const vector<LabelData>& lData)
 {
+    setPhase(Phase::TEST);
+    
     cost   =0.;
     errRate=0.;
     
