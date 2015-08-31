@@ -17,12 +17,13 @@ namespace NN {
 class FCLayer : public Layer
 {
 public:
-    FCLayer(size_t inputSize, size_t outputSize, float dropRate, const ActivationFunc& AFunc)
-        : Layer(inputSize, outputSize, dropRate, AFunc) {};
+    FCLayer(size_t size, float dropRate, const ActivationFunc& AFunc);
     
-    string getName()    const {return "FCLayer";}
-    string getDetails() const {return "";}
+    string getName()      const {return "FCLayer";}
+    string getDetails()   const {return "";}
+    LayerClass getClass() const {return LayerClass::FCLayer;}
     
+    void setPrevLayer(Layer* prev);
     void fwdProp();
     void bwdProp();
     void calcGrad();

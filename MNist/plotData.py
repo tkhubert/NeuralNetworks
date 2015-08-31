@@ -198,7 +198,7 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.subplot(2,1,1)
     plt.title('Error: '+title)
     for d in data1:
-    	d1 = [max(0.001,float(err)) for err in d]
+    	d1 = [min(0.1,max(0.00001,float(err))) for err in d]
         plt.plot(x, d1)
     plt.legend(labels)
     plt.ylabel('Error')
@@ -208,7 +208,7 @@ def plot(xlabel, labels, x, data1, data2, title):
     plt.subplot(2,1,2)
     plt.title('Cost: '+title)
     for d in data2:
-        d2 = [max(0.0001,float(err)) for err in d]
+        d2 = [max(0.00001,float(err)) for err in d]
         plt.plot(x, d2)
     plt.legend(labels)
     plt.ylabel('Cost')
@@ -242,12 +242,14 @@ def compareFiles(files):
     
 def main():
     files = []
-    file0 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40_CPU.csv'
-    file1 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40_CPU2.csv'
-    file2 = '784_100_100_10_SMCFunc_RLAFunc_0.01_0.9_2_10_40.csv'
+    file0 = '784_1024_1024_10_SMCFunc_RLAFunc_0.0075_0.9_0.1_10_150_D.csv'
+    file1 = '784_1024_1024_10_SMCFunc_RLAFunc_0.0075_0.9_1_10_150_D.csv'
+    file2 = '784_1024_1024_10_SMCFunc_RLAFunc_0.0075_0.9_0.1_10_150.csv'
+    file3 = '784_1024_1024_10_SMCFunc_RLAFunc_0.0075_0.9_1_10_150.csv'
     files.append(file0)
     files.append(file1)
     files.append(file2)
+    files.append(file3)
     compareFiles(files)
 	
     size = [784, 100, 100, 10]

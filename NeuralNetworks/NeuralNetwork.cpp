@@ -20,7 +20,6 @@ NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, vect
     {
         auto& pLayer = layers[i-1];
         auto& cLayer = layers[i];
-        assert(pLayer->getOutputSize()==cLayer->getInputSize());
         
         pLayer->setNextLayer(cLayer.get());
         cLayer->setPrevLayer(pLayer.get());

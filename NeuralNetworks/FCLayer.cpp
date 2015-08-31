@@ -11,19 +11,37 @@
 namespace NN {
     
 //
+FCLayer::FCLayer(size_t size, float dropRate, const ActivationFunc& AFunc) :
+    Layer(size, dropRate, AFunc)
+{
+    auto biasSize = outputSize;
+    bias.resize (biasSize);
+    dbias.resize(biasSize);
+    vbias.resize(biasSize);
+}
+//
+void FCLayer::setPrevLayer(Layer* prev)
+{
+    prevLayer = prev;
+    inputSize = prevLayer->getOutputSize();
+    
+    auto weightSize = inputSize*outputSize;
+    weight.resize (weightSize);
+    dweight.resize(weightSize);
+    vweight.resize(weightSize);
+    
+    initParams();
+}
+//
 void FCLayer::fwdProp()
 {
     if (prevLayer==nullptr)
     {
-        for (size_t d=0; d<nbData; ++d)
-            for (size_t o=0; o<outputSize; ++o)
-                a[d*outputSize+o] *= drop[d*outputSize+o];
-        
+        transform(a.begin(), a.end(), drop.begin(), a.begin(), [] (auto a, auto d) {return a*d;});
         return;
     }
     
     // A_(l+1)  = AFunc( W_(l+1) A_l + B_(l+1))
-    // dA_(l+1) = dAFunc(A_(l+1))
     const auto& prevA = prevLayer->getA();
     
     for (size_t d=0; d<nbData; ++d)

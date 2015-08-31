@@ -14,16 +14,18 @@
 
 namespace NN {
 
-enum class Phase {TRAIN, TEST};
+enum class Phase { TRAIN, TEST};
+enum class LayerClass { FCLayer, ConvLayer };
 //
 class Layer
 {
 public:
-    Layer(size_t inputSize, size_t outputSize, float dropRate, const ActivationFunc& AFunc);
+    Layer(size_t size, float dropRate, const ActivationFunc& AFunc);
     ~Layer();
     
-    virtual string getName()    const = 0;
-    virtual string getDetails() const = 0;
+    virtual string     getName()    const = 0;
+    virtual string     getDetails() const = 0;
+    virtual LayerClass getClass()   const = 0;
     
     auto        getInputSize()   const {return inputSize;}
     auto        getOutputSize()  const {return outputSize;}
@@ -39,7 +41,7 @@ public:
 
     void setNbData   (size_t _nbData)          { resize(_nbData);}
     void setNextLayer(Layer* next)             { nextLayer = next; }
-    void setPrevLayer(Layer* prev)             { prevLayer = prev; }
+    virtual void setPrevLayer(Layer* prev) = 0;
     void setPhase    (Phase  p)                { phase = p; }
     void setA        (const vector<float>& _a) { a = _a;}
     void setA        (vector<float>&&      _a) { a = move(_a);}
