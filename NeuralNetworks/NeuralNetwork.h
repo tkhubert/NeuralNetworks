@@ -14,6 +14,8 @@
 #include "Optimizer.h"
 #include "Layer.h"
 #include "FCLayer.h"
+#include "ConvLayer.h"
+#include "ConvPoolLayer.h"
 #include "Data.h"
 
 namespace NN {
@@ -67,6 +69,7 @@ private:
     void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(const vector<float>& dC);
+    void calcGrad();
     
     void checkGradient();
 };

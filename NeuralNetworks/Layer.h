@@ -15,7 +15,7 @@
 namespace NN {
 
 enum class Phase { TRAIN, TEST};
-enum class LayerClass { FCLayer, ConvLayer };
+enum class LayerClass { FCLayer, ConvLayer, ConvPoolLayer };
 //
 class Layer
 {

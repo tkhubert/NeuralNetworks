@@ -17,9 +17,19 @@ class ActivationFunc
 {
 public:
     ActivationFunc() {}
-    virtual string getName()    const = 0;
-    virtual float      f(float x)  const = 0;
-    virtual float      df(float f) const = 0;
+    virtual string getName()   const = 0;
+    virtual float  f (float x) const = 0;
+    virtual float  df(float f) const = 0;
+};
+//
+class IdFunc: public ActivationFunc
+{
+public:
+    IdFunc() {}
+    
+    string getName()  const {return "IdFunc";}
+    float f (float x) const {return x;}
+    float df(float f) const {return 1;}
 };
 //
 class SigmoidFunc : public ActivationFunc
@@ -27,9 +37,9 @@ class SigmoidFunc : public ActivationFunc
 public:
     SigmoidFunc() {}
     
-    string getName() const {return "SigAFunc";}
-    float f (float x)   const {return 1./(1+exp(-x));}
-    float df(float f)   const {return f*(1-f);}
+    string getName()  const {return "SigAFunc";}
+    float f (float x) const {return 1./(1+exp(-x));}
+    float df(float f) const {return f*(1-f);}
 };
 //
 class TanHFunc : public ActivationFunc

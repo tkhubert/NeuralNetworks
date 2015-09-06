@@ -57,7 +57,7 @@ void Layer::setDrop()
 //
 void Layer::setDCost(const vector<float> &dc)
 {
-    for (size_t i=0; i<outputSize*nbData; ++i)
+    for (size_t i=0; i<delta.size(); ++i)
         delta[i] = AFunc.df(a[i])*dc[i];
 }
 //

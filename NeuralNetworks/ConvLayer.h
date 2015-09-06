@@ -29,12 +29,12 @@ public:
     auto getMapSize() const {return mapSize;}
     auto getStride()  const {return stride;}
     
-    void setPrevLayer(Layer* layer);
-    void fwdProp();
-    void bwdProp();
-    void calcGrad();
+    virtual void setPrevLayer(Layer* layer);
+    virtual void fwdProp();
+    virtual void bwdProp();
+    virtual void calcGrad();
     
-private:
+protected:
     size_t width;
     size_t height;
     size_t depth;

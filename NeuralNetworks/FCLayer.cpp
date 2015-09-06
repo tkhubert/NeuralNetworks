@@ -59,12 +59,11 @@ void FCLayer::fwdProp()
 //
 void FCLayer::bwdProp()
 {
-    calcGrad();
-    
     // D_l = (W'_(l+1) D(l+1)) . dA_l
-    const auto& prevA    = prevLayer->getA();
-    const auto& prevDrop = prevLayer->getDrop();
-    auto& prevDelta      = prevLayer->getDelta();
+    const auto& prevA     = prevLayer->getA();
+    const auto& prevDrop  = prevLayer->getDrop();
+    const auto& prevAFunc = prevLayer->getAFunc();
+    auto& prevDelta       = prevLayer->getDelta();
     
     float tmp[inputSize][outputSize];
     for (size_t i=0; i<inputSize; ++i)
@@ -79,7 +78,7 @@ void FCLayer::bwdProp()
             for (size_t o=0; o<outputSize; ++o)
                 val += delta[d*outputSize+o]*tmp[i][o];
             
-            prevDelta[d*inputSize+i] = AFunc.df(prevA[d*inputSize+i])*val*prevDrop[d*inputSize+i];
+            prevDelta[d*inputSize+i] = prevAFunc.df(prevA[d*inputSize+i])*val*prevDrop[d*inputSize+i];
         }
     }
 }

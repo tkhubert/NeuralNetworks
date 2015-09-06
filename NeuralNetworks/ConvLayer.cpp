@@ -30,7 +30,7 @@ void ConvLayer::setPrevLayer(Layer* prev)
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
     
-    assert(prevLayer->getClass() == LayerClass::ConvLayer);
+    assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
     auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     auto weightSize = mapSize*mapSize*depth*prevDepth;
     
@@ -43,38 +43,40 @@ void ConvLayer::setPrevLayer(Layer* prev)
 //
 void ConvLayer::fwdProp()
 {
+    if (prevLayer==nullptr)
+        return;
+    
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevConvLayer->getA();
     auto prevHeight   = prevConvLayer->getHeight();
     auto prevWidth    = prevConvLayer->getWidth();
     auto prevDepth    = prevConvLayer->getDepth();
     
-    for (size_t ode=0; ode<depth; ++ode)
+    for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t oh=0; oh<height; ++oh)
+        for (size_t ode=0; ode<depth; ++ode)
         {
-            auto ihStart = oh-(mapSize-1)/2;
-            
-            for (size_t ow=0; ow<width; ++ow)
+            for (size_t oh=0; oh<height; ++oh)
             {
-                auto iwStart = ow-(mapSize-1)/2;
-        
-                auto val = bias[ode];
-                for (size_t ide=0; ide<prevDepth; ++ide)
+                for (size_t ow=0; ow<width; ++ow)
                 {
-                    for (size_t wh=0; wh<mapSize; ++wh)
+                    auto val = bias[ode];
+                    for (size_t ide=0; ide<prevDepth; ++ide)
                     {
-                        for (size_t ww=0; ww<=mapSize; ++ww)
+                        for (size_t wh=0; wh<mapSize; ++wh)
                         {
-                            auto wIdx = ode*mapSize*mapSize*depth+ide*mapSize*mapSize+wh*mapSize+ww;
-                            auto iIdx = ide*prevWidth*prevHeight+(ihStart+wh)*prevHeight+(iwStart+ww);
-                            val += weight[wIdx]*prevA[iIdx];
+                            for (size_t ww=0; ww<mapSize; ++ww)
+                            {
+                                auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
+                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevHeight+(ow+ww);
+                                val += weight[wIdx]*prevA[iIdx];
+                            }
                         }
                     }
+                    
+                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
+                    a[oIdx] = AFunc.f(val);
                 }
-                
-                auto oIdx = ode*width*height+oh*width+ow;
-                a[oIdx] = AFunc.f(val);
             }
         }
     }
@@ -82,41 +84,39 @@ void ConvLayer::fwdProp()
 //
 void ConvLayer::bwdProp()
 {
-    calcGrad();
-    
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto& prevDelta   = prevConvLayer->getDelta();
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
+    auto& prevDelta       = prevConvLayer->getDelta();
+    const auto& prevA     = prevConvLayer->getA();
+    const auto& prevAFunc = prevConvLayer->getAFunc();
+    auto prevHeight       = prevConvLayer->getHeight();
+    auto prevWidth        = prevConvLayer->getWidth();
+    auto prevDepth        = prevConvLayer->getDepth();
     
-    for (size_t ide=0; ide<prevDepth; ++ide)
+    for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t ih=0; ih<prevHeight; ++ih)
+        for (size_t ide=0; ide<prevDepth; ++ide)
         {
-            auto ohStart = ih+(mapSize-1)/2;
-            
-            for (size_t iw=0; iw<prevWidth; ++iw)
+            for (size_t ih=0; ih<prevHeight; ++ih)
             {
-                auto owStart = iw+(mapSize-1)/2;
-                
-                auto val=0.;
-                for (size_t ode=0; ide<depth; ++ode)
+                for (size_t iw=0; iw<prevWidth; ++iw)
                 {
-                    for (size_t wh=0; wh<mapSize; ++wh)
+                    float val=0.;
+                    for (size_t ode=0; ode<depth; ++ode)
                     {
-                        for (size_t ww=0; ww<=mapSize; ++ww)
+                        for (size_t wh=0; wh<mapSize; ++wh)
                         {
-                            auto wIdx = ode*mapSize*mapSize*depth+ide*mapSize*mapSize+wh*mapSize+ww;
-                            auto oIdx = ode*prevWidth*prevHeight+(ohStart-wh)*prevHeight+(owStart-ww);
-                            val += weight[wIdx]*delta[oIdx];
+                            for (size_t ww=0; ww<mapSize; ++ww)
+                            {
+                                auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
+                                auto oIdx = d*width*height*depth+ode*width*height+(ih-wh)*height+(iw-ww);
+                                val += weight[wIdx]*delta[oIdx];
+                            }
                         }
                     }
+                    
+                    auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+ih*prevWidth+iw;
+                    prevDelta[iIdx] = prevAFunc.df(prevA[iIdx])*val;
                 }
-                
-                auto iIdx = ide*prevWidth*prevHeight+ih*prevWidth+iw;
-                prevDelta[iIdx] = AFunc.df(prevA[iIdx])*val;
             }
         }
     }
@@ -130,44 +130,42 @@ void ConvLayer::calcGrad()
     auto prevWidth    = prevConvLayer->getWidth();
     auto prevDepth    = prevConvLayer->getDepth();
     
-    for (size_t ode=0; ode<depth; ++ode)
+    for (size_t d=0; d<nbData; ++d)
     {
-        auto valBias=0.;
-        for (size_t oh=0; oh<height; ++oh)
+        for (size_t ode=0; ode<depth; ++ode)
         {
-            for (size_t ow=0; ow<width; ++ow)
+            float valBias=0.;
+            for (size_t oh=0; oh<height; ++oh)
             {
-                auto oIdx = ode*width*height+oh*width+ow;
-                valBias += delta[oIdx];
-            }
-        }
-        dbias[ode] = valBias;
-        
-        
-        for (size_t ide=0; ide<prevDepth; ++ide)
-        {
-            for (size_t wh=0; wh<mapSize; ++wh)
-            {
-                for (size_t ww=0; ww<mapSize; ++ww)
+                for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto valWeight =0.;
-               
-                    for (size_t oh=0; oh<height; ++oh)
+                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
+                    valBias += delta[oIdx];
+                }
+            }
+            dbias[ode] += valBias;
+            
+            
+            for (size_t ide=0; ide<prevDepth; ++ide)
+            {
+                for (size_t wh=0; wh<mapSize; ++wh)
+                {
+                    for (size_t ww=0; ww<mapSize; ++ww)
                     {
-                        auto ihStart = oh-(mapSize-1)/2;
-                        
-                        for (size_t ow=0; ow<width; ++ow)
+                        float valWeight =0.;
+                        for (size_t oh=0; oh<height; ++oh)
                         {
-                            auto iwStart = ow-(mapSize-1)/2;
-
-                            auto iIdx  = ide*prevWidth*prevHeight+(ihStart+wh)*prevHeight+(iwStart+ww);
-                            auto oIdx  = ode*width*height+oh*width+ow;
-                            valWeight +=  delta[oIdx]*prevA[iIdx];
+                            for (size_t ow=0; ow<width; ++ow)
+                            {
+                                auto iIdx  = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevHeight+(ow+ww);
+                                auto oIdx  = d*width*height*depth+ode*width*height+oh*width+ow;
+                                valWeight +=  delta[oIdx]*prevA[iIdx];
+                            }
                         }
+                        
+                        auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
+                        dweight[wIdx] += valWeight;
                     }
-                    
-                    auto wIdx = ode*mapSize*mapSize*depth+ide*mapSize*mapSize+wh*mapSize+ww;
-                    dweight[wIdx] = valWeight;
                 }
             }
         }

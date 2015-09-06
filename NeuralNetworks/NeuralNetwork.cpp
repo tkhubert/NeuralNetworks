@@ -108,8 +108,14 @@ void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 void NeuralNetwork::bwdProp(const vector<float>& dC)
 {
     setDCost(dC);
-    for (size_t i=nbLayers-1; i>=1; --i)
+    for (size_t i=nbLayers-1; i>=2; --i)
         layers[i]->bwdProp();
+}
+//
+void NeuralNetwork::calcGrad()
+{
+    for (size_t i=nbLayers-1; i>=1; --i)
+        layers[i]->calcGrad();
 }
 //
 float NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
@@ -176,6 +182,7 @@ void NeuralNetwork::train(const DataContainer& data)
             fwdProp  (dataStart, dataEnd);
             calcDCost(dataStart, dataEnd, dC);
             bwdProp  (dC);
+            calcGrad ();
             
             updateParams();
         }

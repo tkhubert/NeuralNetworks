@@ -12,6 +12,7 @@
 		80018F5A1AD5D9C1007C81CD /* NeuralNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */; };
 		80503C281B7F3C7F0051860D /* ConvLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80503C261B7F3C7F0051860D /* ConvLayer.cpp */; };
 		8068CBB11B47EDCE00E2B1A7 /* FCLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8068CBAF1B47EDCE00E2B1A7 /* FCLayer.cpp */; };
+		80E643F91B9B478000B5622C /* ConvPoolLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80E643F71B9B478000B5622C /* ConvPoolLayer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +44,8 @@
 		807BA6951AD715CA00BB878B /* Optimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Optimizer.h; sourceTree = "<group>"; };
 		80B3E9B01AD92E9900B9726C /* MNistParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNistParser.h; sourceTree = "<group>"; };
 		80B3E9B11AD9370500B9726C /* Data.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Data.h; sourceTree = "<group>"; };
+		80E643F71B9B478000B5622C /* ConvPoolLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConvPoolLayer.cpp; sourceTree = "<group>"; };
+		80E643F81B9B478000B5622C /* ConvPoolLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConvPoolLayer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +99,7 @@
 				80018F541AD5C6D1007C81CD /* Layer.cpp */,
 				8068CBAF1B47EDCE00E2B1A7 /* FCLayer.cpp */,
 				80503C261B7F3C7F0051860D /* ConvLayer.cpp */,
+				80E643F71B9B478000B5622C /* ConvPoolLayer.cpp */,
 			);
 			name = Layer;
 			sourceTree = "<group>";
@@ -106,6 +110,7 @@
 				80018F551AD5C6D1007C81CD /* Layer.h */,
 				8068CBB01B47EDCE00E2B1A7 /* FCLayer.h */,
 				80503C271B7F3C7F0051860D /* ConvLayer.h */,
+				80E643F81B9B478000B5622C /* ConvPoolLayer.h */,
 			);
 			name = Layer_h;
 			sourceTree = "<group>";
@@ -169,6 +174,7 @@
 				80503C281B7F3C7F0051860D /* ConvLayer.cpp in Sources */,
 				80018F4C1AD487E4007C81CD /* main.cpp in Sources */,
 				80018F561AD5C6D1007C81CD /* Layer.cpp in Sources */,
+				80E643F91B9B478000B5622C /* ConvPoolLayer.cpp in Sources */,
 				8068CBB11B47EDCE00E2B1A7 /* FCLayer.cpp in Sources */,
 				80018F5A1AD5D9C1007C81CD /* NeuralNetwork.cpp in Sources */,
 			);
