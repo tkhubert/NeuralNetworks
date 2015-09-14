@@ -9,7 +9,6 @@
 #ifndef __NeuralNetworks__ConvPoolLayer__
 #define __NeuralNetworks__ConvPoolLayer__
 
-#include <map>
 #include "ConvLayer.h"
 
 namespace NN
@@ -30,7 +29,9 @@ public:
     void calcGrad() {};
     
 private:
-    multimap<size_t, size_t> maxIdx;
+    vector<float> maxIdx;
+    
+    void resize(size_t nbData);
 };
     
 }

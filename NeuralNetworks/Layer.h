@@ -51,14 +51,15 @@ public:
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
-    void         initParams();
-    void         updateParams(float alpha, float friction, float lambdaOverN);
+    void initParams();
+    void updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
     static size_t layerCount;
     size_t        layerNb;
     size_t        inputSize;
     size_t        outputSize;
+    size_t        weightInputSize;
     size_t        nbData;
     float         dropRate;
     Phase         phase;
@@ -81,7 +82,7 @@ protected:
     const ActivationFunc& AFunc;
     default_random_engine gen;
     
-    void resize(size_t _nbData);
+    virtual void resize(size_t nbData);
 };
 
 }

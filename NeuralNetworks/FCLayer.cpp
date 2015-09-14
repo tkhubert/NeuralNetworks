@@ -26,6 +26,7 @@ void FCLayer::setPrevLayer(Layer* prev)
     inputSize = prevLayer->getOutputSize();
     
     auto weightSize = inputSize*outputSize;
+    weightInputSize = inputSize;
     weight.resize (weightSize);
     dweight.resize(weightSize);
     vweight.resize(weightSize);

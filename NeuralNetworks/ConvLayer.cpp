@@ -34,6 +34,7 @@ void ConvLayer::setPrevLayer(Layer* prev)
     auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     auto weightSize = mapSize*mapSize*depth*prevDepth;
     
+    weightInputSize = mapSize*mapSize*prevDepth;
     weight.resize (weightSize);
     dweight.resize(weightSize);
     vweight.resize(weightSize);

@@ -71,7 +71,7 @@ void Layer::initParams()
     for (size_t o=0; o<bias.size(); ++o)
         bias[o] = norm(gen);
     
-    float normalizer = 1./sqrt(inputSize);
+    float normalizer = 1./sqrt(weightInputSize);
     for (size_t o=0; o<weight.size(); ++o)
         weight[o] = norm(gen)*normalizer;
 }

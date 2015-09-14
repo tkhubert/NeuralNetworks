@@ -26,10 +26,17 @@ void ConvPoolLayer::setPrevLayer(Layer* prev)
 {
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
+    weightInputSize = 1.;
     
     assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
     assert(static_cast<ConvLayer*>(prevLayer)->getDepth() == depth);
     initParams();
+}
+//
+void ConvPoolLayer::resize(size_t nbData)
+{
+    Layer::resize(nbData);
+    maxIdx.resize(outputSize*nbData);
 }
 //
 void ConvPoolLayer::fwdProp()
@@ -62,16 +69,15 @@ void ConvPoolLayer::fwdProp()
                             iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+(ihStart+wh)*prevHeight+(iwStart+ww);
                             if (val<prevA[iIdx])
                             {
-                                val = prevA[iIdx];
                                 mIdx = iIdx;
+                                val = prevA[iIdx];
                             }
                         }
                     }
                     
-                    auto oIdx = d*width*height*depth+de*width*height+oh*width+ow;
-                    a[oIdx] = val;
-                    
-                    maxIdx.emplace(mIdx, oIdx);
+                    auto oIdx    = d*width*height*depth+de*width*height+oh*width+ow;
+                    a[oIdx]      = AFunc.f(val);
+                    maxIdx[oIdx] = mIdx;
                 }
             }
         }
@@ -84,29 +90,19 @@ void ConvPoolLayer::bwdProp()
     auto& prevDelta       = prevConvLayer->getDelta();
     const auto& prevA     = prevConvLayer->getA();
     const auto& prevAFunc = prevConvLayer->getAFunc();
-    auto prevHeight       = prevConvLayer->getHeight();
-    auto prevWidth        = prevConvLayer->getWidth();
-    auto prevDepth        = prevConvLayer->getDepth();
-    
+
     for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t de=0; de<prevDepth; ++de)
+        for (size_t de=0; de<depth; ++de)
         {
-            for (size_t ih=0; ih<prevHeight; ++ih)
+            for (size_t oh=0; oh<height; ++oh)
             {
-                for (size_t iw=0; iw<prevWidth; ++iw)
+                for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+ih*prevWidth+iw;
+                    auto oIdx = d*width*height*depth+de*width*height+oh*width+ow;
+                    auto iIdx = maxIdx[oIdx];
                     
-                    auto val = 0.;
-                    auto range = maxIdx.equal_range(iIdx);
-                    for (auto itr=range.first; itr!=range.second; ++itr)
-                    {
-                        auto oIdx = itr->second;
-                        val += delta[oIdx] * prevAFunc.df(prevA[iIdx]);
-                    }
-                    
-                    prevDelta[iIdx] = val;
+                    prevDelta[iIdx] += delta[oIdx] * prevAFunc.df(prevA[iIdx]);
                 }
             }
         }

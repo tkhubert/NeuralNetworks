@@ -77,25 +77,19 @@ void CL()
     string testData    = dir + "t10k-images-idx3-ubyte";
     
     MNistDataContainer data(trainLabels, testLabels, trainData, testData);
-    auto iS = data.getDataSize();
     auto tS = data.getTrainLabelData().size();
     
     IdFunc IFunc;
     RLFunc RFunc;
     
-    int    batchSize = 10;
-    int    nbEpochs  = 10;
+    int    batchSize = 20;
+    int    nbEpochs  = 100;
     
-    float dropRateI = 0.0;
-    float dropRate  = 0.0;
-    float friction  = 0.0;
-    vector<float> lRV     = {0.1};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    float friction  = 0.;
+    vector<float> lRV     = {0.005, 0.01, 0.02};//{0.001,0.002, 0.005, 0.01, 0.02};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     vector<float> lambdaV = {0};//{4};//{0.1, 1, 3, 5};
     
     vector<unique_ptr<CostFunc>> CFV;
-    //CFV.emplace_back(make_unique<MSECostFunc>());
-    //CFV.emplace_back(make_unique<CECostFunc>());
-    //CFV.emplace_back(make_unique<SVMCostFunc>());
     CFV.emplace_back(make_unique<SMCostFunc>());
     
     for (size_t k=0; k<CFV.size(); ++k)
@@ -106,9 +100,9 @@ void CL()
             {
                 vector<unique_ptr<Layer>> layers;
                 layers.emplace_back(make_unique<ConvLayer>    (28, 28,  1, 0, 0, RFunc));
-                layers.emplace_back(make_unique<ConvLayer>    (24, 24,  2, 5, 0, RFunc));
-                //layers.emplace_back(make_unique<ConvPoolLayer>(14, 14, 1, 2, 0, IFunc));
-                layers.emplace_back(make_unique<FCLayer>      (100, dropRate   , RFunc));
+                layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 0, RFunc));
+                layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 0, IFunc));
+                layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
                 layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
                 
                 Optimizer     Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
