@@ -91,6 +91,8 @@ void ConvPoolLayer::bwdProp()
     const auto& prevA     = prevConvLayer->getA();
     const auto& prevAFunc = prevConvLayer->getAFunc();
 
+    fill(prevDelta.begin(), prevDelta.end(), 0.);
+    
     for (size_t d=0; d<nbData; ++d)
     {
         for (size_t de=0; de<depth; ++de)
