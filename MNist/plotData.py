@@ -242,8 +242,13 @@ def compareFiles(files):
     
 def main():
     files = []
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.005_0_0_20_100.csv')
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.01_0_0_20_100.csv')
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.02_0_0_20_100.csv')
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.001_0.9_0_20_100.csv')
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.005_0.9_0_20_100.csv')
     files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.0075_0.9_0_20_100.csv')
-    files.append('784_11520_100_10_SMCFunc_RLAFunc_0.0075_0.9_0_20_100.csv')
+    files.append('784_11520_2880_100_10_SMCFunc_RLAFunc_0.01_0.9_0_20_100.csv')
     compareFiles(files)
 	
     size = [784, 100, 100, 10]

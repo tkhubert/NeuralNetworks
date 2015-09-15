@@ -69,7 +69,7 @@ void ConvLayer::fwdProp()
                             for (size_t ww=0; ww<mapSize; ++ww)
                             {
                                 auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevHeight+(ow+ww);
+                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevWidth+(ow+ww);
                                 val += weight[wIdx]*prevA[iIdx];
                             }
                         }
@@ -99,17 +99,23 @@ void ConvLayer::bwdProp()
         {
             for (size_t ih=0; ih<prevHeight; ++ih)
             {
+                auto whs = max<size_t>(0, ih-height+1);
+                auto whe = min(mapSize,ih+1);
+                
                 for (size_t iw=0; iw<prevWidth; ++iw)
                 {
+                    auto wws = max<size_t>(0, iw-width+1);
+                    auto wwe = min(mapSize,iw+1);
+                    
                     float val=0.;
                     for (size_t ode=0; ode<depth; ++ode)
                     {
-                        for (size_t wh=0; wh<mapSize; ++wh)
+                        for (size_t wh=whs; wh<whe; ++wh)
                         {
-                            for (size_t ww=0; ww<mapSize; ++ww)
+                            for (size_t ww=wws; ww<wwe; ++ww)
                             {
                                 auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto oIdx = d*width*height*depth+ode*width*height+(ih-wh)*height+(iw-ww);
+                                auto oIdx = d*width*height*depth+ode*width*height+(ih-wh)*width+(iw-ww);
                                 val += weight[wIdx]*delta[oIdx];
                             }
                         }
