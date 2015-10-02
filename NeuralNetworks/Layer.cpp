@@ -76,23 +76,5 @@ void Layer::initParams()
         weight[o] = norm(gen)*normalizer;
 }
 //
-void Layer::updateParams(float alpha, float friction, float lambda)
-{
-    for (size_t o=0; o<bias.size(); ++o)
-    {
-        auto vtmp = vbias[o];
-        vbias[o]  = friction*vbias[o] - alpha*dbias[o];
-        bias [o] += -friction*vtmp + (1+friction)*vbias[o];
-        dbias[o]  = 0.;
-    }
-    
-    for (size_t o=0; o<weight.size(); ++o)
-    {
-        auto vtmp   = vweight[o];
-        vweight[o]  = friction*vweight[o] - alpha*(dweight[o]+lambda*weight[o]);
-        weight [o] += -friction*vtmp + (1+friction)*vweight[o];
-        dweight[o]  = 0.;
-    }
-}
 
 }

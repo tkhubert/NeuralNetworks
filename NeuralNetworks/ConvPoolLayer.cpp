@@ -16,10 +16,8 @@ ConvPoolLayer::ConvPoolLayer(size_t width, size_t height, size_t depth, size_t m
 {
     bias.resize(0);
     dbias.resize(0);
-    vbias.resize(0);
     weight.resize (0);
     dweight.resize(0);
-    vweight.resize(0);
 }
 //
 void ConvPoolLayer::setPrevLayer(Layer* prev)

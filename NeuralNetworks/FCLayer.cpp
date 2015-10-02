@@ -17,7 +17,6 @@ FCLayer::FCLayer(size_t size, float dropRate, const ActivationFunc& AFunc) :
     auto biasSize = outputSize;
     bias.resize (biasSize);
     dbias.resize(biasSize);
-    vbias.resize(biasSize);
 }
 //
 void FCLayer::setPrevLayer(Layer* prev)
@@ -29,7 +28,6 @@ void FCLayer::setPrevLayer(Layer* prev)
     weightInputSize = inputSize;
     weight.resize (weightSize);
     dweight.resize(weightSize);
-    vweight.resize(weightSize);
     
     initParams();
 }

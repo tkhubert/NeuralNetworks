@@ -26,6 +26,8 @@ public:
     virtual void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const = 0;
 };
 //
+    
+//
 class MSECostFunc : public CostFunc
 {
 public:
@@ -77,6 +79,8 @@ public:
     }
 
 };
+//
+    
 //
 class CECostFunc : public CostFunc
 {
@@ -130,6 +134,8 @@ public:
     }
 };
 //
+    
+//
 class SMCostFunc : public CostFunc
 {
 public:
@@ -182,6 +188,8 @@ public:
         }
     }
 };
+//
+    
 //
 class SVMCostFunc : public CostFunc
 {

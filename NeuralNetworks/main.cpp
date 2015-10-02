@@ -36,18 +36,15 @@ void MLP()
     RLFunc      RFunc;
     
     int    batchSize = 10;
-    int    nbEpochs  = 10;
+    int    nbEpochs  = 5;
     
-    float dropRateI = 0.01;
-    float dropRate  = 0.05;
+    float dropRateI = 0.001;
+    float dropRate  = 0.005;
     float friction  = 0.9;
-    vector<float> lRV     = {0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    vector<float> lRV     = {0.01};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     vector<float> lambdaV = {4};//{0.1, 1, 3, 5};
     
     vector<unique_ptr<CostFunc>> CFV;
-    //CFV.emplace_back(make_unique<MSECostFunc>());
-    //CFV.emplace_back(make_unique<CECostFunc>());
-    //CFV.emplace_back(make_unique<SVMCostFunc>());
     CFV.emplace_back(make_unique<SMCostFunc>());
     
     for (size_t k=0; k<CFV.size(); ++k)
@@ -63,9 +60,11 @@ void MLP()
                 //layers.emplace_back(make_unique<FCLayer>(100, dropRate, RFunc));
                 layers.emplace_back(make_unique<FCLayer>(10 , 0.       , RFunc));
                 
-                Optimizer     Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
-                NeuralNetwork FCNN (*CFV[k], Optim, move(layers));
-                FCNN.train(data);
+                //NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+                GDOptimizer   Optim(lRV[j], lambdaV[i], batchSize, nbEpochs, tS);
+                
+                NeuralNetwork FCNN (*CFV[k], move(layers));
+                FCNN.train(data, Optim);
             }
         }
     }
@@ -89,7 +88,7 @@ void CL()
     int    nbEpochs  = 100;
     
     float friction  = 0.9;
-    vector<float> lRV     =  {0.003};//0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05};//{0.001,0.002, 0.005, 0.01, 0.02};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    vector<float> lRV     =  {0.004};//0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05};//{0.001,0.002, 0.005, 0.01, 0.02};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     vector<float> lambdaV = {0};//{4};//{0.1, 1, 3, 5};
     
     vector<unique_ptr<CostFunc>> CFV;
@@ -110,9 +109,9 @@ void CL()
                 layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
                 layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
                 
-                Optimizer     Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
-                NeuralNetwork FCNN (*CFV[k], Optim, move(layers));
-                FCNN.train(data);
+                NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+                NeuralNetwork CNN (*CFV[k], move(layers));
+                CNN.train(data, Optim);
             }
         }
     }
@@ -120,8 +119,8 @@ void CL()
 //
 int main(int argc, const char * argv[])
 {
-    //MLP();
-    CL();
+    MLP();
+    //CL();
     return 0;
 }
 

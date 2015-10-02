@@ -254,10 +254,11 @@ def main():
     ##files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.02_0_0_20_100.csv')
     #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.03_0_0_20_100.csv')
     ##files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.1_0_0_20_100.csv')
-    files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.001_0.9_0_20_100.csv')
-    files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.002_0.9_0_20_100.csv')
-    files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.005_0.9_0_20_100.csv')
-    files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.01_0.9_0_20_100.csv')
+    #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.001_0.9_0_20_100.csv')
+    #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.002_0.9_0_20_100.csv')
+    #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.003_0.9_0_20_100.csv')
+    #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.005_0.9_0_20_100.csv')
+    #files.append('784_11520_2880_2560_640_100_10_SMCFunc_RLAFunc_0.01_0.9_0_20_100.csv')
     compareFiles(files)
 	
     size = [784, 100, 100, 10]

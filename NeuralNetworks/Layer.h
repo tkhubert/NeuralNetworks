@@ -27,13 +27,18 @@ public:
     virtual string     getDetails() const = 0;
     virtual LayerClass getClass()   const = 0;
     
-    auto        getInputSize()   const {return inputSize;}
-    auto        getOutputSize()  const {return outputSize;}
-    const auto& getA()           const {return a; }
-    const auto& getDrop()        const {return drop; }
-    const auto& getBias()        const {return bias; }
-    const auto& getWeight()      const {return weight; }
-    auto&       getDelta()             {return delta; }
+    auto        getInputSize () const {return inputSize;}
+    auto        getOutputSize() const {return outputSize;}
+    auto        getLayerNb   () const {return layerNb;}
+    const auto& getA         () const {return a; }
+    const auto& getDrop      () const {return drop; }
+    const auto& getBias      () const {return bias; }
+    auto&       getBias      ()       {return bias; }
+    auto&       getDBias     ()       {return dbias;}
+    const auto& getWeight    () const {return weight; }
+    auto&       getWeight    ()       {return weight;}
+    auto&       getDWeight   ()       {return dweight; }
+    auto&       getDelta     ()       {return delta; }
 
     const Layer*          getNextLayer() const {return nextLayer;}
     const Layer*          getPrevLayer() const {return prevLayer;}
@@ -52,7 +57,6 @@ public:
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
     void initParams();
-    void updateParams(float alpha, float friction, float lambdaOverN);
     
 protected:
     static size_t layerCount;
@@ -70,10 +74,8 @@ protected:
     
     vector<float> bias;
     vector<float> dbias;
-    vector<float> vbias;
     vector<float> weight;
     vector<float> dweight;
-    vector<float> vweight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
 
     Layer* nextLayer;

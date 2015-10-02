@@ -22,6 +22,8 @@ public:
     virtual float  df(float f) const = 0;
 };
 //
+    
+//
 class IdFunc: public ActivationFunc
 {
 public:
@@ -32,6 +34,8 @@ public:
     float df(float f) const {return 1;}
 };
 //
+    
+//
 class SigmoidFunc : public ActivationFunc
 {
 public:
@@ -41,6 +45,8 @@ public:
     float f (float x) const {return 1./(1+exp(-x));}
     float df(float f) const {return f*(1-f);}
 };
+//
+    
 //
 class TanHFunc : public ActivationFunc
 {
@@ -56,6 +62,8 @@ public:
     }
     float df(float f) const {return 1.-f*f;}
 };
+//
+    
 //
 class RLFunc : public ActivationFunc
 {

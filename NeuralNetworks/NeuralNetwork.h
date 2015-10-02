@@ -23,7 +23,7 @@ namespace NN {
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, vector<unique_ptr<Layer>>&& layers);
+    NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& layers);
     
     string getName()    const;
     string getDetails() const;
@@ -31,8 +31,8 @@ public:
     float getCost()    const {return cost;}
     float getErrRate() const {return errRate;}
     
-    void train(const DataContainer& data);
-    void test (const vector<LabelData>& lData);
+    void train(const DataContainer& data, Optimizer& Optim);
+    void test (const vector<LabelData>& lData, size_t batchSize=20);
     
     const auto& predict(const LabelData& lD);
     
@@ -43,13 +43,10 @@ private:
     size_t nbLayers;
     
     const CostFunc&     CFunc;
-    const Optimizer&    Optim;
     vector<unique_ptr<Layer>> layers;
     
     float               cost;
     float               errRate;
-    
-    ofstream       debugFile;
     
     // methods
     void  setInput(const LabelData& lD);
@@ -65,7 +62,7 @@ private:
     void setPhase (Phase phase);
     void setDrop  ();
     
-    void updateParams();
+    void updateParams(Optimizer& optim);
     void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(const vector<float>& dC);

@@ -10,9 +10,8 @@
 
 namespace NN {
     
-NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, vector<unique_ptr<Layer>>&& _layers) :
+NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& _layers) :
     CFunc(CFunc),
-    Optim(Optim),
     nbLayers(_layers.size()),
     layers(move(_layers))
 {
@@ -28,7 +27,6 @@ NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, const Optimizer& Optim, vect
     inputSize  = layers.front()->getOutputSize();
     outputSize = layers.back()->getOutputSize();
     
-    debugFile  = ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+getName());
 }
 //
 string NeuralNetwork::getName() const
@@ -37,9 +35,7 @@ string NeuralNetwork::getName() const
     for (size_t i=0; i<nbLayers; ++i)
         ss << layers[i]->getOutputSize() << "_";
 
-    ss << CFunc.getName() << "_" << layers.back()->getAFunc().getName() << "_" << Optim.getName();
-    ss << ".csv";
-
+    ss << CFunc.getName() << "_" << layers.back()->getAFunc().getName();
     return ss.str();
 }
 //
@@ -61,10 +57,10 @@ void NeuralNetwork::setDrop()
         layers[i]->setDrop();
 }
 //
-void NeuralNetwork::updateParams()
+void NeuralNetwork::updateParams(Optimizer& optim)
 {
     for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->updateParams(Optim.alpha, Optim.friction, Optim.lambda);
+        optim.updateParams(*layers[i]);
 }
 //
 void NeuralNetwork::setInput(const LabelData& lD)
@@ -151,16 +147,23 @@ size_t NeuralNetwork::isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) 
     return nbCorrect;
 }
 //
-void NeuralNetwork::train(const DataContainer& data)
+void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
 {
     auto lData = data.getTrainLabelData();
     
-    cout << "Start training " << getName() << "-------------"<<endl;
+    auto name = getName() + "_" + optim.getName();
+    ofstream debugFile  = ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+name+".csv");
+
+    cout << "Start training " << name << "-------------"<<endl;
     
+    auto nbEpochs   = optim.getNbEpochs();
+    auto batchSize  = optim.getBatchSize();
     auto totalISize = lData.size();
-    auto nbBatches  = (totalISize-1)/Optim.batchSize + 1;
+    auto nbBatches  = (totalISize-1)/batchSize + 1;
     
-    for (size_t t=0; t<Optim.nbEpochs; ++t)
+    optim.resize(layers);
+    
+    for (size_t t=0; t<nbEpochs; ++t)
     {
         debugFile << t << ", ";
         cout << "Epoch: " << t << ", ";
@@ -171,8 +174,8 @@ void NeuralNetwork::train(const DataContainer& data)
         
         for (size_t batch=0; batch<nbBatches; ++batch)
         {
-            auto start  = batch*Optim.batchSize;
-            auto end    = min(start+Optim.batchSize, lData.size());
+            auto start  = batch*batchSize;
+            auto end    = min(start+batchSize, lData.size());
             auto nbData = end-start;
             
             vector<float> dC(outputSize*nbData);
@@ -184,35 +187,35 @@ void NeuralNetwork::train(const DataContainer& data)
             bwdProp  (dC);
             calcGrad ();
             
-            updateParams();
+            updateParams(optim);
         }
         
         auto timeEpoch = ( clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
         debugFile << "time " << timeEpoch << "s,";
         cout << "time " << timeEpoch << "s,";
         
-        test(data.getTrainLabelData());
+        test(data.getTrainLabelData(), batchSize);
         auto trainErrRate = errRate;
         auto trainCost    = cost;
         
-        test(data.getCrossLabelData());
+        test(data.getCrossLabelData(), batchSize);
         auto crossErrRate = errRate;
         auto crossCost    = cost;
         
-        test(data.getTestLabelData());
+        test(data.getTestLabelData(), batchSize);
         auto testErrRate = errRate;
         auto testCost    = cost;
         
         debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         debugFile << trainCost    << "," << crossCost    << "," << testCost    << endl;
-        cout << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
-        cout << trainCost    << "," << crossCost    << "," << testCost    << endl;
+        cout      << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
+        cout      << trainCost    << "," << crossCost    << "," << testCost    << endl;
     }
     
     debugFile.close();
 }
 //
-void NeuralNetwork::test(const vector<LabelData>& lData)
+void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
 {
     setPhase(Phase::TEST);
     
@@ -220,12 +223,12 @@ void NeuralNetwork::test(const vector<LabelData>& lData)
     errRate=0.;
     
     auto totalISize = lData.size();
-    auto nbBatches  = (totalISize-1)/Optim.batchSize + 1;
+    auto nbBatches  = (totalISize-1)/batchSize + 1;
     
     for (size_t batch=0; batch<nbBatches; ++batch)
     {
-        auto start  = batch*Optim.batchSize;
-        auto end    = min(start+Optim.batchSize, lData.size());
+        auto start  = batch*batchSize;
+        auto end    = min(start+batchSize, lData.size());
         auto nbData = end-start;
         
         auto dataStart = lData.cbegin()+start;

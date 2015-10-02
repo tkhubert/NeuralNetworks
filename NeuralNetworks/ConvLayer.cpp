@@ -22,7 +22,6 @@ ConvLayer::ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, 
     auto biasSize = depth;
     bias.resize(biasSize);
     dbias.resize(biasSize);
-    vbias.resize(biasSize);
 };
 //
 void ConvLayer::setPrevLayer(Layer* prev)
@@ -37,7 +36,6 @@ void ConvLayer::setPrevLayer(Layer* prev)
     weightInputSize = mapSize*mapSize*prevDepth;
     weight.resize (weightSize);
     dweight.resize(weightSize);
-    vweight.resize(weightSize);
     
     initParams();
 }
