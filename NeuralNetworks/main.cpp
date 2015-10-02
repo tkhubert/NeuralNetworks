@@ -32,8 +32,7 @@ void MLP()
     auto iS = data.getDataSize();
     auto tS = data.getTrainLabelData().size();
     
-    SigmoidFunc SigFunc;
-    RLFunc      RFunc;
+    RLFunc RFunc;
     
     int    batchSize = 10;
     int    nbEpochs  = 5;
@@ -41,31 +40,25 @@ void MLP()
     float dropRateI = 0.001;
     float dropRate  = 0.005;
     float friction  = 0.9;
-    vector<float> lRV     = {0.01};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    vector<float> lRV     = {0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     vector<float> lambdaV = {4};//{0.1, 1, 3, 5};
     
-    vector<unique_ptr<CostFunc>> CFV;
-    CFV.emplace_back(make_unique<SMCostFunc>());
+    SMCostFunc SMCost;
     
-    for (size_t k=0; k<CFV.size(); ++k)
+    for (size_t i=0; i<lambdaV.size(); ++i)
     {
-        for (size_t i=0; i<lambdaV.size(); ++i)
+        for (size_t j=0; j<lRV.size(); ++j)
         {
-            for (size_t j=0; j<lRV.size(); ++j)
-            {
-                vector<unique_ptr<Layer>> layers;
-                layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
-                layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-                layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-                //layers.emplace_back(make_unique<FCLayer>(100, dropRate, RFunc));
-                layers.emplace_back(make_unique<FCLayer>(10 , 0.       , RFunc));
-                
-                //NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
-                GDOptimizer   Optim(lRV[j], lambdaV[i], batchSize, nbEpochs, tS);
-                
-                NeuralNetwork FCNN (*CFV[k], move(layers));
-                FCNN.train(data, Optim);
-            }
+            vector<unique_ptr<Layer>> layers;
+            layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
+            //layers.emplace_back(make_unique<FCLayer>(100, dropRate, RFunc));
+            layers.emplace_back(make_unique<FCLayer>(10 , 0.       , RFunc));
+            
+            NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+            NeuralNetwork FCNN (SMCost, move(layers));
+            FCNN.train(data, Optim);
         }
     }
 }
@@ -91,28 +84,24 @@ void CL()
     vector<float> lRV     =  {0.004};//0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05};//{0.001,0.002, 0.005, 0.01, 0.02};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
     vector<float> lambdaV = {0};//{4};//{0.1, 1, 3, 5};
     
-    vector<unique_ptr<CostFunc>> CFV;
-    CFV.emplace_back(make_unique<SMCostFunc>());
-    
-    for (size_t k=0; k<CFV.size(); ++k)
+    SMCostFunc SMCost;
+
+    for (size_t i=0; i<lambdaV.size(); ++i)
     {
-        for (size_t i=0; i<lambdaV.size(); ++i)
+        for (size_t j=0; j<lRV.size(); ++j)
         {
-            for (size_t j=0; j<lRV.size(); ++j)
-            {
-                vector<unique_ptr<Layer>> layers;
-                layers.emplace_back(make_unique<ConvLayer>    (28, 28,  1, 0, 0, RFunc));
-                layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 0, RFunc));
-                layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 0, IFunc));
-                layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 40, 5, 0, RFunc));
-                layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 40, 2, 0, IFunc));
-                layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
-                layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
-                
-                NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
-                NeuralNetwork CNN (*CFV[k], move(layers));
-                CNN.train(data, Optim);
-            }
+            vector<unique_ptr<Layer>> layers;
+            layers.emplace_back(make_unique<ConvLayer>    (28, 28,  1, 0, 0, RFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 0, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 0, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 40, 5, 0, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 40, 2, 0, IFunc));
+            layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
+            layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
+            
+            NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+            NeuralNetwork CNN (SMCost, move(layers));
+            CNN.train(data, Optim);
         }
     }
 }
