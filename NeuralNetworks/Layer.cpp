@@ -28,6 +28,8 @@ Layer::Layer(size_t size, float dropRate, const ActivationFunc& AFunc) :
 //
 Layer::~Layer()
 {
+    --layerCount;
+    
     prevLayer = nullptr;
     nextLayer = nullptr;
 }
