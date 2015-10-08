@@ -190,10 +190,6 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
             updateParams(optim);
         }
         
-        auto timeEpoch = ( clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
-        debugFile << "time " << timeEpoch << "s,";
-        cout << "time " << timeEpoch << "s,";
-        
         test(data.getTrainLabelData(), batchSize);
         auto trainErrRate = errRate;
         auto trainCost    = cost;
@@ -205,6 +201,10 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
         test(data.getTestLabelData(), batchSize);
         auto testErrRate = errRate;
         auto testCost    = cost;
+        
+        auto timeEpoch = ( clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
+        debugFile << "time " << timeEpoch << "s,";
+        cout << "time " << timeEpoch << "s,";
         
         debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         debugFile << trainCost    << "," << crossCost    << "," << testCost    << endl;
