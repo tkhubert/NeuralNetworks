@@ -37,6 +37,7 @@
 		80018F571AD5D572007C81CD /* CostFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CostFunc.h; sourceTree = "<group>"; };
 		80018F581AD5D9C1007C81CD /* NeuralNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NeuralNetwork.cpp; sourceTree = "<group>"; };
 		80018F591AD5D9C1007C81CD /* NeuralNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NeuralNetwork.h; sourceTree = "<group>"; };
+		803C14571BC6E7E6008F3240 /* LinearAlgebra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LinearAlgebra.h; sourceTree = "<group>"; };
 		80503C261B7F3C7F0051860D /* ConvLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConvLayer.cpp; sourceTree = "<group>"; };
 		80503C271B7F3C7F0051860D /* ConvLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConvLayer.h; sourceTree = "<group>"; };
 		8068CBAF1B47EDCE00E2B1A7 /* FCLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FCLayer.cpp; sourceTree = "<group>"; };
@@ -80,6 +81,7 @@
 			children = (
 				80018F4B1AD487E4007C81CD /* main.cpp */,
 				80018F521AD5C294007C81CD /* NN.h */,
+				803C14571BC6E7E6008F3240 /* LinearAlgebra.h */,
 				80018F531AD5C2A0007C81CD /* ActivationFunc.h */,
 				80018F571AD5D572007C81CD /* CostFunc.h */,
 				80B3E9B01AD92E9900B9726C /* MNistParser.h */,
