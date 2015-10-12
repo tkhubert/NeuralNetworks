@@ -9,7 +9,6 @@
 #ifndef NeuralNetworks_includes_h
 #define NeuralNetworks_includes_h
 
-#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -22,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <memory>
 
 namespace NN
 {
