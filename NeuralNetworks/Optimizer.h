@@ -20,9 +20,9 @@ public:
     // methods
     Optimizer(float _lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         lambda(_lambda*batchSize/trainSetSize),
+        lambdaBase(_lambda),
         batchSize(batchSize),
-        nbEpochs(nbEpochs),
-        lambdaBase(_lambda)
+        nbEpochs(nbEpochs)
     {};
     
     auto getBatchSize() const {return batchSize;}
@@ -100,8 +100,8 @@ public:
     NMOptimizer(float _alpha, float friction, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
         alpha(_alpha/batchSize),
-        friction(friction),
-        alphaBase(_alpha)
+        alphaBase(_alpha),
+        friction(friction)
     {};
     
     string getName() const
@@ -171,6 +171,96 @@ protected:
     vector<vector<float>> vvweight;
 };
 //
+    
+//
+class ADADOptimizer : public Optimizer
+{
+public:
+    // methods
+    ADADOptimizer(float friction, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
+    friction(friction)
+    {};
+    
+    string getName() const
+    {
+        stringstream ss;
+        ss << "ADADOptim_" << getDetail() << "_" << Optimizer::getDetail();
+        return ss.str();
+    }
+    //
+    string getDetail() const
+    {
+        stringstream ss;
+        ss << friction;
+        return ss.str();
+    }
+    //
+    void resize(const vector<unique_ptr<Layer>>& net)
+    {
+        auto nbLayers = net.size();
+        vvbias.resize(nbLayers);
+        vxbias.resize(nbLayers);
+        vvweight.resize(nbLayers);
+        vxweight.resize(nbLayers);
+        
+        for (size_t i=0; i<nbLayers; ++i)
+        {
+            vvbias[i].resize(net[i]->getBias().size());
+            vxbias[i].resize(net[i]->getBias().size());
+            vvweight[i].resize(net[i]->getWeight().size());
+            vxweight[i].resize(net[i]->getWeight().size());
+        }
+    }
+    //
+    void updateParams(Layer& layer)
+    {
+        float epsilon = 1e-6;
+        
+        auto  layerNb = layer.getLayerNb();
+        auto& bias    = layer.getBias();
+        auto& dbias   = layer.getDBias();
+        auto& weight  = layer.getWeight();
+        auto& dweight = layer.getDWeight();
+        
+        auto& vbias = vvbias[layerNb];
+        auto& xbias = vxbias[layerNb];
+        for (size_t o=0; o<bias.size(); ++o)
+        {
+            auto grad  = dbias[o];
+            vbias[o] = friction*vbias[o] + (1-friction)*grad*grad;
+            
+            auto db = -sqrt((xbias[o]+epsilon)/(vbias[o]+epsilon))*grad;
+            
+            bias [o] += db;
+            xbias[o]  = friction*xbias[o] + (1-friction)*db*db;
+            dbias[o]  = 0.;
+        }
+        
+        auto& vweight = vvweight[layerNb];
+        auto& xweight = vxweight[layerNb];
+        for (size_t o=0; o<weight.size(); ++o)
+        {
+            auto grad = dweight[o]+lambda*weight[o];
+            vweight[o] = friction*vweight[o] + (1-friction)*grad*grad;
+            
+            auto dw = -sqrt((xweight[o]+epsilon)/(vweight[o]+epsilon))*grad;
+            
+            weight [o] += dw;
+            xweight[o]  = friction*xweight[o] + (1-friction)*dw*dw;
+            dweight[o]  = 0.;
+        }
+    }
+
+    
+protected:
+    float  friction;
+    
+    vector<vector<float>> vvbias;
+    vector<vector<float>> vvweight;
+    vector<vector<float>> vxbias;
+    vector<vector<float>> vxweight;
+};
     
 }
 

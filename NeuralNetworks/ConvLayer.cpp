@@ -12,12 +12,12 @@ namespace NN
 {
     
 ConvLayer::ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, size_t stride, const ActivationFunc& AFunc) :
+    Layer(width*height*depth, 0, AFunc),
     width (width),
     height(height),
     depth (depth),
     mapSize(mapSize),
-    stride(stride),
-    Layer(width*height*depth, 0, AFunc)
+    stride(stride)
 {
     auto biasSize = depth;
     bias.resize(biasSize);

@@ -11,8 +11,8 @@
 namespace NN {
     
 NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& _layers) :
-    CFunc(CFunc),
     nbLayers(_layers.size()),
+    CFunc(CFunc),
     layers(move(_layers))
 {
     for (size_t i=1; i<nbLayers; ++i)
