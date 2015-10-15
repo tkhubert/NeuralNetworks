@@ -264,8 +264,12 @@ def main():
     #files.append('784_11520_2880_2560_100_10_SMCFunc_RLAFunc_NMOptim_0.001_0.9_2_20_100.csv')
     #files.append('784_11520_2880_2560_100_10_SMCFunc_RLAFunc_NMOptim_0.002_0.9_2_20_100.csv')
     #files.append('784_11520_2880_2560_100_10_SMCFunc_RLAFunc_NMOptim_0.005_0.9_2_20_100.csv')
-    files.append('784_100_100_10_SMCFunc_RLAFunc_NMOptim_0.0075_0.9_4_20_70.csv')
-    files.append('784_100_100_10_SMCFunc_IdFunc_NMOptim_0.0075_0.9_4_20_70.csv')
+    files.append('784_500_300_10_SMCFunc_IdFunc_NMOptim_0.005_0.9_5_20_50.csv')
+    files.append('784_500_300_10_SMCFunc_IdFunc_NMOptim_0.01_0.9_5_20_50.csv')
+    files.append('784_500_300_10_SMCFunc_IdFunc_NMOptim_0.015_0.9_5_20_50.csv')
+    files.append('784_500_300_10_SMCFunc_IdFunc_NMOptim_0.02_0.9_5_20_50.csv')
+
+
     compareFiles(files)
 	
     size = [784, 100, 100, 10]

@@ -177,9 +177,10 @@ class ADADOptimizer : public Optimizer
 {
 public:
     // methods
-    ADADOptimizer(float friction, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
-    Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
-    friction(friction)
+    ADADOptimizer(float friction, float eps, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+        Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
+        eps(eps),
+        friction(friction)
     {};
     
     string getName() const
@@ -192,7 +193,7 @@ public:
     string getDetail() const
     {
         stringstream ss;
-        ss << friction;
+        ss << friction << "_" << eps;
         return ss.str();
     }
     //
@@ -215,8 +216,6 @@ public:
     //
     void updateParams(Layer& layer)
     {
-        float epsilon = 1e-6;
-        
         auto  layerNb = layer.getLayerNb();
         auto& bias    = layer.getBias();
         auto& dbias   = layer.getDBias();
@@ -230,7 +229,7 @@ public:
             auto grad  = dbias[o];
             vbias[o] = friction*vbias[o] + (1-friction)*grad*grad;
             
-            auto db = -sqrt((xbias[o]+epsilon)/(vbias[o]+epsilon))*grad;
+            auto db = -sqrt((xbias[o]+eps)/(vbias[o]+eps))*grad;
             
             bias [o] += db;
             xbias[o]  = friction*xbias[o] + (1-friction)*db*db;
@@ -244,7 +243,7 @@ public:
             auto grad = dweight[o]+lambda*weight[o];
             vweight[o] = friction*vweight[o] + (1-friction)*grad*grad;
             
-            auto dw = -sqrt((xweight[o]+epsilon)/(vweight[o]+epsilon))*grad;
+            auto dw = -sqrt((xweight[o]+eps)/(vweight[o]+eps))*grad;
             
             weight [o] += dw;
             xweight[o]  = friction*xweight[o] + (1-friction)*dw*dw;
@@ -254,6 +253,7 @@ public:
 
     
 protected:
+    float  eps;
     float  friction;
     
     vector<vector<float>> vvbias;
