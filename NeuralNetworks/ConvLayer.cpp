@@ -30,8 +30,16 @@ void ConvLayer::setPrevLayer(Layer* prev)
     inputSize = prevLayer->getOutputSize();
     
     assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
+    
+    auto prevWidth  = static_cast<ConvLayer*>(prevLayer)->getWidth();
+    auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
     auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     auto weightSize = mapSize*mapSize*depth*prevDepth;
+    
+    assert((prevWidth -mapSize) % stride == 0);
+    assert((prevHeight-mapSize) % stride == 0);
+    assert(width == 1+(prevWidth -mapSize)/stride);
+    assert(height== 1+(prevHeight-mapSize)/stride);
     
     weightInputSize = mapSize*mapSize*prevDepth;
     weight.resize (weightSize);
@@ -57,8 +65,12 @@ void ConvLayer::fwdProp()
         {
             for (size_t oh=0; oh<height; ++oh)
             {
+                auto ih = oh*stride;
+                
                 for (size_t ow=0; ow<width; ++ow)
                 {
+                    auto iw = ow*stride;
+
                     auto val = bias[ode];
                     for (size_t ide=0; ide<prevDepth; ++ide)
                     {
@@ -67,7 +79,7 @@ void ConvLayer::fwdProp()
                             for (size_t ww=0; ww<mapSize; ++ww)
                             {
                                 auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevWidth+(ow+ww);
+                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
                                 val += weight[wIdx]*prevA[iIdx];
                             }
                         }
@@ -91,36 +103,37 @@ void ConvLayer::bwdProp()
     auto prevWidth        = prevConvLayer->getWidth();
     auto prevDepth        = prevConvLayer->getDepth();
     
+    fill(prevDelta.begin(), prevDelta.end(), 0.);
+    
+    vector<float> prevdA(prevA.size());
+    for (size_t i=0; i<prevdA.size(); ++i)
+        prevdA[i] = prevAFunc.df(prevA[i]);
+    
     for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t ide=0; ide<prevDepth; ++ide)
+        for (size_t ode=0; ode<depth; ++ode)
         {
-            for (size_t ih=0; ih<prevHeight; ++ih)
+            for (size_t oh=0; oh<height; ++oh)
             {
-                auto whs = max<size_t>(0, ih-height+1);
-                auto whe = min(mapSize,ih+1);
-                
-                for (size_t iw=0; iw<prevWidth; ++iw)
+                auto ih = oh*stride;
+                for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto wws = max<size_t>(0, iw-width+1);
-                    auto wwe = min(mapSize,iw+1);
+                    auto iw = ow*stride;
+                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
                     
-                    float val=0.;
-                    for (size_t ode=0; ode<depth; ++ode)
+                    for (size_t ide=0; ide<prevDepth; ++ide)
                     {
-                        for (size_t wh=whs; wh<whe; ++wh)
+                        for (size_t wh=0; wh<mapSize; ++wh)
                         {
-                            for (size_t ww=wws; ww<wwe; ++ww)
+                            for (size_t ww=0; ww<mapSize; ++ww)
                             {
-                                auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto oIdx = d*width*height*depth+ode*width*height+(ih-wh)*width+(iw-ww);
-                                val += weight[wIdx]*delta[oIdx];
+                                auto wIdx    = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
+                                auto iIdx    = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
+                                prevDelta[iIdx] += delta[oIdx] * weight[wIdx] * prevdA[iIdx];
                             }
                         }
                     }
                     
-                    auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+ih*prevWidth+iw;
-                    prevDelta[iIdx] = prevAFunc.df(prevA[iIdx])*val;
                 }
             }
         }

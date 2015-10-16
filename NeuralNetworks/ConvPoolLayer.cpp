@@ -27,7 +27,17 @@ void ConvPoolLayer::setPrevLayer(Layer* prev)
     weightInputSize = 1.;
     
     assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
-    assert(static_cast<ConvLayer*>(prevLayer)->getDepth() == depth);
+    
+    auto prevWidth  = static_cast<ConvLayer*>(prevLayer)->getWidth();
+    auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
+    auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
+    
+    assert((prevWidth -mapSize) % stride == 0);
+    assert((prevHeight-mapSize) % stride == 0);
+    assert(width == 1+(prevWidth -mapSize)/stride);
+    assert(height== 1+(prevHeight-mapSize)/stride);
+    assert(prevDepth == depth);
+    
     initParams();
 }
 //
@@ -51,20 +61,20 @@ void ConvPoolLayer::fwdProp()
         {
             for (size_t oh=0; oh<height; ++oh)
             {
-                auto ihStart = mapSize*oh;
+                auto ih = oh*stride;
                 
                 for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto iwStart = mapSize*ow;
+                    auto iw = ow*stride;
                     
-                    auto iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+ihStart*prevHeight+iwStart;
+                    auto iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+ih*prevWidth+iw;
                     auto mIdx = iIdx;
                     auto val  = prevA[iIdx];
                     for (size_t wh=0; wh<mapSize; ++wh)
                     {
                         for (size_t ww=0; ww<mapSize; ++ww)
                         {
-                            iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+(ihStart+wh)*prevHeight+(iwStart+ww);
+                            iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
                             if (val<prevA[iIdx])
                             {
                                 mIdx = iIdx;
