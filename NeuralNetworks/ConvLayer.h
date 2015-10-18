@@ -40,6 +40,20 @@ protected:
     size_t depth;
     size_t mapSize;
     size_t stride;
+    
+private:
+    void naiveFwdProp();
+    void naiveBwdProp();
+    void naiveCalcGrad();
+    void img2MatFwdProp();
+    void img2MatBwdProp();
+    void img2MatCalcGrad();
+    
+    void genPrevAMatFwd(size_t d, vector<float>& prevAMat) const;
+    void genPrevAMatGrad(size_t d, vector<float>& prevAMat) const;
+    void genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vector<float>& deltaMat) const;
+    void genWeightMat   (            vector<float>& weightMat) const;
+    void genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) const;
 
 };
 
