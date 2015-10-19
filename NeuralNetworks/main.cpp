@@ -32,17 +32,18 @@ void MLP()
     auto iS = data.getDataSize();
     auto tS = data.getTrainLabelData().size();
     
+    IdFunc IFunc;
     RLFunc RFunc;
     
-    int    batchSize = 10;
-    int    nbEpochs  = 5;
+    int   batchSize =  20;
+    int   nbEpochs  =  10;
+    float dropRateI = 0.0;
+    float dropRate  = 0.0;
+    float friction  = 0.90;
     
-    float dropRateI = 0.001;
-    float dropRate  = 0.005;
-    float friction  = 0.9;
-    vector<float> lRV     = {0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    vector<float> lambdaV = {4};//{0.1, 1, 3, 5};
-    
+    vector<float> lRV     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    vector<float> lambdaV = {0};
+
     SMCostFunc SMCost;
     
     for (size_t i=0; i<lambdaV.size(); ++i)
@@ -51,10 +52,9 @@ void MLP()
         {
             vector<unique_ptr<Layer>> layers;
             layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
-            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-            //layers.emplace_back(make_unique<FCLayer>(100, dropRate, RFunc));
-            layers.emplace_back(make_unique<FCLayer>(10 , 0.       , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(500, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(300, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
             
             NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
             NeuralNetwork FCNN (SMCost, move(layers));
@@ -78,11 +78,11 @@ void CL()
     RLFunc RFunc;
     
     int    batchSize = 20;
-    int    nbEpochs  = 100;
+    int    nbEpochs  = 2;
     
     float friction  = 0.9;
-    vector<float> lRV     =  {0.004};//0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05};//{0.001,0.002, 0.005, 0.01, 0.02};//{0.0075};//{0.001, 0.005, 0.0075, 0.01};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    vector<float> lambdaV = {0};//{4};//{0.1, 1, 3, 5};
+    vector<float> lRV     = {0.002};
+    vector<float> lambdaV = {0};//{0.1, 1, 3, 5};
     
     SMCostFunc SMCost;
 
@@ -91,11 +91,11 @@ void CL()
         for (size_t j=0; j<lRV.size(); ++j)
         {
             vector<unique_ptr<Layer>> layers;
-            layers.emplace_back(make_unique<ConvLayer>    (28, 28,  1, 0, 0, RFunc));
-            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 0, RFunc));
-            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 0, IFunc));
-            layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 40, 5, 0, RFunc));
-            layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 40, 2, 0, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1,  0, 1, RFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 1, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 2, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 40, 5, 1, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 40, 2, 2, IFunc));
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
             
@@ -108,8 +108,8 @@ void CL()
 //
 int main(int argc, const char * argv[])
 {
-    MLP();
-    //CL();
+    //MLP();
+    CL();
     return 0;
 }
 
