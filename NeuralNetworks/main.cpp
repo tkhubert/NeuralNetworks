@@ -35,14 +35,14 @@ void MLP()
     IdFunc IFunc;
     RLFunc RFunc;
     
-    int  batchSize =  20;
-    int  nbEpochs  =  10;
-    real dropRateI = 0.0;
-    real dropRate  = 0.0;
-    real friction  = 0.90;
+    auto batchSize =  20;
+    auto nbEpochs  =  10;
+    auto dropRateI = 0.0;
+    auto dropRate  = 0.0;
+    auto friction  = 0.9;
     
     vec_r lR     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    vec_r lambda = {0};
+    vec_r lambda = {0.};
 
     SMCostFunc SMCost;
     
@@ -77,12 +77,11 @@ void CL()
     IdFunc IFunc;
     RLFunc RFunc;
     
-    int    batchSize = 20;
-    int    nbEpochs  = 2;
-    
-    real  friction  = 0.9;
+    auto  batchSize = 20;
+    auto  nbEpochs  = 2;
+    auto  friction  = 0.9;
     vec_r lR        = {0.002};
-    vec_r lambda    = {0};//{0.1, 1, 3, 5};
+    vec_r lambda    = {0.};//{0.1, 1, 3, 5};
     
     SMCostFunc SMCost;
 

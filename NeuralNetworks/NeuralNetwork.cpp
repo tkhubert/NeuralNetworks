@@ -247,7 +247,7 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
 {
     cout << "Checking Gradient --------" << endl;
     auto n    = 10;
-    auto TOL  = 1e-2;
+    auto TOL  = 1e-6;
     auto TINY = 1e-8;
     
     vec_r    dC(outputSize);
@@ -295,9 +295,9 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
             if (fabs(grad)<TINY && abs(deriv)<TINY)
                 err = 0;
             else if (fabs(deriv)>TINY)
-                err = abs((deriv-grad)/deriv);
+                err = fabs((deriv-grad)/deriv);
             else
-                err = abs((deriv-grad)/grad);
+                err = fabs((deriv-grad)/grad);
             
             if (err>TOL)
             {
