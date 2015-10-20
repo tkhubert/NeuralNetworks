@@ -246,8 +246,9 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
 void NeuralNetwork::checkGradient(const LabelData& lD)
 {
     cout << "Checking Gradient --------" << endl;
-    auto dw = 1e-2;
-    auto TINY = 1e-5;
+    auto n    = 10;
+    auto TOL  = 1e-2;
+    auto TINY = 1e-8;
     
     vec_r    dC(outputSize);
     vector<LabelData> labelData(1);
@@ -265,14 +266,20 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
         vec_r& weight  = layers[i]->getWeight();
         vec_r& dweight = layers[i]->getDWeight();
         
-        std::uniform_int_distribution<int> distribution(0,weight.size()-1);
-        
+        vector<pair<int,real>> dwvec(dweight.size());
+        for (size_t j=0; j<dweight.size(); ++j)
+            dwvec[j] = make_pair(j, fabs(dweight[j]));
+        sort(dwvec.begin(), dwvec.end(), [] (auto e1, auto e2) {return e2.second < e1.second;});
+
         bool pass = true;
-        auto nbTry = weight.size()>0 ? 10 : 0;
-        for (size_t n=0; n<nbTry; ++n)
+        auto nbTest = weight.size()>0 ? n : 0;
+        
+        for (size_t n=0; n<nbTest; ++n)
         {
-            auto idx = distribution(gen);
+            auto idx = dwvec[n].first;
             auto w   = weight[idx];
+            auto dw  = 1e-2*w;
+            
             weight[idx] = w+dw;
             fwdProp(labelData.cbegin(), labelData.cend());
             auto cu = calcCost(labelData.cbegin(), labelData.cend());
@@ -281,27 +288,29 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
             fwdProp(labelData.cbegin(), labelData.cend());
             auto cd = calcCost(labelData.cbegin(), labelData.cend());
             
-            weight[idx] = w;
-            
             auto deriv = (cu-cd)/(2*dw);
             auto grad  = dweight[idx];
             
-            auto err   = 1.;
-            if (abs(grad)<TINY && abs(deriv)<TINY)
+            auto err = 1.;
+            if (fabs(grad)<TINY && abs(deriv)<TINY)
                 err = 0;
-            else if (abs(deriv)>TINY)
+            else if (fabs(deriv)>TINY)
                 err = abs((deriv-grad)/deriv);
             else
                 err = abs((deriv-grad)/grad);
             
-            if (err>1e-4)
+            if (err>TOL)
             {
                 pass = false;
                 cout << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;
             }
+            
+            weight[idx] = w;
         }
-        if (pass)
-            cout << "Gradient of layer " << i << " is correct" << endl;
+        cout << "Gradient of layer " << i;
+        if (pass) cout << " is correct"   << endl;
+        else      cout << " is incorrect" << endl;
+            
     }
     
 }

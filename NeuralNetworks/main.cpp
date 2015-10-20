@@ -41,22 +41,22 @@ void MLP()
     real dropRate  = 0.0;
     real friction  = 0.90;
     
-    vec_r lRV     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    vec_r lambdaV = {0};
+    vec_r lR     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
+    vec_r lambda = {0};
 
     SMCostFunc SMCost;
     
-    for (size_t i=0; i<lambdaV.size(); ++i)
+    for (auto lbda : lambda)
     {
-        for (size_t j=0; j<lRV.size(); ++j)
+        for (auto learningRate : lR)
         {
             vector<unique_ptr<Layer>> layers;
             layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
-            layers.emplace_back(make_unique<FCLayer>(500, dropRate , RFunc));
-            layers.emplace_back(make_unique<FCLayer>(300, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
             layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
             
-            NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+            NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork FCNN (SMCost, move(layers));
             FCNN.train(data, Optim);
         }
@@ -81,14 +81,14 @@ void CL()
     int    nbEpochs  = 2;
     
     real  friction  = 0.9;
-    vec_r lRV     = {0.002};
-    vec_r lambdaV = {0};//{0.1, 1, 3, 5};
+    vec_r lR        = {0.002};
+    vec_r lambda    = {0};//{0.1, 1, 3, 5};
     
     SMCostFunc SMCost;
 
-    for (size_t i=0; i<lambdaV.size(); ++i)
+    for (auto lbda : lambda)
     {
-        for (size_t j=0; j<lRV.size(); ++j)
+        for (auto learningRate : lR)
         {
             vector<unique_ptr<Layer>> layers;
             layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1,  0, 1, RFunc));
@@ -99,7 +99,7 @@ void CL()
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
             
-            NMOptimizer   Optim(lRV[j], friction, lambdaV[i], batchSize, nbEpochs, tS);
+            NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork CNN (SMCost, move(layers));
             CNN.train(data, Optim);
         }
