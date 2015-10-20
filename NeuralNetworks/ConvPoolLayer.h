@@ -29,7 +29,7 @@ public:
     void calcGrad() {};
     
 private:
-    vector<float> maxIdx;
+    vec_r maxIdx;
     
     void resize(size_t nbData);
 };

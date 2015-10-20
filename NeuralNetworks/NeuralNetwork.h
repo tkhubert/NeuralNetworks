@@ -28,11 +28,12 @@ public:
     string getName()    const;
     string getDetails() const;
     
-    float getCost()    const {return cost;}
-    float getErrRate() const {return errRate;}
+    real getCost()    const {return cost;}
+    real getErrRate() const {return errRate;}
     
     void train(const DataContainer& data, Optimizer& Optim);
     void test (const vector<LabelData>& lData, size_t batchSize=20);
+    void checkGradient(const LabelData& lD);
     
     const auto& predict(const LabelData& lD);
     
@@ -42,11 +43,11 @@ private:
     size_t outputSize;
     size_t nbLayers;
     
-    const CostFunc&     CFunc;
+    const CostFunc& CFunc;
     vector<unique_ptr<Layer>> layers;
     
-    float               cost;
-    float               errRate;
+    real cost;
+    real errRate;
     
     // methods
     void  setInput(const LabelData& lD);
@@ -54,9 +55,9 @@ private:
     const auto& getOutput() const {return layers[nbLayers-1]->getA();}
     
     size_t isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
-    float  calcCost (LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
-    void   calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dC);
-    void   setDCost (const vector<float>& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    real   calcCost (LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
+    void   calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC);
+    void   setDCost (const vec_r& dc) { return layers[nbLayers-1]->setDCost(dc);}
     
     void setNbData(size_t nbData);
     void setPhase (Phase phase);
@@ -65,10 +66,8 @@ private:
     void updateParams(Optimizer& optim);
     void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
-    void bwdProp(const vector<float>& dC);
+    void bwdProp(const vec_r& dC);
     void calcGrad();
-    
-    void checkGradient();
 };
     
 }

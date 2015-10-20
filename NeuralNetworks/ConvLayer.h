@@ -49,10 +49,10 @@ private:
     void img2MatBwdProp();
     void img2MatCalcGrad();
     
-    void genPrevAMatFwd(size_t d, vector<float>& prevAMat) const;
-    void genPrevAMatGrad(size_t d, vector<float>& prevAMat) const;
-    void genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vector<float>& deltaMat) const;
-    void genWeightMat   (            vector<float>& weightMat) const;
+    void genPrevAMatFwd(size_t d, vec_r& prevAMat) const;
+    void genPrevAMatGrad(size_t d, vec_r& prevAMat) const;
+    void genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vec_r& deltaMat) const;
+    void genWeightMat(vec_r& weightMat) const;
     void genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) const;
 
 };

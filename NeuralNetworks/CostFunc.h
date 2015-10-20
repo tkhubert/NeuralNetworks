@@ -20,10 +20,10 @@ class CostFunc
 {
 public:
     CostFunc() {}
+    
     virtual string getName() const = 0;
-
-    virtual float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
-    virtual void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const = 0;
+    virtual real f(const vec_r& a , LabelDataCItr dataStart, LabelDataCItr dataEnd)            const = 0;
+    virtual void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const = 0;
 };
 //
     
@@ -35,11 +35,11 @@ public:
     
     string getName() const {return "MSECFunc";}
     //
-    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
-        float val        = 0;
-        auto  nbData     = distance(dataStart, dataEnd);
-        auto  outputSize = a.size()/nbData;
+        real val        = 0;
+        auto nbData     = distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {
@@ -56,13 +56,13 @@ public:
         return val;
     }
     //
-    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        vector<float> aloc(outputSize);
-        vector<float> dcloc(outputSize);
+        vec_r aloc(outputSize);
+        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -89,11 +89,11 @@ public:
     
     string getName() const {return "CECFunc";}
     //
-    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
-        float val        = 0;
-        auto  nbData     = distance(dataStart, dataEnd);
-        auto  outputSize = a.size()/nbData;
+        real val        = 0;
+        auto nbData     = distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -110,13 +110,13 @@ public:
         return val;
     }
     //
-    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        vector<float> aloc(outputSize);
-        vector<float> dcloc(outputSize);
+        vec_r aloc(outputSize);
+        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -143,11 +143,11 @@ public:
     
     string getName() const {return "SMCFunc";}
     //
-    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
-        float val        = 0;
-        auto  nbData     = distance(dataStart, dataEnd);
-        auto  outputSize = a.size()/nbData;
+        real val        = 0;
+        auto nbData     = distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
 
         for (size_t d=0; d<nbData; ++d)
         {
@@ -156,7 +156,7 @@ public:
             auto y    = (dataStart+d)->label;
             auto maxA = *(max_element(s, e));
             
-            vector<float> expA(outputSize);
+            vec_r expA(outputSize);
             transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
             auto sum = accumulate(expA.begin(), expA.end(), 0.);
             
@@ -165,7 +165,7 @@ public:
         return val;
     }
     //
-    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
@@ -177,7 +177,7 @@ public:
             auto y    = (dataStart+d)->label;
             auto maxA = *(max_element(s, e));
             
-            vector<float> expA(outputSize);
+            vec_r expA(outputSize);
             transform(s, e, expA.begin(), [maxA](auto x) {return exp(x-maxA);});
             auto sum = accumulate(expA.begin(), expA.end(), 0.);
             
@@ -198,11 +198,11 @@ public:
     
     string getName() const {return "SVMCFunc";}
     //
-    float f(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
     {
-        float val        = 0;
-        auto  nbData     = distance(dataStart, dataEnd);
-        auto  outputSize = a.size()/nbData;
+        real val        = 0;
+        auto nbData     = distance(dataStart, dataEnd);
+        auto outputSize = a.size()/nbData;
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -213,20 +213,20 @@ public:
             for (size_t i=0; i<outputSize; ++i)
             {
                 auto aVal  = *(s+i);
-                val+= max(0.f,aVal-aLabel+1.f);
+                val+= max(0.,aVal-aLabel+1.);
             }
             val -=1;
         }
         return val;
     }
     //
-    void df(const vector<float>& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
-        vector<float> aloc(outputSize);
-        vector<float> dcloc(outputSize);
+        vec_r aloc(outputSize);
+        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {

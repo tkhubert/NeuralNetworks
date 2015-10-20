@@ -16,8 +16,8 @@ namespace NN {
 
 struct LabelData
 {
-    int           label;
-    vector<float> data;
+    int   label;
+    vec_r data;
 };
 //
 class DataContainer
@@ -31,7 +31,7 @@ public:
     const auto& getCrossLabelData() const { return crossLabelData;}
     const auto& getTestLabelData()  const { return testLabelData;}
     
-    void constructLabelData(const vector<int>& trainLabels, const vector<int>& testLabels, const vector<vector<float> > trainData, const vector<vector<float>> testData, size_t fractionSize)
+    void constructLabelData(const vector<int>& trainLabels, const vector<int>& testLabels, const vector<vec_r> trainData, const vector<vec_r> testData, size_t fractionSize)
     {
         auto trainSize = trainLabels.size();
         auto crossSize = trainSize/fractionSize;
@@ -70,8 +70,8 @@ class MNistDataContainer : public DataContainer
 public:
     MNistDataContainer(string trainLabelFN, string testLabelFN, string trainDataFN, string testDataFN, size_t crossFraction=6)
     {
-        vector<int>                 trainLabels, testLabels;
-        vector<vector<float> > trainData, testData;
+        vector<int>   trainLabels, testLabels;
+        vector<vec_r> trainData, testData;
         parseLabels(trainLabelFN, trainLabels);
         parseLabels(testLabelFN , testLabels);
         parseImages(trainDataFN , trainData);

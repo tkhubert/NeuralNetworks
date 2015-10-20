@@ -17,7 +17,7 @@ namespace NN {
 class FCLayer : public Layer
 {
 public:
-    FCLayer(size_t size, float dropRate, const ActivationFunc& AFunc);
+    FCLayer(size_t size, real dropRate, const ActivationFunc& AFunc);
     
     string getName()      const {return "FCLayer";}
     string getDetails()   const {return "";}

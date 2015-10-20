@@ -13,7 +13,7 @@ namespace NN
 {
 
 // input A, output At = A^T
-inline void MatTrans(const vector<float>& A, vector<float>& At, size_t N, size_t M)
+inline void MatTrans(const vec_r& A, vec_r& At, size_t N, size_t M)
 {
     for (size_t i=0; i<M; ++i)
         for (size_t j=0; j<N; ++j)
@@ -21,13 +21,13 @@ inline void MatTrans(const vector<float>& A, vector<float>& At, size_t N, size_t
 }
 //
 // input A(N*M) and B(P*M), output C(N*P) = A * B^T
-inline void MatMultABt(const vector<float>& A, const vector<float>& B, vector<float>& C, size_t N, size_t M, size_t P)
+inline void MatMultABt(const vec_r& A, const vec_r& B, vec_r& C, size_t N, size_t M, size_t P)
 {
     for (size_t i=0; i<N; ++i)
     {
         for (size_t j=0; j<P; ++j)
         {
-            float tmp = 0.;
+            real tmp = 0.;
             for (size_t k=0; k<M; ++k)
                 tmp+= A[i*M+k]*B[j*M+k];
             
@@ -37,9 +37,9 @@ inline void MatMultABt(const vector<float>& A, const vector<float>& B, vector<fl
 }
 //
 //  input A(N*M) and B(M*P), output C(N*P) = A * B = A * (B^T)^T = MatMultABt(A, B^T)
-inline void MatMultAB(const vector<float>& A, const vector<float>& B, vector<float>& C, size_t N, size_t M, size_t P)
+inline void MatMultAB(const vec_r& A, const vec_r& B, vec_r& C, size_t N, size_t M, size_t P)
 {
-    vector<float> Bt(B.size());
+    vec_r Bt(B.size());
     MatTrans(B, Bt, M, P);
     
     MatMultABt(A, Bt, C, N, M, P);

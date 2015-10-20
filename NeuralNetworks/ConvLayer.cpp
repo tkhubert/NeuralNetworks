@@ -124,7 +124,7 @@ void ConvLayer::naiveBwdProp()
     
     fill(prevDelta.begin(), prevDelta.end(), 0.);
     
-    vector<float> prevdA(prevA.size());
+    vec_r prevdA(prevA.size());
     for (size_t i=0; i<prevdA.size(); ++i)
         prevdA[i] = prevAFunc.df(prevA[i]);
     
@@ -171,7 +171,7 @@ void ConvLayer::naiveCalcGrad()
     {
         for (size_t ode=0; ode<depth; ++ode)
         {
-            float valBias=0.;
+            real valBias=0.;
             for (size_t oh=0; oh<height; ++oh)
             {
                 for (size_t ow=0; ow<width; ++ow)
@@ -189,7 +189,7 @@ void ConvLayer::naiveCalcGrad()
                 {
                     for (size_t ww=0; ww<mapSize; ++ww)
                     {
-                        float valWeight =0.;
+                        real valWeight =0.;
                         for (size_t oh=0; oh<height; ++oh)
                         {
                             for (size_t ow=0; ow<width; ++ow)
@@ -211,7 +211,7 @@ void ConvLayer::naiveCalcGrad()
 //
 
 //
-void ConvLayer::genPrevAMatFwd(size_t d, vector<float>& prevAMat) const
+void ConvLayer::genPrevAMatFwd(size_t d, vec_r& prevAMat) const
 {
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevConvLayer->getA();
@@ -243,7 +243,7 @@ void ConvLayer::genPrevAMatFwd(size_t d, vector<float>& prevAMat) const
     }
 }
 //
-void ConvLayer::genPrevAMatGrad(size_t d, vector<float>& prevAMat) const
+void ConvLayer::genPrevAMatGrad(size_t d, vec_r& prevAMat) const
 {
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevConvLayer->getA();
@@ -274,7 +274,7 @@ void ConvLayer::genPrevAMatGrad(size_t d, vector<float>& prevAMat) const
     }
 }
 //
-void ConvLayer::genWeightMat(vector<float>& weightMat) const
+void ConvLayer::genWeightMat(vec_r& weightMat) const
 {
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
     auto prevDepth = prevConvLayer->getDepth();
@@ -302,7 +302,7 @@ void ConvLayer::genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) co
     }
 }
 //
-void ConvLayer::genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vector<float>& deltaMat) const
+void ConvLayer::genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vec_r& deltaMat) const
 {
     ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
     auto prevHeight       = prevConvLayer->getHeight();
@@ -350,8 +350,8 @@ void ConvLayer::img2MatFwdProp()
     auto aIdx =0;
     for (size_t d=0; d<nbData; ++d)
     {
-        vector<float> ad      (nbRow*depth);
-        vector<float> prevAMat(nbRow*nbCol);
+        vec_r ad      (nbRow*depth);
+        vec_r prevAMat(nbRow*nbCol);
         
         genPrevAMatFwd(d, prevAMat);
         MatMultABt(weight, prevAMat, ad, depth, nbCol, nbRow);
@@ -377,14 +377,14 @@ void ConvLayer::img2MatBwdProp()
     auto prevWidth        = prevConvLayer->getWidth();
     auto prevDepth        = prevConvLayer->getDepth();
     
-    vector<float> prevdA(prevA.size());
+    vec_r prevdA(prevA.size());
     for (size_t i=0; i<prevdA.size(); ++i)
         prevdA[i] = prevAFunc.df(prevA[i]);
     
     auto nbRow = prevWidth*prevHeight;
     auto nbCol = depth*mapSize*mapSize;
     
-    vector<float> weightMat(prevDepth*nbCol);
+    vec_r weightMat(prevDepth*nbCol);
     genWeightMat(weightMat);
     
     vector<int> hIdxVec(mapSize*prevHeight, -1);
@@ -395,8 +395,8 @@ void ConvLayer::img2MatBwdProp()
     auto dIdx =0;
     for (size_t d=0; d<nbData; ++d)
     {
-        vector<float> deltaMat  (nbRow*nbCol);
-        vector<float> prevDeltad(nbRow*prevDepth);
+        vec_r deltaMat  (nbRow*nbCol);
+        vec_r prevDeltad(nbRow*prevDepth);
         
         genDeltaMat(d, hIdxVec, wIdxVec, deltaMat);
         MatMultABt(weightMat, deltaMat, prevDeltad, prevDepth, nbCol, nbRow);
@@ -427,9 +427,9 @@ void ConvLayer::img2MatCalcGrad()
             dBIdx += nbCol;
         }
         
-        vector<float> prevAMat  (nbRow*nbCol);
-        vector<float> dWeightMat(depth*nbRow);
-        vector<float> deltaMat  (depth*nbCol);
+        vec_r prevAMat  (nbRow*nbCol);
+        vec_r dWeightMat(depth*nbRow);
+        vec_r deltaMat  (depth*nbCol);
         
         copy(delta.begin()+dIdx, delta.begin()+dIdx+outputSize, deltaMat.begin());
         genPrevAMatGrad(d, prevAMat);

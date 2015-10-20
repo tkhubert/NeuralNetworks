@@ -12,7 +12,7 @@
 namespace NN {
     
 //
-FCLayer::FCLayer(size_t size, float dropRate, const ActivationFunc& AFunc) :
+FCLayer::FCLayer(size_t size, real dropRate, const ActivationFunc& AFunc) :
     Layer(size, dropRate, AFunc)
 {
     auto biasSize = outputSize;

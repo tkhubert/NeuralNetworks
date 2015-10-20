@@ -20,7 +20,7 @@ enum class LayerClass { FCLayer, ConvLayer, ConvPoolLayer };
 class Layer
 {
 public:
-    Layer(size_t size, float dropRate, const ActivationFunc& AFunc);
+    Layer(size_t size, real dropRate, const ActivationFunc& AFunc);
     ~Layer();
     
     virtual string     getName()    const = 0;
@@ -48,11 +48,11 @@ public:
     void setNextLayer(Layer* next)             { nextLayer = next; }
     virtual void setPrevLayer(Layer* prev) = 0;
     void setPhase    (Phase  p)                { phase = p; }
-    void setA        (const vector<float>& _a) { a = _a;}
-    void setA        (vector<float>&&      _a) { a = move(_a);}
+    void setA        (const vec_r& _a) { a = _a;}
+    void setA        (vec_r&&      _a) { a = move(_a);}
     void setDrop     ();
     
-    virtual void setDCost(const vector<float>& dc);
+    virtual void setDCost(const vec_r& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
@@ -65,17 +65,17 @@ protected:
     size_t        outputSize;
     size_t        weightInputSize;
     size_t        nbData;
-    float         dropRate;
+    real          dropRate;
     Phase         phase;
     
-    vector<float> a;
-    vector<float> delta;
-    vector<float> drop;
+    vec_r a;
+    vec_r delta;
+    vec_r drop;
     
-    vector<float> bias;
-    vector<float> dbias;
-    vector<float> weight;
-    vector<float> dweight;
+    vec_r bias;
+    vec_r dbias;
+    vec_r weight;
+    vec_r dweight;
     // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
 
     Layer* nextLayer;

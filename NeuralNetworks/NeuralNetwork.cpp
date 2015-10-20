@@ -74,7 +74,7 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
     auto nbData   = distance(dataStart, dataEnd);
     auto dataSize = dataStart->data.size();
     
-    vector<float> input(nbData*dataSize);
+    vec_r input(nbData*dataSize);
     for (size_t d=0; d<nbData; ++d)
     {
         auto data = (dataStart+d)->data;
@@ -101,7 +101,7 @@ void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
         layers[i]->fwdProp();
 }
 //
-void NeuralNetwork::bwdProp(const vector<float>& dC)
+void NeuralNetwork::bwdProp(const vec_r& dC)
 {
     setDCost(dC);
     for (size_t i=nbLayers-1; i>=2; --i)
@@ -114,12 +114,12 @@ void NeuralNetwork::calcGrad()
         layers[i]->calcGrad();
 }
 //
-float NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
 {
     return CFunc.f(getOutput(), dataStart, dataEnd);
 }
 //
-void NeuralNetwork::calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vector<float>& dC)
+void NeuralNetwork::calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC)
 {
     return CFunc.df(getOutput(), dataStart, dataEnd, dC);
 }
@@ -178,7 +178,7 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
             auto end    = min(start+batchSize, lData.size());
             auto nbData = end-start;
             
-            vector<float> dC(outputSize*nbData);
+            vec_r dC(outputSize*nbData);
             auto dataStart = lData.cbegin()+start;
             auto dataEnd   = dataStart+nbData;
             
@@ -202,7 +202,7 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
         auto testErrRate = errRate;
         auto testCost    = cost;
         
-        auto timeEpoch = ( clock() - startTimeEpoch ) / (float) CLOCKS_PER_SEC;
+        auto timeEpoch = ( clock() - startTimeEpoch ) / (real) CLOCKS_PER_SEC;
         debugFile << "time " << timeEpoch << "s,";
         cout << "time " << timeEpoch << "s,";
         
@@ -242,5 +242,68 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
     cost    /= totalISize;
     errRate  = 1.-errRate/totalISize;
 }
-
+//
+void NeuralNetwork::checkGradient(const LabelData& lD)
+{
+    cout << "Checking Gradient --------" << endl;
+    auto dw = 1e-2;
+    auto TINY = 1e-5;
+    
+    vec_r    dC(outputSize);
+    vector<LabelData> labelData(1);
+    
+    labelData[0] = lD;
+    fwdProp(labelData.cbegin(), labelData.cend());
+    calcDCost(labelData.cbegin(), labelData.cend(), dC);
+    bwdProp  (dC);
+    calcGrad ();
+    
+    default_random_engine gen;
+    
+    for (size_t i=1; i<nbLayers; ++i)
+    {
+        vec_r& weight  = layers[i]->getWeight();
+        vec_r& dweight = layers[i]->getDWeight();
+        
+        std::uniform_int_distribution<int> distribution(0,weight.size()-1);
+        
+        bool pass = true;
+        auto nbTry = weight.size()>0 ? 10 : 0;
+        for (size_t n=0; n<nbTry; ++n)
+        {
+            auto idx = distribution(gen);
+            auto w   = weight[idx];
+            weight[idx] = w+dw;
+            fwdProp(labelData.cbegin(), labelData.cend());
+            auto cu = calcCost(labelData.cbegin(), labelData.cend());
+            
+            weight[idx] = w-dw;
+            fwdProp(labelData.cbegin(), labelData.cend());
+            auto cd = calcCost(labelData.cbegin(), labelData.cend());
+            
+            weight[idx] = w;
+            
+            auto deriv = (cu-cd)/(2*dw);
+            auto grad  = dweight[idx];
+            
+            auto err   = 1.;
+            if (abs(grad)<TINY && abs(deriv)<TINY)
+                err = 0;
+            else if (abs(deriv)>TINY)
+                err = abs((deriv-grad)/deriv);
+            else
+                err = abs((deriv-grad)/grad);
+            
+            if (err>1e-4)
+            {
+                pass = false;
+                cout << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;
+            }
+        }
+        if (pass)
+            cout << "Gradient of layer " << i << " is correct" << endl;
+    }
+    
+}
+//
 }

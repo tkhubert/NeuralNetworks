@@ -18,7 +18,7 @@ class Optimizer
 {
 public:
     // methods
-    Optimizer(float _lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    Optimizer(real _lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         lambda(_lambda*batchSize/trainSetSize),
         lambdaBase(_lambda),
         batchSize(batchSize),
@@ -40,7 +40,7 @@ public:
     virtual void updateParams(Layer& layer) = 0;
     
 protected:
-    float  lambda, lambdaBase;
+    real   lambda, lambdaBase;
     size_t batchSize;
     size_t nbEpochs;
 };
@@ -51,7 +51,7 @@ class GDOptimizer : public Optimizer
 {
 public:
     // methods
-    GDOptimizer(float _alpha, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    GDOptimizer(real _alpha, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
         alpha(_alpha/batchSize),
         alphaBase(_alpha)
@@ -88,7 +88,7 @@ public:
     
 protected:
     // members
-    float  alpha, alphaBase;
+    real alpha, alphaBase;
 };
 //
     
@@ -97,7 +97,7 @@ class NMOptimizer : public Optimizer
 {
 public:
     // methods
-    NMOptimizer(float _alpha, float friction, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    NMOptimizer(real _alpha, real friction, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
         alpha(_alpha/batchSize),
         alphaBase(_alpha),
@@ -164,11 +164,11 @@ public:
     
 protected:
     // members
-    float  alpha, alphaBase;
-    float  friction;
+    real alpha, alphaBase;
+    real friction;
     
-    vector<vector<float>> vvbias;
-    vector<vector<float>> vvweight;
+    vector<vec_r> vvbias;
+    vector<vec_r> vvweight;
 };
 //
     
@@ -177,7 +177,7 @@ class ADADOptimizer : public Optimizer
 {
 public:
     // methods
-    ADADOptimizer(float friction, float eps, float lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    ADADOptimizer(real friction, real eps, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
         eps(eps),
         friction(friction)
@@ -253,13 +253,13 @@ public:
 
     
 protected:
-    float  eps;
-    float  friction;
+    real eps;
+    real friction;
     
-    vector<vector<float>> vvbias;
-    vector<vector<float>> vvweight;
-    vector<vector<float>> vxbias;
-    vector<vector<float>> vxweight;
+    vector<vec_r> vvbias;
+    vector<vec_r> vvweight;
+    vector<vec_r> vxbias;
+    vector<vec_r> vxweight;
 };
     
 }

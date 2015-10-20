@@ -11,7 +11,7 @@ namespace NN {
     
 size_t Layer::layerCount = 0;
 //
-Layer::Layer(size_t size, float dropRate, const ActivationFunc& AFunc) :
+Layer::Layer(size_t size, real dropRate, const ActivationFunc& AFunc) :
     inputSize(0),
     outputSize(size),
     dropRate(dropRate),
@@ -57,7 +57,7 @@ void Layer::setDrop()
     }
 }
 //
-void Layer::setDCost(const vector<float> &dc)
+void Layer::setDCost(const vec_r &dc)
 {
     for (size_t i=0; i<delta.size(); ++i)
         delta[i] = AFunc.df(a[i])*dc[i];
@@ -68,12 +68,12 @@ void Layer::initParams()
     if (inputSize==0)
         return;
     
-    normal_distribution<float> norm(0.,1.);
+    normal_distribution<real> norm(0.,1.);
     
     for (size_t o=0; o<bias.size(); ++o)
         bias[o] = norm(gen);
     
-    float normalizer = 1./sqrt(weightInputSize);
+    real normalizer = 1./sqrt(weightInputSize);
     for (size_t o=0; o<weight.size(); ++o)
         weight[o] = norm(gen)*normalizer;
 }
