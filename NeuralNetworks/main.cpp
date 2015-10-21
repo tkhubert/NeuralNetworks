@@ -9,10 +9,8 @@
 // TKH TO DO
 // 1. center/normalize data
 // 2. partition data properly
-// 3. implement other optimization method (adadelta, rmsprop...)
-// 4. implement stride for ConvLayers
-// 5. speed up ConvLayers
-// 6. internalize the hyperparameter search : can we back prop?
+// 3. speed up ConvLayers: refine Img2Mat and try FFT to do the convolution.
+// 4. internalize the hyperparameter search : can we back prop?
 
 #include "NN.h"
 #include "Data.h"
