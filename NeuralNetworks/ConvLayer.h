@@ -31,6 +31,7 @@ public:
     
     size_t getIdx (size_t d, size_t de, size_t h, size_t w)      const {return w+(h+(de+d*depth)*height)*width;}
     size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*ide)+weightInputSize*ode;}
+    
     virtual void setPrevLayer(Layer* layer);
     virtual void fwdProp();
     virtual void bwdProp();
@@ -44,9 +45,12 @@ protected:
     size_t stride;
     
 private:
+    // naive
     void naiveFwdProp();
     void naiveBwdProp();
     void naiveCalcGrad();
+    
+    // img2Mat
     void img2MatFwdProp();
     void img2MatBwdProp();
     void img2MatCalcGrad();
