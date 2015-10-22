@@ -29,6 +29,8 @@ public:
     auto getMapSize() const {return mapSize;}
     auto getStride()  const {return stride;}
     
+    size_t getIdx (size_t d, size_t de, size_t h, size_t w)      const {return w+(h+(de+d*depth)*height)*width;}
+    size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*ide)+weightInputSize*ode;}
     virtual void setPrevLayer(Layer* layer);
     virtual void fwdProp();
     virtual void bwdProp();
@@ -49,12 +51,12 @@ private:
     void img2MatBwdProp();
     void img2MatCalcGrad();
     
-    void genPrevAMatFwd(size_t d, vec_r& prevAMat) const;
-    void genPrevAMatGrad(size_t d, vec_r& prevAMat) const;
-    void genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vec_r& deltaMat) const;
-    void genWeightMat(vec_r& weightMat) const;
-    void genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) const;
-
+    // img2Mat helper methods
+    void genFwdPrevAMat(size_t d, vec_r& prevAMat) const;
+    void genBwdDeltaMat(size_t d, vec_i& hIdxVec, vec_i& wIdxVec, vec_r& deltaMat) const;
+    void genBwdWeightMat(vec_r& weightMat) const;
+    void genBwdIdxVec(size_t pdim, size_t dim, vec_i& weightIdxVec) const;
+    void genGradPrevAMat(size_t d, vec_r& prevAMat) const;
 };
 
 }

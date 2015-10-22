@@ -32,11 +32,12 @@ void ConvPoolLayer::setPrevLayer(Layer* prev)
     auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
     auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     
-    assert((prevWidth -mapSize) % stride == 0);
-    assert((prevHeight-mapSize) % stride == 0);
-    assert(width == 1+(prevWidth -mapSize)/stride);
-    assert(height== 1+(prevHeight-mapSize)/stride);
-    assert(prevDepth == depth);
+    if (!(((prevWidth-mapSize)%stride == 0) && ((prevHeight-mapSize)%stride == 0)))
+        throw "Invalid stride, mapSize configuration";
+    if (!((width == 1+(prevWidth-mapSize)/stride) && (height== 1+(prevHeight-mapSize)/stride)))
+        throw "Invalid size, stride, mapSize configuration";
+    if (prevDepth!=depth)
+        throw "Invalid depth";
     
     initParams();
 }
@@ -49,11 +50,8 @@ void ConvPoolLayer::resize(size_t nbData)
 //
 void ConvPoolLayer::fwdProp()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const auto& prevA = prevCL->getA();
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -67,14 +65,14 @@ void ConvPoolLayer::fwdProp()
                 {
                     auto iw = ow*stride;
                     
-                    auto iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+ih*prevWidth+iw;
+                    auto iIdx = prevCL->getIdx(d, de, ih, iw);
                     auto mIdx = iIdx;
                     auto val  = prevA[iIdx];
                     for (size_t wh=0; wh<mapSize; ++wh)
                     {
                         for (size_t ww=0; ww<mapSize; ++ww)
                         {
-                            iIdx = d*prevWidth*prevHeight*prevDepth+de*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
+                            iIdx = prevCL->getIdx(d, de, ih+wh, iw+ww);
                             if (val<prevA[iIdx])
                             {
                                 mIdx = iIdx;
@@ -83,7 +81,7 @@ void ConvPoolLayer::fwdProp()
                         }
                     }
                     
-                    auto oIdx    = d*width*height*depth+de*width*height+oh*width+ow;
+                    auto oIdx    = getIdx(d, de, oh, ow);
                     a[oIdx]      = AFunc.f(val);
                     maxIdx[oIdx] = mIdx;
                 }
@@ -94,10 +92,10 @@ void ConvPoolLayer::fwdProp()
 //
 void ConvPoolLayer::bwdProp()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto& prevDelta       = prevConvLayer->getDelta();
-    const auto& prevA     = prevConvLayer->getA();
-    const auto& prevAFunc = prevConvLayer->getAFunc();
+    ConvLayer*  prevCL    = static_cast<ConvLayer*>(prevLayer);
+    auto&       prevDelta = prevCL->getDelta();
+    const auto& prevA     = prevCL->getA();
+    const auto& prevAFunc = prevCL->getAFunc();
 
     fill(prevDelta.begin(), prevDelta.end(), 0.);
     
@@ -109,7 +107,7 @@ void ConvPoolLayer::bwdProp()
             {
                 for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto oIdx = d*width*height*depth+de*width*height+oh*width+ow;
+                    auto oIdx = getIdx(d, de, oh, ow);
                     auto iIdx = maxIdx[oIdx];
                     
                     prevDelta[iIdx] += delta[oIdx] * prevAFunc.df(prevA[iIdx]);

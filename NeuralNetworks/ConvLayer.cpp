@@ -37,10 +37,10 @@ void ConvLayer::setPrevLayer(Layer* prev)
     auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     auto weightSize = mapSize*mapSize*depth*prevDepth;
     
-    assert((prevWidth -mapSize) % stride == 0);
-    assert((prevHeight-mapSize) % stride == 0);
-    assert(width == 1+(prevWidth -mapSize)/stride);
-    assert(height== 1+(prevHeight-mapSize)/stride);
+    if (!(((prevWidth-mapSize)%stride == 0) && ((prevHeight-mapSize)%stride == 0)))
+        throw "Invalid stride, mapSize configuration";
+    if (!((width == 1+(prevWidth-mapSize)/stride) && (height== 1+(prevHeight-mapSize)/stride)))
+        throw "Invalid size, stride, mapSize configuration";
     
     weightInputSize = mapSize*mapSize*prevDepth;
     weight.resize (weightSize);
@@ -72,11 +72,9 @@ void ConvLayer::naiveFwdProp()
     if (prevLayer==nullptr)
         return;
     
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const auto& prevA = prevCL->getA();
+    auto prevDepth    = prevCL->getDepth();
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -97,14 +95,14 @@ void ConvLayer::naiveFwdProp()
                         {
                             for (size_t ww=0; ww<mapSize; ++ww)
                             {
-                                auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
+                                auto wIdx = getWIdx(ode, ide, wh, ww);
+                                auto iIdx = prevCL->getIdx(d, ide, ih+wh, iw+ww);
                                 val += weight[wIdx]*prevA[iIdx];
                             }
                         }
                     }
                     
-                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
+                    auto oIdx = getIdx(d, ode, oh, ow);
                     a[oIdx] = AFunc.f(val);
                 }
             }
@@ -114,13 +112,11 @@ void ConvLayer::naiveFwdProp()
 //
 void ConvLayer::naiveBwdProp()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto& prevDelta       = prevConvLayer->getDelta();
-    const auto& prevA     = prevConvLayer->getA();
-    const auto& prevAFunc = prevConvLayer->getAFunc();
-    auto prevHeight       = prevConvLayer->getHeight();
-    auto prevWidth        = prevConvLayer->getWidth();
-    auto prevDepth        = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    auto& prevDelta       = prevCL->getDelta();
+    const auto& prevA     = prevCL->getA();
+    const auto& prevAFunc = prevCL->getAFunc();
+    auto prevDepth        = prevCL->getDepth();
     
     fill(prevDelta.begin(), prevDelta.end(), 0.);
     
@@ -138,7 +134,7 @@ void ConvLayer::naiveBwdProp()
                 for (size_t ow=0; ow<width; ++ow)
                 {
                     auto iw = ow*stride;
-                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
+                    auto oIdx = getIdx(d, ode, oh, ow);
                     
                     for (size_t ide=0; ide<prevDepth; ++ide)
                     {
@@ -146,8 +142,8 @@ void ConvLayer::naiveBwdProp()
                         {
                             for (size_t ww=0; ww<mapSize; ++ww)
                             {
-                                auto wIdx    = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
-                                auto iIdx    = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
+                                auto wIdx    = getWIdx(ode, ide, wh, ww);
+                                auto iIdx    = prevCL->getIdx(d, ide, ih+wh, iw+ww);
                                 prevDelta[iIdx] += delta[oIdx] * weight[wIdx] * prevdA[iIdx];
                             }
                         }
@@ -161,11 +157,9 @@ void ConvLayer::naiveBwdProp()
 //
 void ConvLayer::naiveCalcGrad()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const auto& prevA = prevCL->getA();
+    auto prevDepth    = prevCL->getDepth();
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -176,7 +170,7 @@ void ConvLayer::naiveCalcGrad()
             {
                 for (size_t ow=0; ow<width; ++ow)
                 {
-                    auto oIdx = d*width*height*depth+ode*width*height+oh*width+ow;
+                    auto oIdx = getIdx(d, ode, oh, ow);
                     valBias += delta[oIdx];
                 }
             }
@@ -194,13 +188,13 @@ void ConvLayer::naiveCalcGrad()
                         {
                             for (size_t ow=0; ow<width; ++ow)
                             {
-                                auto iIdx  = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(oh+wh)*prevWidth+(ow+ww);
-                                auto oIdx  = d*width*height*depth+ode*width*height+oh*width+ow;
+                                auto iIdx  = prevCL->getIdx(d, ide, oh+wh, ow+ww);
+                                auto oIdx  = getIdx(d, ode, oh, ow);
                                 valWeight +=  delta[oIdx]*prevA[iIdx];
                             }
                         }
                         
-                        auto wIdx = ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww;
+                        auto wIdx = getWIdx(ode, ide, wh, ww);
                         dweight[wIdx] += valWeight;
                     }
                 }
@@ -211,13 +205,11 @@ void ConvLayer::naiveCalcGrad()
 //
 
 //
-void ConvLayer::genPrevAMatFwd(size_t d, vec_r& prevAMat) const
+void ConvLayer::genFwdPrevAMat(size_t d, vec_r& prevAMat) const
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const auto& prevA = prevCL->getA();
+    auto prevDepth    = prevCL->getDepth();
     
     auto prevAMatIdx = 0;
     for (size_t oh=0; oh<height; ++oh)
@@ -234,7 +226,7 @@ void ConvLayer::genPrevAMatFwd(size_t d, vec_r& prevAMat) const
                 {
                     for (size_t ww=0; ww<mapSize; ++ww)
                     {
-                        auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
+                        auto iIdx = prevCL->getIdx(d, ide, ih+wh, iw+ww);
                         prevAMat[prevAMatIdx++] = prevA[iIdx];
                     }
                 }
@@ -243,51 +235,7 @@ void ConvLayer::genPrevAMatFwd(size_t d, vec_r& prevAMat) const
     }
 }
 //
-void ConvLayer::genPrevAMatGrad(size_t d, vec_r& prevAMat) const
-{
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    const auto& prevA = prevConvLayer->getA();
-    auto prevHeight   = prevConvLayer->getHeight();
-    auto prevWidth    = prevConvLayer->getWidth();
-    auto prevDepth    = prevConvLayer->getDepth();
-    
-    auto aIdx = 0;
-    for (size_t ide=0; ide<prevDepth; ++ide)
-    {
-        for (size_t wh=0; wh<mapSize; ++wh)
-        {
-            for (size_t ww=0; ww<mapSize; ++ww)
-            {
-                for (size_t oh=0; oh<height; ++oh)
-                {
-                    auto ih = oh*stride;
-                    for (size_t ow=0; ow<width; ++ow)
-                    {
-                        auto iw = ow*stride;
-                        
-                        auto iIdx = d*prevWidth*prevHeight*prevDepth+ide*prevWidth*prevHeight+(ih+wh)*prevWidth+(iw+ww);
-                        prevAMat[aIdx++] = prevA[iIdx];
-                    }
-                }
-            }
-        }
-    }
-}
-//
-void ConvLayer::genWeightMat(vec_r& weightMat) const
-{
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto prevDepth = prevConvLayer->getDepth();
-    
-    auto wIdx = 0;
-    for (size_t ide=0; ide<prevDepth; ++ide)
-        for (size_t ode=0; ode<depth; ++ode)
-            for (size_t wh=0; wh<mapSize; ++wh)
-                for (size_t ww=0; ww<mapSize; ++ww)
-                    weightMat[wIdx++] = weight[ode*mapSize*mapSize*prevDepth+ide*mapSize*mapSize+wh*mapSize+ww];
-}
-//
-void ConvLayer::genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) const
+void ConvLayer::genBwdIdxVec(size_t pdim, size_t dim, vec_i& weightIdxVec) const
 {
     auto wIdx = 0;
     for (int i=0; i<pdim; ++i)
@@ -302,11 +250,24 @@ void ConvLayer::genIdxVec(size_t pdim, size_t dim, vector<int>& weightIdxVec) co
     }
 }
 //
-void ConvLayer::genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec, vec_r& deltaMat) const
+void ConvLayer::genBwdWeightMat(vec_r& weightMat) const
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto prevHeight       = prevConvLayer->getHeight();
-    auto prevWidth        = prevConvLayer->getWidth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    auto prevDepth = prevCL->getDepth();
+    
+    auto wIdx = 0;
+    for (size_t ide=0; ide<prevDepth; ++ide)
+        for (size_t ode=0; ode<depth; ++ode)
+            for (size_t wh=0; wh<mapSize; ++wh)
+                for (size_t ww=0; ww<mapSize; ++ww)
+                    weightMat[wIdx++] = weight[getWIdx(ode, ide, wh, ww)];
+}
+//
+void ConvLayer::genBwdDeltaMat(size_t d, vec_i& hIdxVec, vec_i& wIdxVec, vec_r& deltaMat) const
+{
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    auto prevHeight       = prevCL->getHeight();
+    auto prevWidth        = prevCL->getWidth();
     
     auto deltaMatIdx = 0;
     for (size_t ih=0; ih<prevHeight; ++ih)
@@ -325,10 +286,39 @@ void ConvLayer::genDeltaMat(size_t d, vector<int>& hIdxVec, vector<int>& wIdxVec
                         
                         if (h>=0 && w>=0)
                         {
-                            auto oIdx = d*width*height*depth+ode*width*height+h*width+w;
+                            auto oIdx = getIdx(d, ode, h, w);
                             deltaMat[deltaMatIdx] = delta[oIdx];
                         }
                         ++deltaMatIdx;
+                    }
+                }
+            }
+        }
+    }
+}
+//
+void ConvLayer::genGradPrevAMat(size_t d, vec_r& prevAMat) const
+{
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const auto& prevA = prevCL->getA();
+    auto prevDepth    = prevCL->getDepth();
+    
+    auto aIdx = 0;
+    for (size_t ide=0; ide<prevDepth; ++ide)
+    {
+        for (size_t wh=0; wh<mapSize; ++wh)
+        {
+            for (size_t ww=0; ww<mapSize; ++ww)
+            {
+                for (size_t oh=0; oh<height; ++oh)
+                {
+                    auto ih = oh*stride;
+                    for (size_t ow=0; ow<width; ++ow)
+                    {
+                        auto iw = ow*stride;
+                        
+                        auto iIdx = prevCL->getIdx(d, ide, ih+wh, iw+ww);
+                        prevAMat[aIdx++] = prevA[iIdx];
                     }
                 }
             }
@@ -341,9 +331,9 @@ void ConvLayer::img2MatFwdProp()
     if (prevLayer==nullptr)
         return;
     
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
     
-    auto prevDepth = prevConvLayer->getDepth();
+    auto prevDepth = prevCL->getDepth();
     auto nbRow     = width*height;
     auto nbCol     = prevDepth*mapSize*mapSize;
     
@@ -353,29 +343,27 @@ void ConvLayer::img2MatFwdProp()
         vec_r ad      (nbRow*depth);
         vec_r prevAMat(nbRow*nbCol);
         
-        genPrevAMatFwd(d, prevAMat);
+        genFwdPrevAMat(d, prevAMat);
         MatMultABt(weight, prevAMat, ad, depth, nbCol, nbRow);
         
         for (size_t ode=0; ode<depth; ++ode)
         {
             auto b = bias[ode];
             for (size_t o=0; o<nbRow; ++o)
-                a[aIdx+ode*width*height+o] = AFunc.f(ad[ode*nbRow+o] + b);
+                a[aIdx++] = AFunc.f(ad[ode*nbRow+o] + b);
         }
-        
-        aIdx += outputSize;
     }
 }
 //
 void ConvLayer::img2MatBwdProp()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto& prevDelta       = prevConvLayer->getDelta();
-    const auto& prevA     = prevConvLayer->getA();
-    const auto& prevAFunc = prevConvLayer->getAFunc();
-    auto prevHeight       = prevConvLayer->getHeight();
-    auto prevWidth        = prevConvLayer->getWidth();
-    auto prevDepth        = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    auto& prevDelta       = prevCL->getDelta();
+    const auto& prevA     = prevCL->getA();
+    const auto& prevAFunc = prevCL->getAFunc();
+    auto prevHeight       = prevCL->getHeight();
+    auto prevWidth        = prevCL->getWidth();
+    auto prevDepth        = prevCL->getDepth();
     
     vec_r prevdA(prevA.size());
     for (size_t i=0; i<prevdA.size(); ++i)
@@ -385,12 +373,12 @@ void ConvLayer::img2MatBwdProp()
     auto nbCol = depth*mapSize*mapSize;
     
     vec_r weightMat(prevDepth*nbCol);
-    genWeightMat(weightMat);
+    genBwdWeightMat(weightMat);
     
-    vector<int> hIdxVec(mapSize*prevHeight, -1);
-    vector<int> wIdxVec(mapSize*prevWidth , -1);
-    genIdxVec(prevHeight, height, hIdxVec);
-    genIdxVec(prevWidth , width , wIdxVec);
+    vec_i hIdxVec(mapSize*prevHeight, -1);
+    vec_i wIdxVec(mapSize*prevWidth , -1);
+    genBwdIdxVec(prevHeight, height, hIdxVec);
+    genBwdIdxVec(prevWidth , width , wIdxVec);
     
     auto dIdx =0;
     for (size_t d=0; d<nbData; ++d)
@@ -398,7 +386,7 @@ void ConvLayer::img2MatBwdProp()
         vec_r deltaMat  (nbRow*nbCol);
         vec_r prevDeltad(nbRow*prevDepth);
         
-        genDeltaMat(d, hIdxVec, wIdxVec, deltaMat);
+        genBwdDeltaMat(d, hIdxVec, wIdxVec, deltaMat);
         MatMultABt(weightMat, deltaMat, prevDeltad, prevDepth, nbCol, nbRow);
         
         transform(prevDeltad.begin(), prevDeltad.end(), prevdA.begin()+dIdx, prevDelta.begin()+dIdx, [] (auto pD, auto pdA) {return pD*pdA;});
@@ -408,8 +396,8 @@ void ConvLayer::img2MatBwdProp()
 //
 void ConvLayer::img2MatCalcGrad()
 {
-    ConvLayer* prevConvLayer = static_cast<ConvLayer*>(prevLayer);
-    auto prevDepth = prevConvLayer->getDepth();
+    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    auto prevDepth = prevCL->getDepth();
     
     auto nbRow = prevDepth*mapSize*mapSize;
     auto nbCol = height*width;
@@ -432,7 +420,7 @@ void ConvLayer::img2MatCalcGrad()
         vec_r deltaMat  (depth*nbCol);
         
         copy(delta.begin()+dIdx, delta.begin()+dIdx+outputSize, deltaMat.begin());
-        genPrevAMatGrad(d, prevAMat);
+        genGradPrevAMat(d, prevAMat);
         MatMultABt(deltaMat, prevAMat, dWeightMat, depth, nbCol, nbRow);
         
         transform(dWeightMat.begin(), dWeightMat.end(), dweight.begin(), dweight.begin(), [] (auto dwM, auto dw) {return dw+dwM;});

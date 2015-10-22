@@ -28,6 +28,7 @@ namespace NN
     using namespace std;
     using real  = float;
     using vec_r = vector<real>;
+    using vec_i = vector<int>;
 }
 
 #endif

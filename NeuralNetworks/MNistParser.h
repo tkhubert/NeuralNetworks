@@ -25,7 +25,7 @@ inline int reverseInt (int i)
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 //
-inline void parseLabels(string lblFileName, vector<int>& labels)
+inline void parseLabels(string lblFileName, vec_i& labels)
 {
     ifstream file(lblFileName, ios::in | ios::binary);
     if (file.bad() || file.fail())
