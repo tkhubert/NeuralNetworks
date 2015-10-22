@@ -63,6 +63,11 @@ void Layer::setDCost(const vec_r &dc)
         delta[i] = AFunc.df(a[i])*dc[i];
 }
 //
+void Layer::regularize(real lambda)
+{
+    transform(weight.begin(), weight.end(), dweight.begin(), dweight.begin(), [l=lambda] (auto w, auto dw) {return dw+l*w;});
+}
+//
 void Layer::initParams()
 {
     if (inputSize==0)

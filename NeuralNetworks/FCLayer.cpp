@@ -67,6 +67,9 @@ void FCLayer::bwdProp()
 //
 void FCLayer::calcGrad()
 {
+    fill(dbias.begin()  , dbias.end()  , 0.);
+    fill(dweight.begin(), dweight.end(), 0.);
+    
     const auto& prevA = prevLayer->getA();
     
     for (size_t d=0; d<nbData; ++d)

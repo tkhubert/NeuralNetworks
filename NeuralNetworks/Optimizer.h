@@ -25,6 +25,7 @@ public:
         nbEpochs(nbEpochs)
     {};
     
+    auto getLambda()    const {return lambda;}
     auto getBatchSize() const {return batchSize;}
     auto getNbEpochs()  const {return nbEpochs;}
     
@@ -80,10 +81,8 @@ public:
         auto& weight  = layer.getWeight();
         auto& dweight = layer.getDWeight();
         
-        transform(bias.begin()  , bias.end()  , dbias.begin()  , bias.begin()  , [a=alpha]           (auto b, auto db) {return b-a*db;      });
-        transform(weight.begin(), weight.end(), dweight.begin(), weight.begin(), [a=alpha, l=lambda] (auto w, auto dw) {return w-a*(dw+l*w);});
-        fill(dbias.begin()  , dbias.end()  , 0.);
-        fill(dweight.begin(), dweight.end(), 0.);
+        transform(bias.begin()  , bias.end()  , dbias.begin()  , bias.begin()  , [a=alpha] (auto b, auto db) {return b-a*db;});
+        transform(weight.begin(), weight.end(), dweight.begin(), weight.begin(), [a=alpha] (auto w, auto dw) {return w-a*dw;});
     }
     
 protected:
@@ -146,7 +145,6 @@ public:
             auto nv   = friction*pv - alpha*dbias[o];
 
             bias [o] += nv + friction*(nv-pv);
-            dbias[o]  = 0.;
             vbias[o]  = nv;
         }
         
@@ -154,10 +152,9 @@ public:
         for (size_t o=0; o<weight.size(); ++o)
         {
             auto pv     = vweight[o];
-            auto nv     = friction*pv - alpha*(dweight[o]+lambda*weight[o]);
+            auto nv     = friction*pv - alpha*dweight[o];
             
             weight [o] += nv + friction*(nv-pv);
-            dweight[o]  = 0.;
             vweight[o]  = nv;
         }
     }
@@ -233,21 +230,19 @@ public:
             
             bias [o] += db;
             xbias[o]  = friction*xbias[o] + (1-friction)*db*db;
-            dbias[o]  = 0.;
         }
         
         auto& vweight = vvweight[layerNb];
         auto& xweight = vxweight[layerNb];
         for (size_t o=0; o<weight.size(); ++o)
         {
-            auto grad = dweight[o]+lambda*weight[o];
+            auto grad = dweight[o];
             vweight[o] = friction*vweight[o] + (1-friction)*grad*grad;
             
             auto dw = -sqrt((xweight[o]+eps)/(vweight[o]+eps))*grad;
             
             weight [o] += dw;
             xweight[o]  = friction*xweight[o] + (1-friction)*dw*dw;
-            dweight[o]  = 0.;
         }
     }
 

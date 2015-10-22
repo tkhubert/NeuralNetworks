@@ -114,6 +114,12 @@ void NeuralNetwork::calcGrad()
         layers[i]->calcGrad();
 }
 //
+void NeuralNetwork::regularize(real lambda)
+{
+    for (size_t i=1; i<nbLayers; ++i)
+        layers[i]->regularize(lambda);
+}
+//
 real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
 {
     return CFunc.f(getOutput(), dataStart, dataEnd);
@@ -186,6 +192,7 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
             calcDCost(dataStart, dataEnd, dC);
             bwdProp  (dC);
             calcGrad ();
+            regularize(optim.getLambda());
             
             updateParams(optim);
         }

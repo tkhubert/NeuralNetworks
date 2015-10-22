@@ -161,6 +161,9 @@ void ConvLayer::naiveCalcGrad()
     const auto& prevA = prevCL->getA();
     auto prevDepth    = prevCL->getDepth();
     
+    fill(dbias.begin()  , dbias.end()  , 0.);
+    fill(dweight.begin(), dweight.end(), 0.);
+    
     for (size_t d=0; d<nbData; ++d)
     {
         for (size_t ode=0; ode<depth; ++ode)

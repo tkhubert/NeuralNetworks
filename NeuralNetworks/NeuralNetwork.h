@@ -68,6 +68,7 @@ private:
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(const vec_r& dC);
     void calcGrad();
+    void regularize(real lambda);
 };
     
 }

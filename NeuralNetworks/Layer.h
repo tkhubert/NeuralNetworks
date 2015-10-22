@@ -56,6 +56,8 @@ public:
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
+    virtual void regularize(real lambda);
+
     void initParams();
     
 protected:
