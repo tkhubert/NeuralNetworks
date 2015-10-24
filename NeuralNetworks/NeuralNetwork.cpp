@@ -11,8 +11,7 @@
 namespace NN {
     
 constexpr auto NBGRADTEST = 10;
-constexpr auto TOL        = 1e-6;
-constexpr auto TINY       = 1e-8;
+constexpr auto GRADTOL    = 1e-6;
 //
     
 //
@@ -309,7 +308,7 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
             else
                 err = fabs((deriv-grad)/grad);
             
-            if (err>TOL)
+            if (err>GRADTOL)
             {
                 pass = false;
                 cout << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;

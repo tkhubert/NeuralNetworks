@@ -44,17 +44,15 @@ void Layer::resize(size_t _nbData)
 //
 void Layer::setDrop()
 {
-    if (phase==Phase::TEST)
+    if (dropRate<TINY || phase==Phase::TEST)
     {
         fill(drop.begin(), drop.end(), 1.-dropRate);
+        return;
     }
-    else
-    {
-        bernoulli_distribution bern(1.-dropRate);
-        
-        for (size_t i=0; i<drop.size(); ++i)
-            drop[i] = bern(gen);
-    }
+    
+    bernoulli_distribution bern(1.-dropRate);
+    for (size_t i=0; i<drop.size(); ++i)
+        drop[i] = bern(gen);
 }
 //
 void Layer::setDCost(const vec_r &dc)

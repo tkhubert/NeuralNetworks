@@ -29,6 +29,8 @@ namespace NN
     using real  = float;
     using vec_r = vector<real>;
     using vec_i = vector<int>;
+    
+    constexpr auto TINY = 1e-8;
 }
 
 #endif
