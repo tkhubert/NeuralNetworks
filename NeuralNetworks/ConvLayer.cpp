@@ -422,11 +422,9 @@ void ConvLayer::img2MatCalcGrad()
         
         vec_r prevAMat  (nbRow*nbCol);
         vec_r dWeightMat(depth*nbRow);
-        vec_r deltaMat  (depth*nbCol);
         
-        copy(delta.begin()+dIdx, delta.begin()+dIdx+outputSize, deltaMat.begin());
         genGradPrevAMat(d, prevAMat);
-        MatMultABt(&deltaMat[0], &prevAMat[0], &dWeightMat[0], depth, nbCol, nbRow);
+        MatMultABt(&delta[dIdx], &prevAMat[0], &dWeightMat[0], depth, nbCol, nbRow);
         
         transform(dWeightMat.begin(), dWeightMat.end(), dweight, dweight, [] (auto dwM, auto dw) {return dw+dwM;});
         dIdx += outputSize;
