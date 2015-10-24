@@ -13,7 +13,7 @@ namespace NN
 {
 
 // input A, output At = A^T
-inline void MatTrans(const vec_r& A, vec_r& At, size_t N, size_t M)
+inline void MatTrans(const real* const A, real* At, size_t N, size_t M)
 {
     for (size_t i=0; i<M; ++i)
         for (size_t j=0; j<N; ++j)
@@ -21,7 +21,7 @@ inline void MatTrans(const vec_r& A, vec_r& At, size_t N, size_t M)
 }
 //
 // input A(N*M) and B(P*M), output C(N*P) = A * B^T
-inline void MatMultABt(const vec_r& A, const vec_r& B, vec_r& C, size_t N, size_t M, size_t P)
+inline void MatMultABt(const real* const A, const real* const B, real* C, size_t N, size_t M, size_t P)
 {
     for (size_t i=0; i<N; ++i)
     {
@@ -37,12 +37,12 @@ inline void MatMultABt(const vec_r& A, const vec_r& B, vec_r& C, size_t N, size_
 }
 //
 //  input A(N*M) and B(M*P), output C(N*P) = A * B = A * (B^T)^T = MatMultABt(A, B^T)
-inline void MatMultAB(const vec_r& A, const vec_r& B, vec_r& C, size_t N, size_t M, size_t P)
+inline void MatMultAB(const real* const A, const real* const B, real* C, size_t N, size_t M, size_t P)
 {
-    vec_r Bt(B.size());
-    MatTrans(B, Bt, M, P);
+    vec_r Bt(M*P);
+    MatTrans(B, &Bt[0], M, P);
     
-    MatMultABt(A, Bt, C, N, M, P);
+    MatMultABt(A, &Bt[0], C, N, M, P);
 }
 //
 

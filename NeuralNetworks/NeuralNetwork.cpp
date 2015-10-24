@@ -10,6 +10,12 @@
 
 namespace NN {
     
+constexpr auto NBGRADTEST = 10;
+constexpr auto TOL        = 1e-6;
+constexpr auto TINY       = 1e-8;
+//
+    
+//
 NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& _layers) :
     nbLayers(_layers.size()),
     CFunc(CFunc),
@@ -60,7 +66,7 @@ void NeuralNetwork::setDrop()
 void NeuralNetwork::updateParams(Optimizer& optim)
 {
     for (size_t i=1; i<nbLayers; ++i)
-        optim.updateParams(*layers[i]);
+        optim.updateParams(i, layers[i]->getParams().params, layers[i]->getDParams().params);
 }
 //
 void NeuralNetwork::setInput(const LabelData& lD)
@@ -253,10 +259,7 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
 void NeuralNetwork::checkGradient(const LabelData& lD)
 {
     cout << "Checking Gradient --------" << endl;
-    auto n    = 10;
-    auto TOL  = 1e-6;
-    auto TINY = 1e-8;
-    
+
     vec_r    dC(outputSize);
     vector<LabelData> labelData(1);
     
@@ -270,33 +273,33 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
     
     for (size_t i=1; i<nbLayers; ++i)
     {
-        vec_r& weight  = layers[i]->getWeight();
-        vec_r& dweight = layers[i]->getDWeight();
+        auto& params  = layers[i]->getParams().params;
+        auto& dparams = layers[i]->getDParams().params;
         
-        vector<pair<int,real>> dwvec(dweight.size());
-        for (size_t j=0; j<dweight.size(); ++j)
-            dwvec[j] = make_pair(j, fabs(dweight[j]));
-        sort(dwvec.begin(), dwvec.end(), [] (auto e1, auto e2) {return e2.second < e1.second;});
+        vector<pair<int,real>> dpparams(dparams.size());
+        for (size_t j=0; j<dparams.size(); ++j)
+            dpparams[j] = make_pair(j, fabs(dparams[j]));
+        sort(dpparams.begin(), dpparams.end(), [] (auto e1, auto e2) {return e2.second < e1.second;});
 
         bool pass = true;
-        auto nbTest = weight.size()>0 ? n : 0;
+        auto nbTest = params.size()>0 ? NBGRADTEST : 0;
         
         for (size_t n=0; n<nbTest; ++n)
         {
-            auto idx = dwvec[n].first;
-            auto w   = weight[idx];
-            auto dw  = 1e-2*w;
+            auto idx = dpparams[n].first;
+            auto p   = params[idx];
+            auto dp  = 1e-2*p;
             
-            weight[idx] = w+dw;
+            params[idx] = p+dp;
             fwdProp(labelData.cbegin(), labelData.cend());
             auto cu = calcCost(labelData.cbegin(), labelData.cend());
             
-            weight[idx] = w-dw;
+            params[idx] = p-dp;
             fwdProp(labelData.cbegin(), labelData.cend());
             auto cd = calcCost(labelData.cbegin(), labelData.cend());
             
-            auto deriv = (cu-cd)/(2*dw);
-            auto grad  = dweight[idx];
+            auto deriv = (cu-cd)/(2*dp);
+            auto grad  = dparams[idx];
             
             auto err = 1.;
             if (fabs(grad)<TINY && abs(deriv)<TINY)
@@ -312,7 +315,7 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
                 cout << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;
             }
             
-            weight[idx] = w;
+            params[idx] = p;
         }
         cout << "Gradient of layer " << i;
         if (pass) cout << " is correct"   << endl;

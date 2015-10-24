@@ -40,7 +40,7 @@ public:
     }
     
     virtual void resize(const vector<unique_ptr<Layer>>& net) = 0;
-    virtual void updateParams(Layer& layer) = 0;
+    virtual void updateParams(int idx, vec_r& params, const vec_r& dparams) = 0;
     
 protected:
     real   lambda, lambdaBase;
@@ -76,15 +76,9 @@ public:
     //
     void resize(const vector<unique_ptr<Layer>>& net) {}
     //
-    void updateParams(Layer& layer)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams)
     {
-        auto& bias    = layer.getBias();
-        auto& dbias   = layer.getDBias();
-        auto& weight  = layer.getWeight();
-        auto& dweight = layer.getDWeight();
-        
-        transform(bias.begin()  , bias.end()  , dbias.begin()  , bias.begin()  , [a=alpha] (auto b, auto db) {return b-a*db;});
-        transform(weight.begin(), weight.end(), dweight.begin(), weight.begin(), [a=alpha] (auto w, auto dw) {return w-a*dw;});
+        transform(params.begin(), params.end(), dparams.begin(), params.begin(), [a=alpha] (auto p, auto dp) {return p-a*dp;});
     }
     
 protected:
@@ -122,42 +116,22 @@ public:
     void resize(const vector<unique_ptr<Layer>>& net)
     {
         auto nbLayers = net.size();
-        vvbias.resize(nbLayers);
-        vvweight.resize(nbLayers);
+        vvparams.resize(nbLayers);
         
         for (size_t i=0; i<nbLayers; ++i)
-        {
-            vvbias[i].resize(net[i]->getBias().size());
-            vvweight[i].resize(net[i]->getWeight().size());
-        }
+            vvparams[i].resize(net[i]->getParams().size());
     }
     //
-    void updateParams(Layer& layer)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams)
     {
-        auto  layerNb = layer.getLayerNb();
-        auto& bias    = layer.getBias();
-        auto& dbias   = layer.getDBias();
-        auto& weight  = layer.getWeight();
-        auto& dweight = layer.getDWeight();
-        
-        auto& vbias = vvbias[layerNb];
-        for (size_t o=0; o<bias.size(); ++o)
+        auto& vparams = vvparams[idx];
+        for (size_t o=0; o<params.size(); ++o)
         {
-            auto pv   = vbias[o];
-            auto nv   = friction*pv - alpha*dbias[o];
+            auto pv   = vparams[o];
+            auto nv   = friction*pv - alpha*dparams[o];
 
-            bias [o] += nv + friction*(nv-pv);
-            vbias[o]  = nv;
-        }
-        
-        auto& vweight = vvweight[layerNb];
-        for (size_t o=0; o<weight.size(); ++o)
-        {
-            auto pv     = vweight[o];
-            auto nv     = friction*pv - alpha*dweight[o];
-            
-            weight [o] += nv + friction*(nv-pv);
-            vweight[o]  = nv;
+            params [o] += nv + friction*(nv-pv);
+            vparams[o]  = nv;
         }
     }
     
@@ -166,8 +140,7 @@ protected:
     real alpha, alphaBase;
     real friction;
     
-    vector<vec_r> vvbias;
-    vector<vec_r> vvweight;
+    vector<vec_r> vvparams;
 };
 //
     
@@ -199,52 +172,29 @@ public:
     void resize(const vector<unique_ptr<Layer>>& net)
     {
         auto nbLayers = net.size();
-        vvbias.resize(nbLayers);
-        vxbias.resize(nbLayers);
-        vvweight.resize(nbLayers);
-        vxweight.resize(nbLayers);
+        vvparams.resize(nbLayers);
+        vxparams.resize(nbLayers);
         
         for (size_t i=0; i<nbLayers; ++i)
         {
-            vvbias[i].resize(net[i]->getBias().size());
-            vxbias[i].resize(net[i]->getBias().size());
-            vvweight[i].resize(net[i]->getWeight().size());
-            vxweight[i].resize(net[i]->getWeight().size());
+            vvparams[i].resize(net[i]->getParams().size());
+            vxparams[i].resize(net[i]->getParams().size());
         }
     }
     //
-    void updateParams(Layer& layer)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams)
     {
-        auto  layerNb = layer.getLayerNb();
-        auto& bias    = layer.getBias();
-        auto& dbias   = layer.getDBias();
-        auto& weight  = layer.getWeight();
-        auto& dweight = layer.getDWeight();
-        
-        auto& vbias = vvbias[layerNb];
-        auto& xbias = vxbias[layerNb];
-        for (size_t o=0; o<bias.size(); ++o)
+        auto& vparams = vvparams[idx];
+        auto& xparams = vxparams[idx];
+        for (size_t o=0; o<params.size(); ++o)
         {
-            auto grad  = dbias[o];
-            vbias[o] = friction*vbias[o] + (1-friction)*grad*grad;
+            auto grad  = dparams[o];
+            vparams[o] = friction*vparams[o] + (1-friction)*grad*grad;
             
-            auto db = -sqrt((xbias[o]+eps)/(vbias[o]+eps))*grad;
+            auto dp = -sqrt((xparams[o]+eps)/(vparams[o]+eps))*grad;
             
-            bias [o] += db;
-            xbias[o]  = friction*xbias[o] + (1-friction)*db*db;
-        }
-        
-        auto& vweight = vvweight[layerNb];
-        auto& xweight = vxweight[layerNb];
-        for (size_t o=0; o<weight.size(); ++o)
-        {
-            auto grad = dweight[o];
-            vweight[o] = friction*vweight[o] + (1-friction)*grad*grad;
-            
-            auto dw = -sqrt((xweight[o]+eps)/(vweight[o]+eps))*grad;
-            
-            weight [o] += dw;
-            xweight[o]  = friction*xweight[o] + (1-friction)*dw*dw;
+            params [o] += dp;
+            xparams[o]  = friction*xparams[o] + (1-friction)*dp*dp;
         }
     }
 
@@ -253,10 +203,8 @@ protected:
     real eps;
     real friction;
     
-    vector<vec_r> vvbias;
-    vector<vec_r> vvweight;
-    vector<vec_r> vxbias;
-    vector<vec_r> vxweight;
+    vector<vec_r> vvparams;
+    vector<vec_r> vxparams;
 };
     
 }

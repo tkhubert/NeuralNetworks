@@ -13,18 +13,12 @@ namespace NN
     
 ConvPoolLayer::ConvPoolLayer(size_t width, size_t height, size_t depth, size_t mapSize, size_t stride, const ActivationFunc& AFunc) :
     ConvLayer(width, height, depth, mapSize, stride, AFunc)
-{
-    bias.resize(0);
-    dbias.resize(0);
-    weight.resize (0);
-    dweight.resize(0);
-}
+{}
 //
 void ConvPoolLayer::setPrevLayer(Layer* prev)
 {
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
-    weightInputSize = 1.;
     
     assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
     
@@ -38,8 +32,6 @@ void ConvPoolLayer::setPrevLayer(Layer* prev)
         throw "Invalid size, stride, mapSize configuration";
     if (prevDepth!=depth)
         throw "Invalid depth";
-    
-    initParams();
 }
 //
 void ConvPoolLayer::resize(size_t nbData)

@@ -65,23 +65,11 @@ void Layer::setDCost(const vec_r &dc)
 //
 void Layer::regularize(real lambda)
 {
-    transform(weight.begin(), weight.end(), dweight.begin(), dweight.begin(), [l=lambda] (auto w, auto dw) {return dw+l*w;});
-}
-//
-void Layer::initParams()
-{
-    if (inputSize==0)
-        return;
-    
-    normal_distribution<real> norm(0.,1.);
-    
-    for (size_t o=0; o<bias.size(); ++o)
-        bias[o] = norm(gen);
-    
-    real normalizer = 1./sqrt(weightInputSize);
-    for (size_t o=0; o<weight.size(); ++o)
-        weight[o] = norm(gen)*normalizer;
-}
-//
+    auto nbWeight = params.nbWeight;
+    auto weight   = params.getWPtr();
+    auto dweight  = params.getWPtr();
 
+    transform(weight, weight+nbWeight, dweight, dweight, [l=lambda] (auto w, auto dw) {return dw+l*w;});
+}
+//
 }

@@ -10,6 +10,7 @@
 #define __NeuralNetworks__Layer__
 
 #include "NN.h"
+#include "Params.h"
 #include "ActivationFunc.h"
 
 namespace NN {
@@ -30,21 +31,18 @@ public:
     auto        getInputSize () const {return inputSize;}
     auto        getOutputSize() const {return outputSize;}
     auto        getLayerNb   () const {return layerNb;}
-    const auto& getA         () const {return a; }
-    const auto& getDrop      () const {return drop; }
-    const auto& getBias      () const {return bias; }
-    auto&       getBias      ()       {return bias; }
-    auto&       getDBias     ()       {return dbias;}
-    const auto& getWeight    () const {return weight; }
-    auto&       getWeight    ()       {return weight;}
-    auto&       getDWeight   ()       {return dweight; }
-    auto&       getDelta     ()       {return delta; }
+    const auto& getA         () const {return a;}
+    const auto& getDrop      () const {return drop;}
+    auto&       getDelta     ()       {return delta;}
+    auto&       getParams    ()       {return params;}
+    const auto& getParams    () const {return params;}
+    const auto& getDParams   () const {return dparams;}
 
     const Layer*          getNextLayer() const {return nextLayer;}
     const Layer*          getPrevLayer() const {return prevLayer;}
     const ActivationFunc& getAFunc()     const {return AFunc;}
 
-    void setNbData   (size_t _nbData)          { resize(_nbData);}
+    void setNbData   (size_t nbData)          { resize(nbData);}
     void setNextLayer(Layer* next)             { nextLayer = next; }
     virtual void setPrevLayer(Layer* prev) = 0;
     void setPhase    (Phase  p)                { phase = p; }
@@ -58,14 +56,11 @@ public:
     virtual void calcGrad() = 0;
     virtual void regularize(real lambda);
 
-    void initParams();
-    
 protected:
     static size_t layerCount;
     size_t        layerNb;
     size_t        inputSize;
     size_t        outputSize;
-    size_t        weightInputSize;
     size_t        nbData;
     real          dropRate;
     Phase         phase;
@@ -74,11 +69,8 @@ protected:
     vec_r delta;
     vec_r drop;
     
-    vec_r bias;
-    vec_r dbias;
-    vec_r weight;
-    vec_r dweight;
-    // w[o][i] = w[o*InputSize + i] or = w[i*OutputSize+o]
+    Params  params; //bias and weight
+    Params dparams; //dbias and dweight
 
     Layer* nextLayer;
     Layer* prevLayer;
