@@ -25,6 +25,8 @@ public:
         nbEpochs(nbEpochs)
     {};
     
+    virtual ~Optimizer() {}
+    
     auto getLambda()    const {return lambda;}
     auto getBatchSize() const {return batchSize;}
     auto getNbEpochs()  const {return nbEpochs;}

@@ -18,6 +18,7 @@ class ConvLayer : public Layer
 {
 public:
     ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, size_t stride, const ActivationFunc& AFunc);
+    virtual ~ConvLayer() {}
     
     string getName()      const {return "ConvLayer";}
     string getDetails()   const {return "";}

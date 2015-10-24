@@ -17,6 +17,7 @@ class ActivationFunc
 {
 public:
     ActivationFunc() {}
+    virtual ~ActivationFunc() {}
     
     virtual string getName() const = 0;
     virtual real  f (real x) const = 0;

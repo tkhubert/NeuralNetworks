@@ -20,6 +20,7 @@ class CostFunc
 {
 public:
     CostFunc() {}
+    virtual ~CostFunc() {}
     
     virtual string getName() const = 0;
     virtual real f(const vec_r& a , LabelDataCItr dataStart, LabelDataCItr dataEnd)            const = 0;

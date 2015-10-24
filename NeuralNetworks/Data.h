@@ -24,6 +24,7 @@ class DataContainer
 {
 public:
     DataContainer() {}
+    virtual ~DataContainer() {}
     
     size_t getDataSize() const {return trainLabelData[0].data.size();}
     
