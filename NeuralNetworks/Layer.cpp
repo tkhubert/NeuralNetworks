@@ -65,10 +65,10 @@ void Layer::setDCost(const vec_r &dc)
 //
 void Layer::regularize(real lambda)
 {
-    auto nbWeight = params.nbWeight;
-    auto weight   = params.getWPtr();
-    auto dweight  = params.getWPtr();
-
+    auto nbWeight = params.getNbWeight();
+    auto dweight  = dparams.getWPtr();
+    const auto weight = params.getCWPtr();
+    
     transform(weight, weight+nbWeight, dweight, dweight, [l=lambda] (auto w, auto dw) {return dw+l*w;});
 }
 //

@@ -15,23 +15,20 @@ ConvPoolLayer::ConvPoolLayer(size_t width, size_t height, size_t depth, size_t m
     ConvLayer(width, height, depth, mapSize, stride, AFunc)
 {}
 //
+void ConvPoolLayer::validate() const
+{
+    ConvLayer::validate();
+
+    if (static_cast<ConvLayer*>(prevLayer)->getDepth()!=depth)
+        throw invalid_argument("Invalid depth");
+}
+//
 void ConvPoolLayer::setPrevLayer(Layer* prev)
 {
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
     
-    assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
-    
-    auto prevWidth  = static_cast<ConvLayer*>(prevLayer)->getWidth();
-    auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
-    auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
-    
-    if (!(((prevWidth-mapSize)%stride == 0) && ((prevHeight-mapSize)%stride == 0)))
-        throw "Invalid stride, mapSize configuration";
-    if (!((width == 1+(prevWidth-mapSize)/stride) && (height== 1+(prevHeight-mapSize)/stride)))
-        throw "Invalid size, stride, mapSize configuration";
-    if (prevDepth!=depth)
-        throw "Invalid depth";
+    validate();
 }
 //
 void ConvPoolLayer::resize(size_t nbData)

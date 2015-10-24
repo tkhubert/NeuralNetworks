@@ -31,7 +31,7 @@ public:
     auto getStride()  const {return stride;}
     
     size_t getIdx (size_t d, size_t de, size_t h, size_t w)      const {return w+(h+(de+d*depth)*height)*width;}
-    size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*ide)+params.weightInputSize*ode;}
+    size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*(ide+prevDepth*ode));}
     
     virtual void setPrevLayer(Layer* layer);
     virtual void fwdProp();
@@ -39,9 +39,12 @@ public:
     virtual void calcGrad();
     
 protected:
+    void validate() const;
+    
     size_t width;
     size_t height;
     size_t depth;
+    size_t prevDepth;
     size_t mapSize;
     size_t stride;
     

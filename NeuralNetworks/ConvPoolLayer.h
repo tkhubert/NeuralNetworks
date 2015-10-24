@@ -32,6 +32,7 @@ private:
     vec_r maxIdx;
     
     void resize(size_t nbData);
+    void validate() const;
 };
     
 }

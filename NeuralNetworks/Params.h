@@ -11,8 +11,9 @@
 
 namespace NN
 {
-struct Params
+class Params
 {
+public:
     Params() : nbData(0), nbBias(0), nbWeight(0), weightInputSize(1) { params.resize(0); }
     //
     Params(size_t nbBias, size_t nbWeight, size_t weightInputSize) :
@@ -33,10 +34,6 @@ struct Params
         params.resize(nbData);
     }
     //
-    size_t size() {return nbData;}
-    //
-    void reset() { fill(params.begin(), params.end(), 0.); }
-    //
     void initParams(default_random_engine& gen)
     {
         normal_distribution<real> norm(0.,1.);
@@ -49,14 +46,21 @@ struct Params
             params[o] = norm(gen)*normalizer;
     }
     //
-    const real* const getCBPtr() const {return &params[0];}
-    const real* const getCWPtr() const {return &params[nbBias];}
-    real*             getBPtr()        {return &params[0];}
-    real*             getWPtr()        {return &params[nbBias];}
+    const auto&       get()         const {return params;}
+    auto&             get()               {return params;}
+    auto              getNbBias()   const {return nbBias;}
+    auto              getNbWeight() const {return nbWeight;}
+    auto              size()        const {return nbData;}
+    const auto* const getCBPtr()    const {return &params[0];}
+    const auto* const getCWPtr()    const {return &params[nbBias];}
+    auto*             getBPtr()           {return &params[0];}
+    auto*             getWPtr()           {return &params[nbBias];}
+    //
+    void reset() { fill(params.begin(), params.end(), 0.); }
     //
     
-    //
-    vec_r params;
+private:
+    vec_r  params;
     size_t nbData;
     size_t nbBias;
     size_t nbWeight;

@@ -21,25 +21,34 @@ ConvLayer::ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, 
     stride(stride)
 {}
 //
+void ConvLayer::validate() const
+{
+    auto pLClass = prevLayer->getClass();
+    if (pLClass!=LayerClass::ConvLayer && pLClass!=LayerClass::ConvPoolLayer)
+        throw invalid_argument("Previous Layer of a ConvLayer must be a ConvLayer");
+    
+    auto prevWidth  = static_cast<ConvLayer*>(prevLayer)->getWidth();
+    auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
+    
+    if (!(((prevWidth-mapSize)%stride == 0) && ((prevHeight-mapSize)%stride == 0)))
+        throw invalid_argument("Invalid stride, mapSize configuration");
+    if (!((width == 1+(prevWidth-mapSize)/stride) && (height== 1+(prevHeight-mapSize)/stride)))
+        throw invalid_argument("Invalid size, stride, mapSize configuration");
+}
+//
 void ConvLayer::setPrevLayer(Layer* prev)
 {
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
+    validate();
     
-    assert(prevLayer->getClass() == LayerClass::ConvLayer || prevLayer->getClass() == LayerClass::ConvPoolLayer);
+    prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
     
-    auto prevWidth  = static_cast<ConvLayer*>(prevLayer)->getWidth();
-    auto prevHeight = static_cast<ConvLayer*>(prevLayer)->getHeight();
-    auto prevDepth  = static_cast<ConvLayer*>(prevLayer)->getDepth();
-    auto weightSize = mapSize*mapSize*depth*prevDepth;
+    auto weightInputSize = mapSize*mapSize*prevDepth;
+    auto weightSize = weightInputSize*depth;
     
-    if (!(((prevWidth-mapSize)%stride == 0) && ((prevHeight-mapSize)%stride == 0)))
-        throw "Invalid stride, mapSize configuration";
-    if (!((width == 1+(prevWidth-mapSize)/stride) && (height== 1+(prevHeight-mapSize)/stride)))
-        throw "Invalid size, stride, mapSize configuration";
-    
-    params.resize (depth, weightSize, mapSize*mapSize*prevDepth);
-    dparams.resize(depth, weightSize, mapSize*mapSize*prevDepth);
+    params.resize (depth, weightSize, weightInputSize);
+    dparams.resize(depth, weightSize, weightInputSize);
     params.initParams(gen);
 }
 //
@@ -68,7 +77,6 @@ void ConvLayer::naiveFwdProp()
     
     ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevCL->getA();
-    auto prevDepth    = prevCL->getDepth();
     const auto bias   = params.getCBPtr();
     const auto weight = params.getCWPtr();
     
@@ -112,7 +120,6 @@ void ConvLayer::naiveBwdProp()
     auto& prevDelta       = prevCL->getDelta();
     const auto& prevA     = prevCL->getA();
     const auto& prevAFunc = prevCL->getAFunc();
-    auto prevDepth        = prevCL->getDepth();
     const auto weight     = params.getCWPtr();
     
     fill(prevDelta.begin(), prevDelta.end(), 0.);
@@ -156,7 +163,6 @@ void ConvLayer::naiveCalcGrad()
 {
     ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevCL->getA();
-    auto prevDepth    = prevCL->getDepth();
     
     dparams.reset();
     auto dbias   = dparams.getBPtr();
@@ -210,7 +216,6 @@ void ConvLayer::genFwdPrevAMat(size_t d, vec_r& prevAMat) const
 {
     ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevCL->getA();
-    auto prevDepth    = prevCL->getDepth();
     
     auto prevAMatIdx = 0;
     for (size_t oh=0; oh<height; ++oh)
@@ -253,8 +258,6 @@ void ConvLayer::genBwdIdxVec(size_t pdim, size_t dim, vec_i& weightIdxVec) const
 //
 void ConvLayer::genBwdWeightMat(vec_r& weightMat) const
 {
-    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
-    auto prevDepth    = prevCL->getDepth();
     const auto weight = params.getCWPtr();
     
     auto wIdx = 0;
@@ -303,7 +306,6 @@ void ConvLayer::genGradPrevAMat(size_t d, vec_r& prevAMat) const
 {
     ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA = prevCL->getA();
-    auto prevDepth    = prevCL->getDepth();
     
     auto aIdx = 0;
     for (size_t ide=0; ide<prevDepth; ++ide)
@@ -333,9 +335,6 @@ void ConvLayer::img2MatFwdProp()
     if (prevLayer==nullptr)
         return;
     
-    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
-    
-    auto prevDepth    = prevCL->getDepth();
     auto nbRow        = width*height;
     auto nbCol        = prevDepth*mapSize*mapSize;
     const auto bias   = params.getCBPtr();
@@ -367,7 +366,6 @@ void ConvLayer::img2MatBwdProp()
     const auto& prevAFunc = prevCL->getAFunc();
     auto prevHeight       = prevCL->getHeight();
     auto prevWidth        = prevCL->getWidth();
-    auto prevDepth        = prevCL->getDepth();
     
     vec_r prevdA(prevA.size());
     for (size_t i=0; i<prevdA.size(); ++i)
@@ -400,9 +398,6 @@ void ConvLayer::img2MatBwdProp()
 //
 void ConvLayer::img2MatCalcGrad()
 {
-    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
-    auto prevDepth = prevCL->getDepth();
-    
     auto nbRow = prevDepth*mapSize*mapSize;
     auto nbCol = height*width;
     

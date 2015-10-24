@@ -66,7 +66,7 @@ void NeuralNetwork::setDrop()
 void NeuralNetwork::updateParams(Optimizer& optim)
 {
     for (size_t i=1; i<nbLayers; ++i)
-        optim.updateParams(i, layers[i]->getParams().params, layers[i]->getDParams().params);
+        optim.updateParams(i, layers[i]->getParams().get(), layers[i]->getDParams().get());
 }
 //
 void NeuralNetwork::setInput(const LabelData& lD)
@@ -273,8 +273,8 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
     
     for (size_t i=1; i<nbLayers; ++i)
     {
-        auto& params  = layers[i]->getParams().params;
-        auto& dparams = layers[i]->getDParams().params;
+        auto& params  = layers[i]->getParams().get();
+        auto& dparams = layers[i]->getDParams().get();
         
         vector<pair<int,real>> dpparams(dparams.size());
         for (size_t j=0; j<dparams.size(); ++j)
