@@ -39,7 +39,7 @@ public:
         return ss.str();
     }
     
-    virtual void resize(const vector<unique_ptr<Layer>>& net) = 0;
+    virtual void resize(const vec_i& sizes) = 0;
     virtual void updateParams(int idx, vec_r& params, const vec_r& dparams) = 0;
     
 protected:
@@ -74,7 +74,7 @@ public:
         return ss.str();
     }
     //
-    void resize(const vector<unique_ptr<Layer>>& net) {}
+    void resize(const vec_i& sizes) {}
     //
     void updateParams(int idx, vec_r& params, const vec_r& dparams)
     {
@@ -113,13 +113,11 @@ public:
         return ss.str();
     }
     //
-    void resize(const vector<unique_ptr<Layer>>& net)
+    void resize(const vec_i& sizes)
     {
-        auto nbLayers = net.size();
-        vvparams.resize(nbLayers);
-        
-        for (size_t i=0; i<nbLayers; ++i)
-            vvparams[i].resize(net[i]->getParams().nbData);
+        vvparams.resize(sizes.size());
+        for (size_t i=0; i<sizes.size(); ++i)
+            vvparams[i].resize(sizes[i]);
     }
     //
     void updateParams(int idx, vec_r& params, const vec_r& dparams)
@@ -169,16 +167,15 @@ public:
         return ss.str();
     }
     //
-    void resize(const vector<unique_ptr<Layer>>& net)
+    void resize(const vec_i& sizes)
     {
-        auto nbLayers = net.size();
-        vvparams.resize(nbLayers);
-        vxparams.resize(nbLayers);
+        vvparams.resize(sizes.size());
+        vxparams.resize(sizes.size());
         
-        for (size_t i=0; i<nbLayers; ++i)
+        for (size_t i=0; i<sizes.size(); ++i)
         {
-            vvparams[i].resize(net[i]->getParams().nbData);
-            vxparams[i].resize(net[i]->getParams().nbData);
+            vvparams[i].resize(sizes[i]);
+            vxparams[i].resize(sizes[i]);
         }
     }
     //

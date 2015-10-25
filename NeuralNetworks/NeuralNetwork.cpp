@@ -172,7 +172,9 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
     auto totalISize = lData.size();
     auto nbBatches  = (totalISize-1)/batchSize + 1;
     
-    optim.resize(layers);
+    vec_i paramSize(layers.size());
+    transform(layers.begin(), layers.end(), paramSize.begin(), [] (auto& layer) {return layer->getParams().nbData;});
+    optim.resize(paramSize);
     
     for (size_t t=0; t<nbEpochs; ++t)
     {
