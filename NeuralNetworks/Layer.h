@@ -10,7 +10,6 @@
 #define __NeuralNetworks__Layer__
 
 #include "NN.h"
-#include "Params.h"
 #include "ActivationFunc.h"
 
 namespace NN {
@@ -20,6 +19,26 @@ enum class LayerClass { FCLayer, ConvLayer, ConvPoolLayer };
 //
 class Layer
 {
+protected:
+    struct Params
+    {
+        vec_r  params;
+        size_t nbData;
+        size_t nbBias;
+        size_t nbWeight;
+        size_t weightInputSize;
+        
+        explicit Params(size_t nbBias=0, size_t nbWeight=0, size_t weightInputSize=1);
+        void     resize(size_t _nbBias , size_t _nbWeight , size_t _weightInputSize );
+        void     reset() { fill(params.begin(), params.end(), 0.); }
+        //
+        const auto* const getCBPtr()    const {return &params[0];}
+        const auto* const getCWPtr()    const {return &params[nbBias];}
+        auto*             getBPtr()           {return &params[0];}
+        auto*             getWPtr()           {return &params[nbBias];}
+        //
+    };
+
 public:
     Layer(size_t size, real dropRate, const ActivationFunc& AFunc);
     ~Layer();
@@ -78,9 +97,9 @@ protected:
     const ActivationFunc& AFunc;
     default_random_engine gen;
     
+    void initParams();
     virtual void resize(size_t nbData);
 };
-
 }
 
 #endif /* defined(__NeuralNetworks__Layer__) */

@@ -119,7 +119,7 @@ public:
         vvparams.resize(nbLayers);
         
         for (size_t i=0; i<nbLayers; ++i)
-            vvparams[i].resize(net[i]->getParams().size());
+            vvparams[i].resize(net[i]->getParams().nbData);
     }
     //
     void updateParams(int idx, vec_r& params, const vec_r& dparams)
@@ -177,8 +177,8 @@ public:
         
         for (size_t i=0; i<nbLayers; ++i)
         {
-            vvparams[i].resize(net[i]->getParams().size());
-            vxparams[i].resize(net[i]->getParams().size());
+            vvparams[i].resize(net[i]->getParams().nbData);
+            vxparams[i].resize(net[i]->getParams().nbData);
         }
     }
     //

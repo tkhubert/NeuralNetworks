@@ -23,7 +23,7 @@ void FCLayer::setPrevLayer(Layer* prev)
     
     params.resize (outputSize, inputSize*outputSize, inputSize);
     dparams.resize(outputSize, inputSize*outputSize, inputSize);
-    params.initParams(gen);
+    initParams();
 }
 //
 void FCLayer::fwdProp()

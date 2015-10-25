@@ -49,7 +49,7 @@ void ConvLayer::setPrevLayer(Layer* prev)
     
     params.resize (depth, weightSize, weightInputSize);
     dparams.resize(depth, weightSize, weightInputSize);
-    params.initParams(gen);
+    initParams();
 }
 //
 void ConvLayer::fwdProp()
