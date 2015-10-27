@@ -25,7 +25,6 @@ NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& 
         auto& pLayer = layers[i-1];
         auto& cLayer = layers[i];
         
-        pLayer->setNextLayer(cLayer.get());
         cLayer->setPrevLayer(pLayer.get());
     }
     

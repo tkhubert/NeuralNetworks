@@ -83,12 +83,10 @@ public:
     const auto& getParams    () const {return params;}
     const auto& getDParams   () const {return dparams;}
 
-    const Layer*          getNextLayer() const {return nextLayer;}
     const Layer*          getPrevLayer() const {return prevLayer;}
     const ActivationFunc& getAFunc()     const {return AFunc;}
 
     void setNbData   (size_t nbData)           { resize(nbData);}
-    void setNextLayer(Layer* next)             { nextLayer = next; }
     virtual void setPrevLayer(Layer* prev) = 0;
     void setPhase    (Phase  p)                { phase = p; }
     void setA        (const vec_r& _a) { a = _a;}
@@ -120,7 +118,6 @@ protected:
     LayerParams  params; //bias and weight
     LayerParams dparams; //dbias and dweight
 
-    Layer* nextLayer;
     Layer* prevLayer;
 
     const ActivationFunc& AFunc;
