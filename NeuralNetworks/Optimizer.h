@@ -10,7 +10,6 @@
 #define NeuralNetworks_Optimizer_h
 
 #include "NN.h"
-#include "Layer.h"
 
 namespace NN {
 

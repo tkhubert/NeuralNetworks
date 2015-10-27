@@ -20,9 +20,10 @@ void FCLayer::setPrevLayer(Layer* prev)
 {
     prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
+    weightInputSize = inputSize;
     
-    params.resize (outputSize, inputSize*outputSize, inputSize);
-    dparams.resize(outputSize, inputSize*outputSize, inputSize);
+    params.resize (outputSize, inputSize*outputSize);
+    dparams.resize(outputSize, inputSize*outputSize);
     initParams();
 }
 //
@@ -36,10 +37,10 @@ void FCLayer::fwdProp()
     }
     
     const auto& prevA  = prevLayer->getA();
-    const auto  bias   = params.getCBPtr();
-    const auto  weight = params.getCWPtr();
+    const auto& bias   = params.bias;
+    const auto& weight = params.weight;
     
-    MatMultABt(&prevA[0], weight, &a[0], nbData, inputSize, outputSize);
+    MatMultABt(&prevA[0], &weight[0], &a[0], nbData, inputSize, outputSize);
     
     for (size_t d=0; d<nbData; ++d)
         for (size_t o=0; o<outputSize; ++o)
@@ -53,9 +54,9 @@ void FCLayer::bwdProp()
     const auto& prevDrop  = prevLayer->getDrop();
     const auto& prevAFunc = prevLayer->getAFunc();
     auto& prevDelta       = prevLayer->getDelta();
-    const auto  weight    = params.getCWPtr();
+    const auto& weight    = params.weight;
     
-    MatMultAB(&delta[0], weight, &prevDelta[0], nbData, outputSize, inputSize);
+    MatMultAB(&delta[0], &weight[0], &prevDelta[0], nbData, outputSize, inputSize);
     
     for (size_t i=0; i<prevDelta.size(); ++i)
         prevDelta[i] *= prevAFunc.df(prevA[i])*prevDrop[i];
@@ -64,8 +65,8 @@ void FCLayer::bwdProp()
 void FCLayer::calcGrad()
 {
     dparams.reset();
-    auto dbias   = dparams.getBPtr();
-    auto dweight = dparams.getWPtr();
+    auto& dbias   = dparams.bias;
+    auto& dweight = dparams.weight;
     
     const auto& prevA = prevLayer->getA();
     
