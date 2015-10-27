@@ -34,9 +34,9 @@ class MSECostFunc : public CostFunc
 public:
     MSECostFunc() {}
     
-    string getName() const {return "MSECFunc";}
+    string getName() const override {return "MSECFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -57,7 +57,7 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
@@ -88,9 +88,9 @@ class CECostFunc : public CostFunc
 public:
     CECostFunc() {}
     
-    string getName() const {return "CECFunc";}
+    string getName() const override {return "CECFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -111,7 +111,7 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
@@ -142,9 +142,9 @@ class SMCostFunc : public CostFunc
 public:
     SMCostFunc() {}
     
-    string getName() const {return "SMCFunc";}
+    string getName() const override {return "SMCFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -166,7 +166,7 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
@@ -197,9 +197,9 @@ class SVMCostFunc : public CostFunc
 public:
     SVMCostFunc() {}
     
-    string getName() const {return "SVMCFunc";}
+    string getName() const override {return "SVMCFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -221,7 +221,7 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const
+    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;

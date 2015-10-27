@@ -59,23 +59,23 @@ public:
         alphaBase(_alpha)
     {};
     
-    string getName() const
+    string getName() const override
     {
         stringstream ss;
         ss << "GDOptim_" << getDetail() << "_" << Optimizer::getDetail();
         return ss.str();
     }
     //
-    string getDetail() const
+    string getDetail() const override
     {
         stringstream ss;
         ss << alphaBase;
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes) {}
+    void resize(const vec_i& sizes) override {}
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams) override
     {
         transform(params.begin(), params.end(), dparams.begin(), params.begin(), [a=alpha] (auto p, auto dp) {return p-a*dp;});
     }
@@ -98,28 +98,28 @@ public:
         friction(friction)
     {};
     
-    string getName() const
+    string getName() const override
     {
         stringstream ss;
         ss << "NMOptim_" << getDetail() << "_" << Optimizer::getDetail();
         return ss.str();
     }
     //
-    string getDetail() const
+    string getDetail() const override
     {
         stringstream ss;
         ss << alphaBase << "_" << friction;
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes)
+    void resize(const vec_i& sizes) override
     {
         vvparams.resize(sizes.size());
         for (size_t i=0; i<sizes.size(); ++i)
             vvparams[i].resize(sizes[i]);
     }
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams) override
     {
         auto& vparams = vvparams[idx];
         for (size_t o=0; o<params.size(); ++o)
@@ -152,21 +152,21 @@ public:
         friction(friction)
     {};
     
-    string getName() const
+    string getName() const override
     {
         stringstream ss;
         ss << "ADADOptim_" << getDetail() << "_" << Optimizer::getDetail();
         return ss.str();
     }
     //
-    string getDetail() const
+    string getDetail() const override
     {
         stringstream ss;
         ss << friction << "_" << eps;
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes)
+    void resize(const vec_i& sizes) override
     {
         vvparams.resize(sizes.size());
         vxparams.resize(sizes.size());
@@ -178,7 +178,7 @@ public:
         }
     }
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams)
+    void updateParams(int idx, vec_r& params, const vec_r& dparams) override 
     {
         auto& vparams = vvparams[idx];
         auto& xparams = vxparams[idx];

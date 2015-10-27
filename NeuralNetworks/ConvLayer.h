@@ -20,9 +20,9 @@ public:
     ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, size_t stride, const ActivationFunc& AFunc);
     virtual ~ConvLayer() {}
     
-    string getName()      const {return "ConvLayer";}
-    string getDetails()   const {return "";}
-    LayerClass getClass() const {return LayerClass::ConvLayer;}
+    string getName()      const override {return "ConvLayer";}
+    string getDetails()   const override {return "";}
+    LayerClass getClass() const override {return LayerClass::ConvLayer;}
     
     auto getWidth()   const {return width;}
     auto getHeight()  const {return height;}
@@ -33,10 +33,10 @@ public:
     size_t getIdx (size_t d, size_t de, size_t h, size_t w)      const {return w+(h+(de+d*depth)*height)*width;}
     size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*(ide+prevDepth*ode));}
     
-    virtual void setPrevLayer(Layer* layer);
-    virtual void fwdProp();
-    virtual void bwdProp();
-    virtual void calcGrad();
+    virtual void setPrevLayer(Layer* layer) override;
+    virtual void fwdProp()  override;
+    virtual void bwdProp()  override;
+    virtual void calcGrad() override;
     
 protected:
     void validate() const;

@@ -31,9 +31,9 @@ class IdFunc: public ActivationFunc
 public:
     IdFunc() {}
     
-    string getName() const {return "IdFunc";}
-    real f (real x)  const {return x;}
-    real df(real f)  const {return 1;}
+    string getName() const override {return "IdFunc";}
+    real f (real x)  const override {return x;}
+    real df(real f)  const override {return 1;}
 };
 //
     
@@ -43,9 +43,9 @@ class SigmoidFunc : public ActivationFunc
 public:
     SigmoidFunc() {}
     
-    string getName() const {return "SigAFunc";}
-    real f (real x)  const {return 1./(1+exp(-x));}
-    real df(real f)  const {return f*(1-f);}
+    string getName() const override {return "SigAFunc";}
+    real f (real x)  const override {return 1./(1+exp(-x));}
+    real df(real f)  const override {return f*(1-f);}
 };
 //
     
@@ -55,14 +55,14 @@ class TanHFunc : public ActivationFunc
 public:
     TanHFunc() {}
     
-    string getName() const {return "TanHAFunc";}
-    real f (real x)  const
+    string getName() const override {return "TanHAFunc";}
+    real f (real x)  const override
     {
         real tmp1 = exp(x);
         real tmp2 = 1/tmp1;
         return (tmp1-tmp2)/(tmp1+tmp2);
     }
-    real df(real f) const {return 1.-f*f;}
+    real df(real f) const override {return 1.-f*f;}
 };
 //
     
@@ -72,9 +72,9 @@ class RLFunc : public ActivationFunc
 public:
     RLFunc(real _a=1., real _b=0.001) : a(_a), b(_b) {}
 
-    string getName() const {return "RLAFunc";}
-    real f (real x) const {return x>=0. ? a*x : b*x;}
-    real df(real f) const {return f>=0. ? a   : b;}
+    string getName() const override {return "RLAFunc";}
+    real f (real x)  const override {return x>=0. ? a*x : b*x;}
+    real df(real f)  const override {return f>=0. ? a   : b;}
     
 private:
     real a;
