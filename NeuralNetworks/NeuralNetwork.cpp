@@ -62,10 +62,10 @@ void NeuralNetwork::setDrop()
         layers[i]->setDrop();
 }
 //
-void NeuralNetwork::updateParams(Optimizer& optim)
+void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
 {
     for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->updateParams(optim);
+        layers[i]->updateParams(*optims[i]);
 }
 //
 void NeuralNetwork::setInput(const LabelData& lD)
@@ -172,9 +172,12 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
     auto totalISize = lData.size();
     auto nbBatches  = (totalISize-1)/batchSize + 1;
     
-    vec_i paramSize(layers.size());
-    transform(layers.begin(), layers.end(), paramSize.begin(), [] (auto& layer) {return layer->getParams().size();});
-    optim.resize(paramSize);
+    vector<unique_ptr<Optimizer>> optims(layers.size());
+    for (size_t i=0; i<layers.size(); ++i)
+    {
+        optims[i] = optim.clone();
+        optims[i]->resize(layers[i]->getParams().size());
+    }
     
     for (size_t t=0; t<nbEpochs; ++t)
     {
@@ -201,7 +204,7 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
             calcGrad ();
             regularize(optim.getLambda());
             
-            updateParams(optim);
+            updateParams(optims);
         }
         
         test(data.getTrainLabelData(), batchSize);

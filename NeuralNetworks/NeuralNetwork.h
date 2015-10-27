@@ -63,12 +63,13 @@ private:
     void setPhase (Phase phase);
     void setDrop  ();
     
-    void updateParams(Optimizer& optim);
     void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(const vec_r& dC);
     void calcGrad();
     void regularize(real lambda);
+    void updateParams(vector<unique_ptr<Optimizer>>& optim);
+    
 };
     
 }

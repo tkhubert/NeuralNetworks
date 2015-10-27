@@ -96,7 +96,7 @@ void Layer::initParams()
 //
 void Layer::updateParams(Optimizer& optim)
 {
-    optim.updateParams(layerNb, params.params, dparams.params);
+    optim.updateParams(params.params, dparams.params);
 }
 //
 }

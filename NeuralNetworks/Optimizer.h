@@ -25,6 +25,7 @@ public:
     {};
     
     virtual ~Optimizer() {}
+    virtual unique_ptr<Optimizer> clone() const = 0;
     
     auto getLambda()    const {return lambda;}
     auto getBatchSize() const {return batchSize;}
@@ -38,8 +39,8 @@ public:
         return ss.str();
     }
     
-    virtual void resize(const vec_i& sizes) = 0;
-    virtual void updateParams(int idx, vec_r& params, const vec_r& dparams) = 0;
+    virtual void resize(size_t) = 0;
+    virtual void updateParams(vec_r& params, const vec_r& dparams) = 0;
     
 protected:
     real   lambda, lambdaBase;
@@ -59,6 +60,11 @@ public:
         alphaBase(_alpha)
     {};
     
+    unique_ptr<Optimizer> clone() const override
+    {
+        return unique_ptr<GDOptimizer>(new GDOptimizer(*this));
+    }
+    //
     string getName() const override
     {
         stringstream ss;
@@ -73,9 +79,9 @@ public:
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes) override {}
+    void resize(size_t) override {}
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams) override
+    void updateParams(vec_r& params, const vec_r& dparams) override
     {
         transform(params.begin(), params.end(), dparams.begin(), params.begin(), [a=alpha] (auto p, auto dp) {return p-a*dp;});
     }
@@ -98,6 +104,11 @@ public:
         friction(friction)
     {};
     
+    unique_ptr<Optimizer> clone() const override
+    {
+        return unique_ptr<NMOptimizer>(new NMOptimizer(*this));
+    }
+    //
     string getName() const override
     {
         stringstream ss;
@@ -112,16 +123,13 @@ public:
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes) override
+    void resize(size_t size) override
     {
-        vvparams.resize(sizes.size());
-        for (size_t i=0; i<sizes.size(); ++i)
-            vvparams[i].resize(sizes[i]);
+        vparams.resize(size);
     }
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams) override
+    void updateParams(vec_r& params, const vec_r& dparams) override
     {
-        auto& vparams = vvparams[idx];
         for (size_t o=0; o<params.size(); ++o)
         {
             auto pv   = vparams[o];
@@ -137,7 +145,7 @@ protected:
     real alpha, alphaBase;
     real friction;
     
-    vector<vec_r> vvparams;
+    vec_r vparams;
 };
 //
     
@@ -152,6 +160,11 @@ public:
         friction(friction)
     {};
     
+    unique_ptr<Optimizer> clone() const override
+    {
+        return unique_ptr<ADADOptimizer>(new ADADOptimizer(*this));
+    }
+    //
     string getName() const override
     {
         stringstream ss;
@@ -166,22 +179,14 @@ public:
         return ss.str();
     }
     //
-    void resize(const vec_i& sizes) override
+    void resize(size_t size) override
     {
-        vvparams.resize(sizes.size());
-        vxparams.resize(sizes.size());
-        
-        for (size_t i=0; i<sizes.size(); ++i)
-        {
-            vvparams[i].resize(sizes[i]);
-            vxparams[i].resize(sizes[i]);
-        }
+        vparams.resize(size);
+        xparams.resize(size);
     }
     //
-    void updateParams(int idx, vec_r& params, const vec_r& dparams) override 
+    void updateParams(vec_r& params, const vec_r& dparams) override
     {
-        auto& vparams = vvparams[idx];
-        auto& xparams = vxparams[idx];
         for (size_t o=0; o<params.size(); ++o)
         {
             auto grad  = dparams[o];
@@ -199,8 +204,8 @@ protected:
     real eps;
     real friction;
     
-    vector<vec_r> vvparams;
-    vector<vec_r> vxparams;
+    vec_r vparams;
+    vec_r xparams;
 };
     
 }
