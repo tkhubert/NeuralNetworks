@@ -20,6 +20,8 @@ struct LabelData
     vec_r data;
 };
 //
+using LabelDataCItr = vector<LabelData>::const_iterator;
+//
 class DataContainer
 {
 public:

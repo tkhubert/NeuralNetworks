@@ -13,8 +13,6 @@
 #include "Data.h"
 
 namespace NN {
-
-using LabelDataCItr = vector<LabelData>::const_iterator;
     
 class CostFunc
 {

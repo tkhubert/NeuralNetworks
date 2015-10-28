@@ -34,9 +34,7 @@ public:
     virtual string getName()   const = 0;
     virtual string getDetail() const
     {
-        stringstream ss;
-        ss << lambdaBase << "_" << batchSize << "_" << nbEpochs;
-        return ss.str();
+        return to_string(lambdaBase) + "_" + to_string(batchSize) + "_" + to_string(nbEpochs);
     }
     
     virtual void resize(size_t) = 0;
@@ -60,24 +58,10 @@ public:
         alphaBase(_alpha)
     {};
     
-    unique_ptr<Optimizer> clone() const override
-    {
-        return unique_ptr<GDOptimizer>(new GDOptimizer(*this));
-    }
+    unique_ptr<Optimizer> clone() const override {return make_unique<GDOptimizer>(*this);}
     //
-    string getName() const override
-    {
-        stringstream ss;
-        ss << "GDOptim_" << getDetail() << "_" << Optimizer::getDetail();
-        return ss.str();
-    }
-    //
-    string getDetail() const override
-    {
-        stringstream ss;
-        ss << alphaBase;
-        return ss.str();
-    }
+    string getName()   const override {return "GDOptim_" + getDetail() + "_" + Optimizer::getDetail();}
+    string getDetail() const override {return to_string(alphaBase); }
     //
     void resize(size_t) override {}
     //
@@ -104,24 +88,10 @@ public:
         friction(friction)
     {};
     
-    unique_ptr<Optimizer> clone() const override
-    {
-        return unique_ptr<NMOptimizer>(new NMOptimizer(*this));
-    }
+    unique_ptr<Optimizer> clone() const override { return make_unique<NMOptimizer>(*this); }
     //
-    string getName() const override
-    {
-        stringstream ss;
-        ss << "NMOptim_" << getDetail() << "_" << Optimizer::getDetail();
-        return ss.str();
-    }
-    //
-    string getDetail() const override
-    {
-        stringstream ss;
-        ss << alphaBase << "_" << friction;
-        return ss.str();
-    }
+    string getName()   const override { return "NMOptim_" + getDetail() + "_" + Optimizer::getDetail(); }
+    string getDetail() const override { return to_string(alphaBase) + "_" + to_string(friction); }
     //
     void resize(size_t size) override
     {
@@ -160,24 +130,10 @@ public:
         friction(friction)
     {};
     
-    unique_ptr<Optimizer> clone() const override
-    {
-        return unique_ptr<ADADOptimizer>(new ADADOptimizer(*this));
-    }
+    unique_ptr<Optimizer> clone() const override {return make_unique<ADADOptimizer>(*this);}
     //
-    string getName() const override
-    {
-        stringstream ss;
-        ss << "ADADOptim_" << getDetail() << "_" << Optimizer::getDetail();
-        return ss.str();
-    }
-    //
-    string getDetail() const override
-    {
-        stringstream ss;
-        ss << friction << "_" << eps;
-        return ss.str();
-    }
+    string getName()   const override {return "ADADOptim_" + getDetail() + "_" + Optimizer::getDetail();}
+    string getDetail() const override {return to_string(friction) + "_" + to_string(eps);}
     //
     void resize(size_t size) override
     {
@@ -199,7 +155,6 @@ public:
         }
     }
 
-    
 protected:
     real eps;
     real friction;

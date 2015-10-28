@@ -33,7 +33,7 @@ public:
     
     void train(const DataContainer& data, Optimizer& Optim);
     void test (const vector<LabelData>& lData, size_t batchSize=20);
-    void checkGradient(const LabelData& lD);
+    void checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd);
     
     const auto& predict(const LabelData& lD);
     

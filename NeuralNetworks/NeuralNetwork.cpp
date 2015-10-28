@@ -35,30 +35,27 @@ NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& 
 //
 string NeuralNetwork::getName() const
 {
-    stringstream ss;
+    string s;
     for (size_t i=0; i<nbLayers; ++i)
-        ss << layers[i]->getOutputSize() << "_";
+        s+= to_string(layers[i]->getOutputSize()) + "_";
 
-    ss << CFunc.getName() << "_" << layers.back()->getAFunc().getName();
-    return ss.str();
+    s += CFunc.getName() + "_" + layers.back()->getAFunc().getName();
+    return s;
 }
 //
 void NeuralNetwork::setNbData(size_t nbData)
 {
-    for (size_t i=0; i<nbLayers; ++i)
-        layers[i]->setNbData(nbData);
+    for_each(layers.begin(), layers.end(), [nbData] (auto& l) { l->setNbData(nbData);});
 }
 //
 void NeuralNetwork::setPhase(Phase phase)
 {
-    for (size_t i=0; i<nbLayers; ++i)
-        layers[i]->setPhase(phase);
+    for_each(layers.begin(), layers.end(), [phase] (auto& l) { l->setPhase(phase);});
 }
 //
 void NeuralNetwork::setDrop()
 {
-    for (size_t i=0; i<nbLayers; ++i)
-        layers[i]->setDrop();
+    for_each(layers.begin(), layers.end(), [] (auto& l) { l->setDrop();});
 }
 //
 void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
@@ -114,14 +111,12 @@ void NeuralNetwork::bwdProp(const vec_r& dC)
 //
 void NeuralNetwork::calcGrad()
 {
-    for (size_t i=nbLayers-1; i>=1; --i)
-        layers[i]->calcGrad();
+    for_each(layers.begin()+1, layers.end(), [] (auto& l) { l->calcGrad();});
 }
 //
 void NeuralNetwork::regularize(real lambda)
 {
-    for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->regularize(lambda);
+    for_each(layers.begin()+1, layers.end(), [lambda] (auto& l) { l->regularize(lambda);});
 }
 //
 real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
@@ -259,16 +254,14 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
     errRate  = 1.-errRate/totalISize;
 }
 //
-void NeuralNetwork::checkGradient(const LabelData& lD)
+void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)
 {
     cout << "Checking Gradient --------" << endl;
 
     vec_r    dC(outputSize);
-    vector<LabelData> labelData(1);
     
-    labelData[0] = lD;
-    fwdProp(labelData.cbegin(), labelData.cend());
-    calcDCost(labelData.cbegin(), labelData.cend(), dC);
+    fwdProp  (lDStart, lDEnd);
+    calcDCost(lDStart, lDEnd, dC);
     bwdProp  (dC);
     calcGrad ();
     
@@ -294,12 +287,12 @@ void NeuralNetwork::checkGradient(const LabelData& lD)
             auto dp  = 1e-2*p;
             
             params[idx] = p+dp;
-            fwdProp(labelData.cbegin(), labelData.cend());
-            auto cu = calcCost(labelData.cbegin(), labelData.cend());
+            fwdProp(lDStart, lDEnd);
+            auto cu = calcCost(lDStart, lDEnd);
             
             params[idx] = p-dp;
-            fwdProp(labelData.cbegin(), labelData.cend());
-            auto cd = calcCost(labelData.cbegin(), labelData.cend());
+            fwdProp(lDStart, lDEnd);
+            auto cd = calcCost(lDStart, lDEnd);
             
             auto deriv = (cu-cd)/(2*dp);
             auto grad  = dparams[idx];
