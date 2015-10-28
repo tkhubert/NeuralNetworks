@@ -64,12 +64,6 @@ void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
         layers[i]->updateParams(*optims[i]);
 }
 //
-void NeuralNetwork::setInput(const LabelData& lD)
-{
-    setNbData(1);
-    layers.front()->setA(lD.data);
-}
-//
 void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
     auto nbData   = distance(dataStart, dataEnd);
@@ -84,14 +78,6 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
     
     setNbData(nbData);
     layers.front()->setA(move(input));
-}
-//
-void NeuralNetwork::fwdProp(const LabelData& lD)
-{
-    setInput(lD);
-    setDrop();
-    for (size_t i=0; i<nbLayers; ++i)
-        layers[i]->fwdProp();
 }
 //
 void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
@@ -127,12 +113,6 @@ real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) con
 void NeuralNetwork::calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC)
 {
     return CFunc.df(getOutput(), dataStart, dataEnd, dC);
-}
-//
-const auto& NeuralNetwork::predict(const LabelData& lD)
-{
-    fwdProp(lD);
-    return getOutput();
 }
 //
 size_t NeuralNetwork::isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const

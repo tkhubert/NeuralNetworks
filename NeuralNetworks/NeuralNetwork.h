@@ -35,8 +35,6 @@ public:
     void test (const vector<LabelData>& lData, size_t batchSize=20);
     void checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd);
     
-    const auto& predict(const LabelData& lD);
-    
 private:
     // members
     size_t inputSize;
@@ -50,7 +48,6 @@ private:
     real errRate;
     
     // methods
-    void  setInput(const LabelData& lD);
     void  setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     const auto& getOutput() const {return layers[nbLayers-1]->getA();}
     
@@ -63,7 +60,6 @@ private:
     void setPhase (Phase phase);
     void setDrop  ();
     
-    void fwdProp(const LabelData& lD);
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(const vec_r& dC);
     void calcGrad();
