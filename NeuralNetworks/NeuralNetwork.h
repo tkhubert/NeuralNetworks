@@ -49,12 +49,12 @@ private:
     
     // methods
     void  setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd);
-    const auto& getOutput() const {return layers[nbLayers-1]->getA();}
+    const auto& getOutput() const {return layers.back()->getA();}
     
     size_t isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
     real   calcCost (LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
     void   calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC);
-    void   setDCost (const vec_r& dc) { return layers[nbLayers-1]->setDCost(dc);}
+    void   setDCost (const vec_r& dc) { return layers.back()->setDCost(dc);}
     
     void setNbData(size_t nbData);
     void setPhase (Phase phase);
