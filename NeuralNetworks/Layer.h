@@ -75,12 +75,11 @@ public:
     
     auto        getInputSize () const {return inputSize;}
     auto        getOutputSize() const {return outputSize;}
-    auto        getLayerNb   () const {return layerNb;}
+
     const auto& getA         () const {return a;}
     const auto& getDrop      () const {return drop;}
     auto&       getDelta     ()       {return delta;}
     auto&       getParams    ()       {return params;}
-    const auto& getParams    () const {return params;}
     const auto& getDParams   () const {return dparams;}
 
     const Layer*          getPrevLayer() const {return prevLayer;}

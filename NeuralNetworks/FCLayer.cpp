@@ -30,7 +30,7 @@ void FCLayer::setPrevLayer(Layer* prev)
 void FCLayer::fwdProp()
 {
     // A_(l+1)  = AFunc( A_l W^T_(l+1)  + B_(l+1))
-    if (prevLayer==nullptr)
+    if (layerNb==0)
     {
         transform(a.begin(), a.end(), drop.begin(), a.begin(), [] (auto a, auto d) {return a*d;});
         return;

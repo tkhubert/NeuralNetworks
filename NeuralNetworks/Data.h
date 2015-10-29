@@ -34,7 +34,7 @@ public:
     const auto& getCrossLabelData() const { return crossLabelData;}
     const auto& getTestLabelData()  const { return testLabelData;}
     
-    void constructLabelData(const vec_i& trainLabels, const vec_i& testLabels, const vector<vec_r> trainData, const vector<vec_r> testData, size_t fractionSize)
+    void constructLabelData(const vec_i& trainLabels, const vec_i& testLabels, const vector<vec_r>& trainData, const vector<vec_r>& testData, size_t fractionSize)
     {
         auto trainSize = trainLabels.size();
         auto crossSize = trainSize/fractionSize;
