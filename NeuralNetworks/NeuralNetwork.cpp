@@ -132,19 +132,12 @@ size_t NeuralNetwork::isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) 
     return nbCorrect;
 }
 //
-void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
+void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
 {
-    auto lData = data.getTrainLabelData();
-    
     auto name = getName() + "_" + optim.getName();
     ofstream debugFile  = ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+name+".csv");
 
     cout << "Start training " << name << "-------------"<<endl;
-    
-    auto nbEpochs   = optim.getNbEpochs();
-    auto batchSize  = optim.getBatchSize();
-    auto totalISize = lData.size();
-    auto nbBatches  = (totalISize-1)/batchSize + 1;
     
     vector<unique_ptr<Optimizer>> optims(layers.size());
     for (size_t i=0; i<layers.size(); ++i)
@@ -153,13 +146,20 @@ void NeuralNetwork::train(const DataContainer& data, Optimizer& optim)
         optims[i]->resize(layers[i]->getParams().size());
     }
     
+    auto lData      = data.getTrainLabelData();
+    auto nbEpochs   = optim.getNbEpochs();
+    auto batchSize  = optim.getBatchSize();
+    auto totalISize = lData.size();
+    auto nbBatches  = (totalISize-1)/batchSize + 1;
+    
     for (size_t t=0; t<nbEpochs; ++t)
     {
+        setPhase(Phase::TRAIN);
+        
         debugFile << t << ", ";
         cout << "Epoch: " << t << ", ";
         clock_t startTimeEpoch = clock();
         
-        setPhase(Phase::TRAIN);
         random_shuffle(lData.begin(), lData.end());
         
         for (size_t batch=0; batch<nbBatches; ++batch)
