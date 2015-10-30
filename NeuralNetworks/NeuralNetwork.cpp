@@ -88,9 +88,10 @@ void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
         layers[i]->fwdProp();
 }
 //
-void NeuralNetwork::bwdProp(const vec_r& dC)
+void NeuralNetwork::bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
-    setDCost(dC);
+    vec_r dC = CFunc.df(getOutput(), dataStart, dataEnd);
+    layers.back()->setDCost(move(dC));
     for (size_t i=nbLayers-1; i>=2; --i)
         layers[i]->bwdProp();
 }
@@ -108,11 +109,6 @@ void NeuralNetwork::regularize(real lambda)
 real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
 {
     return CFunc.f(getOutput(), dataStart, dataEnd);
-}
-//
-void NeuralNetwork::calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC)
-{
-    return CFunc.df(getOutput(), dataStart, dataEnd, dC);
 }
 //
 size_t NeuralNetwork::isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
@@ -168,16 +164,14 @@ void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
             auto end    = min(start+batchSize, lData.size());
             auto nbData = end-start;
             
-            vec_r dC(outputSize*nbData);
             auto dataStart = lData.cbegin()+start;
             auto dataEnd   = dataStart+nbData;
             
-            fwdProp  (dataStart, dataEnd);
-            calcDCost(dataStart, dataEnd, dC);
-            bwdProp  (dC);
-            calcGrad ();
-            regularize(optim.getLambda());
+            fwdProp (dataStart, dataEnd);
+            bwdProp (dataStart, dataEnd);
+            calcGrad();
             
+            regularize(optim.getLambda());
             updateParams(optims);
         }
         
@@ -241,8 +235,7 @@ void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)
     vec_r    dC(outputSize);
     
     fwdProp  (lDStart, lDEnd);
-    calcDCost(lDStart, lDEnd, dC);
-    bwdProp  (dC);
+    bwdProp  (lDStart, lDEnd);
     calcGrad ();
     
     default_random_engine gen;

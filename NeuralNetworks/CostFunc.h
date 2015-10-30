@@ -21,8 +21,8 @@ public:
     virtual ~CostFunc() {}
     
     virtual string getName() const = 0;
-    virtual real f(const vec_r& a , LabelDataCItr dataStart, LabelDataCItr dataEnd)            const = 0;
-    virtual void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const = 0;
+    virtual real   f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
+    virtual vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
 };
 //
     
@@ -55,11 +55,12 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
+        vec_r dc(a.size());
         vec_r aloc(outputSize);
         vec_r dcloc(outputSize);
         
@@ -75,6 +76,7 @@ public:
                 dc[d*outputSize+i] = aVal-label;
             }
         }
+        return dc;
     }
 
 };
@@ -109,11 +111,12 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
+        vec_r dc(a.size());
         vec_r aloc(outputSize);
         vec_r dcloc(outputSize);
         
@@ -130,6 +133,7 @@ public:
             }
             dc[d*outputSize+y] = -1/aLabel;
         }
+        return dc;
     }
 };
 //
@@ -164,10 +168,12 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
+        
+        vec_r dc(a.size());
 
         for (size_t d=0; d<nbData; ++d)
         {
@@ -185,6 +191,7 @@ public:
             
             dc[d*outputSize+y] -=1;
         }
+        return dc;
     }
 };
 //
@@ -219,11 +226,12 @@ public:
         return val;
     }
     //
-    void df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dc) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
+        vec_r dc(a.size());
         vec_r aloc(outputSize);
         vec_r dcloc(outputSize);
         
@@ -244,6 +252,7 @@ public:
                 dc[d*outputSize+y] += aVal-aLabel>-1 ? -1. : 0.;
             }
         }
+        return dc;
     }
 };
 //

@@ -53,15 +53,13 @@ private:
     
     size_t isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
     real   calcCost (LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
-    void   calcDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd, vec_r& dC);
-    void   setDCost (const vec_r& dc) { return layers.back()->setDCost(dc);}
     
     void setNbData(size_t nbData);
     void setPhase (Phase phase);
     void setDrop  ();
     
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
-    void bwdProp(const vec_r& dC);
+    void bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void calcGrad();
     void regularize(real lambda);
     void updateParams(vector<unique_ptr<Optimizer>>& optim);

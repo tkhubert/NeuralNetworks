@@ -69,7 +69,7 @@ void Layer::setDrop()
         drop[i] = bern(gen);
 }
 //
-void Layer::setDCost(const vec_r &dc)
+void Layer::setDCost(vec_r&& dc)
 {
     for (size_t i=0; i<delta.size(); ++i)
         delta[i] = AFunc.df(a[i])*dc[i];

@@ -85,17 +85,18 @@ public:
     const Layer*          getPrevLayer() const {return prevLayer;}
     const ActivationFunc& getAFunc()     const {return AFunc;}
 
-    void setNbData   (size_t nbData)           { resize(nbData);}
     virtual void setPrevLayer(Layer* prev) = 0;
-    void setPhase    (Phase  p)                { phase = p; }
-    void setA        (const vec_r& _a) { a = _a;}
-    void setA        (vec_r&&      _a) { a = move(_a);}
-    void setDrop     ();
+    
+    void setNbData(size_t nbData)   { resize(nbData);}
+    void setPhase (Phase  p)        { phase = p; }
+    void setA     (const vec_r& _a) { a = _a;}
+    void setA     (vec_r&&      _a) { a = move(_a);}
+    void setDrop  ();
     
     void regularize  (real lambda);
     void updateParams(Optimizer& optim);
     
-    virtual void setDCost(const vec_r& dc);
+    virtual void setDCost(vec_r&& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;
