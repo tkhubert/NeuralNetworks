@@ -20,9 +20,9 @@ public:
     CostFunc() {}
     virtual ~CostFunc() {}
     
-    virtual string getName() const = 0;
-    virtual real   f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
-    virtual vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const = 0;
+    virtual string getName() const noexcept = 0;
+    virtual real   f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept = 0;
+    virtual vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept = 0;
 };
 //
     
@@ -32,9 +32,9 @@ class MSECostFunc : public CostFunc
 public:
     MSECostFunc() {}
     
-    string getName() const override {return "MSECFunc";}
+    string getName() const noexcept override {return "MSECFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -55,14 +55,12 @@ public:
         return val;
     }
     //
-    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
         vec_r dc(a.size());
-        vec_r aloc(outputSize);
-        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -88,9 +86,9 @@ class CECostFunc : public CostFunc
 public:
     CECostFunc() {}
     
-    string getName() const override {return "CECFunc";}
+    string getName() const noexcept override {return "CECFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -111,14 +109,12 @@ public:
         return val;
     }
     //
-    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
         vec_r dc(a.size());
-        vec_r aloc(outputSize);
-        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {
@@ -144,9 +140,9 @@ class SMCostFunc : public CostFunc
 public:
     SMCostFunc() {}
     
-    string getName() const override {return "SMCFunc";}
+    string getName() const noexcept override {return "SMCFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -168,7 +164,7 @@ public:
         return val;
     }
     //
-    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
@@ -202,9 +198,9 @@ class SVMCostFunc : public CostFunc
 public:
     SVMCostFunc() {}
     
-    string getName() const override {return "SVMCFunc";}
+    string getName() const noexcept override {return "SVMCFunc";}
     //
-    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    real f(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         real val        = 0;
         auto nbData     = distance(dataStart, dataEnd);
@@ -226,14 +222,12 @@ public:
         return val;
     }
     //
-    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const override
+    vec_r df(const vec_r& a, LabelDataCItr dataStart, LabelDataCItr dataEnd) const noexcept override
     {
         auto nbData     = distance(dataStart, dataEnd);
         auto outputSize = a.size()/nbData;
         
         vec_r dc(a.size());
-        vec_r aloc(outputSize);
-        vec_r dcloc(outputSize);
         
         for (size_t d=0; d<nbData; ++d)
         {

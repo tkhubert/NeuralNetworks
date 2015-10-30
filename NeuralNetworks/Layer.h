@@ -89,7 +89,6 @@ public:
     
     void setNbData(size_t nbData)   { resize(nbData);}
     void setPhase (Phase  p)        { phase = p; }
-    void setA     (const vec_r& _a) { a = _a;}
     void setA     (vec_r&&      _a) { a = move(_a);}
     void setDrop  ();
     
