@@ -91,8 +91,8 @@ public:
     
     // main methods
     virtual void setFromPrev(const Layer* prevLayer) = 0;
-    virtual void fwdProp    (const Layer* prevLayer)  = 0;
-    virtual void bwdProp    (      Layer* prevLayer)  = 0;
+    virtual void fwdProp    (const Layer* prevLayer) = 0;
+    virtual void bwdProp    (      Layer* prevLayer) = 0;
     virtual void calcGrad   (const Layer* prevLayer) = 0;
     
     void regularize  (real lambda);
