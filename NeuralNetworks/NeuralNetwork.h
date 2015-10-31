@@ -13,9 +13,6 @@
 #include "CostFunc.h"
 #include "Optimizer.h"
 #include "Layer.h"
-#include "FCLayer.h"
-#include "ConvLayer.h"
-#include "ConvPoolLayer.h"
 #include "Data.h"
 
 namespace NN {

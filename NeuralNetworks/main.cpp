@@ -15,6 +15,10 @@
 #include "NN.h"
 #include "Data.h"
 #include "NeuralNetwork.h"
+#include "Layer.h"
+#include "FCLayer.h"
+#include "ConvLayer.h"
+#include "ConvPoolLayer.h"
 
 using namespace NN;
 
@@ -34,7 +38,7 @@ void MLP()
     RLFunc RFunc;
     
     auto batchSize =  20;
-    auto nbEpochs  =  10;
+    auto nbEpochs  =  2;
     auto dropRateI = 0.0;
     auto dropRate  = 0.0;
     auto friction  = 0.9;
@@ -89,15 +93,16 @@ void CL()
         {
             vector<unique_ptr<Layer>> layers;
             layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1,  0, 1, RFunc));
-            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 20, 5, 1, RFunc));
-            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 20, 2, 2, IFunc));
-            layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 40, 5, 1, RFunc));
-            layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 40, 2, 2, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 5, 5, 1, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 5, 2, 2, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 10, 5, 1, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 10, 2, 2, IFunc));
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
             
             NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork CNN (SMCost, move(layers));
+            //CNN.checkGradient(data.getTrainLabelData()[0]);
             CNN.train(data, Optim);
         }
     }
@@ -105,7 +110,7 @@ void CL()
 //
 int main(int argc, const char * argv[])
 {
-    //MLP();
+    MLP();
     CL();
     return 0;
 }
