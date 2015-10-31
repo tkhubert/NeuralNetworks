@@ -76,6 +76,7 @@ public:
     auto        getInputSize () const {return inputSize;}
     auto        getOutputSize() const {return outputSize;}
 
+    auto&       getA         ()       {return a;}
     const auto& getA         () const {return a;}
     const auto& getDrop      () const {return drop;}
     auto&       getDelta     ()       {return delta;}
@@ -90,7 +91,7 @@ public:
     void setNbData(size_t nbData) { resize(nbData);}
     void setPhase (Phase  p)      { phase = p; }
     void setA     (vec_r&& _a)    { a = move(_a);}
-    void setDrop  ();
+    void genDrop  ();
     
     void regularize  (real lambda);
     void updateParams(Optimizer& optim);

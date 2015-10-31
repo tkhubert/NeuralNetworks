@@ -53,9 +53,9 @@ void NeuralNetwork::setPhase(Phase phase)
     for_each(layers.begin(), layers.end(), [phase] (auto& l) { l->setPhase(phase);});
 }
 //
-void NeuralNetwork::setDrop()
+void NeuralNetwork::genDrop()
 {
-    for_each(layers.begin(), layers.end(), [] (auto& l) { l->setDrop();});
+    for_each(layers.begin(), layers.end(), [] (auto& l) { l->genDrop();});
 }
 //
 void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
@@ -76,15 +76,16 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
         copy(data.begin(), data.end(), input.begin()+d*inputSize);
     }
     
-    setNbData(nbData);
-    layers.front()->setA(move(input));
+    auto&          a = layers.front()->getA();
+    const auto& drop = layers.front()->getDrop();
+    transform(input.begin(), input.end(), drop.begin(), a.begin(), [] (auto inp, auto d) {return inp*d;});
 }
 //
 void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
+    genDrop();
     setInput(dataStart, dataEnd);
-    setDrop();
-    for (size_t i=0; i<nbLayers; ++i)
+    for (size_t i=1; i<nbLayers; ++i)
         layers[i]->fwdProp();
 }
 //
@@ -176,6 +177,7 @@ void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
             
             auto dataStart = lData.cbegin()+start;
             auto dataEnd   = dataStart+nbData;
+            setNbData(nbData);
             
             fwdProp (dataStart, dataEnd);
             bwdProp (dataStart, dataEnd);
@@ -228,6 +230,7 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
         
         auto dataStart = lData.cbegin()+start;
         auto dataEnd   = dataStart+nbData;
+        setNbData(nbData);
         
         fwdProp(dataStart, dataEnd);
         cost    += calcCost (dataStart, dataEnd);

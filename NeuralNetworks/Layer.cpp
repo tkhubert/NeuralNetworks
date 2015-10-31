@@ -56,7 +56,7 @@ void Layer::resize(size_t _nbData)
     drop.resize (outputSize*nbData);
 }
 //
-void Layer::setDrop()
+void Layer::genDrop()
 {
     if (dropRate<TINY || phase==Phase::TEST)
     {

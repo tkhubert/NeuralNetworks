@@ -54,7 +54,7 @@ private:
     
     void setNbData(size_t nbData);
     void setPhase (Phase phase);
-    void setDrop  ();
+    void genDrop  ();
     
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);

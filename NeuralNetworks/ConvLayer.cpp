@@ -72,9 +72,6 @@ void ConvLayer::calcGrad()
 //
 void ConvLayer::naiveFwdProp()
 {
-    if (prevLayer==nullptr)
-        return;
-    
     ConvLayer* prevCL  = static_cast<ConvLayer*>(prevLayer);
     const auto& prevA  = prevCL->getA();
     const auto& bias   = params.bias;
@@ -331,10 +328,7 @@ void ConvLayer::genGradPrevAMat(size_t d, vec_r& prevAMat) const
 }
 //
 void ConvLayer::img2MatFwdProp()
-{
-    if (prevLayer==nullptr)
-        return;
-    
+{   
     auto nbRow         = width*height;
     auto nbCol         = prevDepth*mapSize*mapSize;
     const auto& bias   = params.bias;
