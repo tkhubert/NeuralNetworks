@@ -47,9 +47,9 @@ protected:
     
     public:
         explicit LayerParams(size_t nbBias=0, size_t nbWeight=0);
-        void     resize(size_t _nbBias , size_t _nbWeight );
+        void     resize     (size_t nbBias  , size_t nbWeight  );
         void     reset() { fill(params.begin(), params.end(), 0.); }
-        auto     size()   const {return params.size();}
+        auto     size() const {return params.size();}
         
         auto begin()        {return params.begin();}
         auto cbegin() const {return params.cbegin();}
@@ -87,15 +87,14 @@ public:
 
     virtual void setPrevLayer(Layer* prev) = 0;
     
-    void setNbData(size_t nbData)   { resize(nbData);}
-    void setPhase (Phase  p)        { phase = p; }
-    void setA     (vec_r&&      _a) { a = move(_a);}
+    void setNbData(size_t nbData) { resize(nbData);}
+    void setPhase (Phase  p)      { phase = p; }
+    void setA     (vec_r&& _a)    { a = move(_a);}
     void setDrop  ();
     
     void regularize  (real lambda);
     void updateParams(Optimizer& optim);
     
-    virtual void setDCost(vec_r&& dc);
     virtual void fwdProp()  = 0;
     virtual void bwdProp()  = 0;
     virtual void calcGrad() = 0;

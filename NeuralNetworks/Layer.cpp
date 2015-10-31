@@ -68,11 +68,6 @@ void Layer::setDrop()
     for_each(drop.begin(), drop.end(), [&b=bern, &g=gen] (auto& d) {d=b(g);});
 }
 //
-void Layer::setDCost(vec_r&& dc)
-{
-    transform(a.begin(), a.end(), dc.begin(), delta.begin(), [&AFunc=this->AFunc] (auto a, auto dc) {return AFunc.df(a)*dc;});
-}
-//
 void Layer::regularize(real lambda)
 {
     transform(params.weight.begin(), params.weight.end(), dparams.weight.begin(), dparams.weight.begin(), [lambda] (auto w, auto dw) {return dw+lambda*w;});

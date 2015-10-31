@@ -50,6 +50,7 @@ private:
     
     size_t isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
     real   calcCost (LabelDataCItr dataStart, LabelDataCItr dataEnd) const;
+    void   setDCost (LabelDataCItr dataStart, LabelDataCItr dataEnd);
     
     void setNbData(size_t nbData);
     void setPhase (Phase phase);

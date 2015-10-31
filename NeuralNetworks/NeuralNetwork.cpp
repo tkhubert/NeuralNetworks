@@ -90,8 +90,7 @@ void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 //
 void NeuralNetwork::bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
-    vec_r dC = CFunc.df(getOutput(), dataStart, dataEnd);
-    layers.back()->setDCost(move(dC));
+    setDCost(dataStart, dataEnd);
     for (size_t i=nbLayers-1; i>=2; --i)
         layers[i]->bwdProp();
 }
@@ -104,6 +103,17 @@ void NeuralNetwork::calcGrad()
 void NeuralNetwork::regularize(real lambda)
 {
     for_each(layers.begin()+1, layers.end(), [lambda] (auto& l) { l->regularize(lambda);});
+}
+//
+void NeuralNetwork::setDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd)
+{
+    vec_r dc = CFunc.df(getOutput(), dataStart, dataEnd);
+    
+    const auto& AFunc = layers.back()->getAFunc();
+    const auto& a     = layers.back()->getA();
+    auto&       delta = layers.back()->getDelta();
+    
+    transform(a.begin(), a.end(), dc.begin(), delta.begin(), [&AFunc] (auto a, auto dc) {return AFunc.df(a)*dc;});
 }
 //
 real NeuralNetwork::calcCost(LabelDataCItr dataStart, LabelDataCItr dataEnd) const
