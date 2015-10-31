@@ -100,17 +100,17 @@ public:
     
 protected:
     static size_t layerCount;
-    size_t        layerNb;
-    size_t        inputSize;
-    size_t        outputSize;
-    size_t        weightInputSize;
-    size_t        nbData;
-    real          dropRate;
-    Phase         phase;
     
-    vec_r a;
-    vec_r delta;
-    vec_r drop;
+    size_t layerId;
+    size_t inputSize;
+    size_t outputSize;
+    size_t nbData;
+    real   dropRate;
+    Phase  phase;
+    
+    vec_r  a;
+    vec_r  delta;
+    vec_r  drop;
     
     LayerParams  params; //bias and weight
     LayerParams dparams; //dbias and dweight
@@ -118,7 +118,7 @@ protected:
     const ActivationFunc& AFunc;
     default_random_engine gen;
     
-    void initParams();
+    void initParams(size_t weightInputSize);
     virtual void resize(size_t nbData);
 };
 }

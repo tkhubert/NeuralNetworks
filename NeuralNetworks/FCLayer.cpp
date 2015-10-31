@@ -19,11 +19,10 @@ FCLayer::FCLayer(size_t size, real dropRate, const ActivationFunc& AFunc) :
 void FCLayer::setFromPrev(const Layer* prevLayer)
 {
     inputSize = prevLayer->getOutputSize();
-    weightInputSize = inputSize;
     
     params.resize (outputSize, inputSize*outputSize);
     dparams.resize(outputSize, inputSize*outputSize);
-    initParams();
+    initParams(inputSize);
 }
 //
 void FCLayer::fwdProp(const Layer* prevLayer)

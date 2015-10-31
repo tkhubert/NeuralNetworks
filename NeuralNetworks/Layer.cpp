@@ -34,8 +34,8 @@ Layer::Layer(size_t size, real dropRate, const ActivationFunc& AFunc) :
     phase(Phase::TEST),
     AFunc(AFunc)
 {
-    layerNb = layerCount++;
-    gen.seed((int) layerNb);
+    layerId = layerCount++;
+    gen.seed((int) layerId);
 }
 //
 Layer::~Layer()
@@ -68,7 +68,7 @@ void Layer::regularize(real lambda)
     transform(params.weight.begin(), params.weight.end(), dparams.weight.begin(), dparams.weight.begin(), [lambda] (auto w, auto dw) {return dw+lambda*w;});
 }
 //
-void Layer::initParams()
+void Layer::initParams(size_t weightInputSize)
 {
     normal_distribution<real> norm(0.,1.);
     for_each(params.begin(), params.end(), [&n=norm, &g=gen] (auto& p) {p=n(g);});

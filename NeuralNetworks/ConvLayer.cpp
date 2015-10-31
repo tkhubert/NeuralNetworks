@@ -43,12 +43,12 @@ void ConvLayer::setFromPrev(const Layer* prevLayer)
     validate(prevLayer);
     
     prevDepth  = static_cast<const ConvLayer*>(prevLayer)->getDepth();
-    weightInputSize = mapSize*mapSize*prevDepth;
+    auto weightInputSize = mapSize*mapSize*prevDepth;
     auto weightSize = weightInputSize*depth;
     
     params.resize (depth, weightSize);
     dparams.resize(depth, weightSize);
-    initParams();
+    initParams(weightInputSize);
 }
 //
 void ConvLayer::fwdProp(const Layer* prevLayer)
