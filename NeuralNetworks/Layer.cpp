@@ -35,17 +35,12 @@ Layer::Layer(size_t size, real dropRate, const ActivationFunc& AFunc) :
     AFunc(AFunc)
 {
     layerNb = layerCount++;
-    
-    prevLayer = nullptr;
-    
     gen.seed((int) layerNb);
 }
 //
 Layer::~Layer()
 {
     --layerCount;
-    
-    prevLayer = nullptr;
 }
 //
 void Layer::resize(size_t _nbData)

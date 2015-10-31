@@ -20,6 +20,7 @@ public:
     ConvLayer(size_t width, size_t height, size_t depth, size_t mapSize, size_t stride, const ActivationFunc& AFunc);
     virtual ~ConvLayer() {}
     
+    // getters
     string getName()      const override {return "ConvLayer";}
     string getDetails()   const override {return "";}
     LayerClass getClass() const override {return LayerClass::ConvLayer;}
@@ -33,13 +34,14 @@ public:
     size_t getIdx (size_t d, size_t de, size_t h, size_t w)      const {return w+(h+(de+d*depth)*height)*width;}
     size_t getWIdx(size_t ode, size_t ide, size_t wh, size_t ww) const {return ww+mapSize*(wh+mapSize*(ide+prevDepth*ode));}
     
-    virtual void setPrevLayer(Layer* layer) override;
-    virtual void fwdProp()  override;
-    virtual void bwdProp()  override;
-    virtual void calcGrad() override;
+    // main methods
+    virtual void setFromPrev(const Layer* prevLayer) override;
+    virtual void fwdProp    (const Layer* prevLayer) override;
+    virtual void bwdProp    (      Layer* prevLayer) override;
+    virtual void calcGrad   (const Layer* prevLayer) override;
     
 protected:
-    void validate() const;
+    virtual void validate(const Layer* prevLayer) const;
     
     size_t width;
     size_t height;
@@ -50,21 +52,21 @@ protected:
     
 private:
     // naive
-    void naiveFwdProp();
-    void naiveBwdProp();
-    void naiveCalcGrad();
+    void naiveFwdProp (const Layer* prevLayer);
+    void naiveBwdProp (      Layer* prevLayer);
+    void naiveCalcGrad(const Layer* prevLayer);
     
     // img2Mat
-    void img2MatFwdProp();
-    void img2MatBwdProp();
-    void img2MatCalcGrad();
+    void img2MatFwdProp (const Layer* prevLayer);
+    void img2MatBwdProp (      Layer* prevLayer);
+    void img2MatCalcGrad(const Layer* prevLayer);
     
     // img2Mat helper methods
-    void genFwdPrevAMat(size_t d, vec_r& prevAMat) const;
-    void genBwdDeltaMat(size_t d, vec_i& hIdxVec, vec_i& wIdxVec, vec_r& deltaMat) const;
+    void genFwdPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
+    void genBwdDeltaMat(size_t d, vec_i& hIdxVec, vec_i& wIdxVec, vec_r& deltaMat, const Layer* prevLayer) const;
     void genBwdWeightMat(vec_r& weightMat) const;
     void genBwdIdxVec(size_t pdim, size_t dim, vec_i& weightIdxVec) const;
-    void genGradPrevAMat(size_t d, vec_r& prevAMat) const;
+    void genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
 };
 
 }

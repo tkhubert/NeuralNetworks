@@ -16,9 +16,8 @@ FCLayer::FCLayer(size_t size, real dropRate, const ActivationFunc& AFunc) :
     Layer(size, dropRate, AFunc)
 {}
 //
-void FCLayer::setPrevLayer(Layer* prev)
+void FCLayer::setFromPrev(const Layer* prevLayer)
 {
-    prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
     weightInputSize = inputSize;
     
@@ -27,7 +26,7 @@ void FCLayer::setPrevLayer(Layer* prev)
     initParams();
 }
 //
-void FCLayer::fwdProp()
+void FCLayer::fwdProp(const Layer* prevLayer)
 {
     // A_(l+1)  = AFunc( A_l W^T_(l+1)  + B_(l+1))    
     const auto& prevA  = prevLayer->getA();
@@ -41,7 +40,7 @@ void FCLayer::fwdProp()
             a[d*outputSize+o]  = AFunc.f(a[d*outputSize+o]+bias[o])*drop[d*outputSize+o];
 }
 //
-void FCLayer::bwdProp()
+void FCLayer::bwdProp(Layer* prevLayer)
 {
     // D_l = (D(l+1) W_(l+1)).dA_l
     const auto& prevA     = prevLayer->getA();
@@ -56,7 +55,7 @@ void FCLayer::bwdProp()
         prevDelta[i] *= prevAFunc.df(prevA[i])*prevDrop[i];
 }
 //
-void FCLayer::calcGrad()
+void FCLayer::calcGrad(const Layer* prevLayer)
 {
     dparams.reset();
     auto& dbias   = dparams.bias;

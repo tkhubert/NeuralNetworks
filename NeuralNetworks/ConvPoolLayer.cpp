@@ -15,20 +15,18 @@ ConvPoolLayer::ConvPoolLayer(size_t width, size_t height, size_t depth, size_t m
     ConvLayer(width, height, depth, mapSize, stride, AFunc)
 {}
 //
-void ConvPoolLayer::validate() const
+void ConvPoolLayer::validate(const Layer* prevLayer) const
 {
-    ConvLayer::validate();
+    ConvLayer::validate(prevLayer);
 
-    if (static_cast<ConvLayer*>(prevLayer)->getDepth()!=depth)
+    if (static_cast<const ConvLayer*>(prevLayer)->getDepth()!=depth)
         throw invalid_argument("Invalid depth");
 }
 //
-void ConvPoolLayer::setPrevLayer(Layer* prev)
+void ConvPoolLayer::setFromPrev(const Layer* prevLayer)
 {
-    prevLayer = prev;
     inputSize = prevLayer->getOutputSize();
-    
-    validate();
+    validate(prevLayer);
 }
 //
 void ConvPoolLayer::resize(size_t nbData)
@@ -37,9 +35,9 @@ void ConvPoolLayer::resize(size_t nbData)
     maxIdx.resize(outputSize*nbData);
 }
 //
-void ConvPoolLayer::fwdProp()
+void ConvPoolLayer::fwdProp(const Layer* prevLayer)
 {
-    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
+    const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
     const auto& prevA = prevCL->getA();
     
     for (size_t d=0; d<nbData; ++d)
@@ -79,7 +77,7 @@ void ConvPoolLayer::fwdProp()
     }
 }
 //
-void ConvPoolLayer::bwdProp()
+void ConvPoolLayer::bwdProp(Layer* prevLayer)
 {
     ConvLayer*  prevCL    = static_cast<ConvLayer*>(prevLayer);
     auto&       prevDelta = prevCL->getDelta();

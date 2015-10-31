@@ -25,7 +25,7 @@ NeuralNetwork::NeuralNetwork(const CostFunc& CFunc, vector<unique_ptr<Layer>>&& 
         auto& pLayer = layers[i-1];
         auto& cLayer = layers[i];
         
-        cLayer->setPrevLayer(pLayer.get());
+        cLayer->setFromPrev(pLayer.get());
     }
     
     inputSize  = layers.front()->getOutputSize();
@@ -86,19 +86,20 @@ void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
     genDrop();
     setInput(dataStart, dataEnd);
     for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->fwdProp();
+        layers[i]->fwdProp(layers[i-1].get());
 }
 //
 void NeuralNetwork::bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
     setDCost(dataStart, dataEnd);
     for (size_t i=nbLayers-1; i>=2; --i)
-        layers[i]->bwdProp();
+        layers[i]->bwdProp(layers[i-1].get());
 }
 //
 void NeuralNetwork::calcGrad()
 {
-    for_each(layers.begin()+1, layers.end(), [] (auto& l) { l->calcGrad();});
+    for (size_t i=1; i<nbLayers; ++i)
+        layers[i]->calcGrad(layers[i-1].get());
 }
 //
 void NeuralNetwork::regularize(real lambda)

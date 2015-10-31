@@ -19,14 +19,16 @@ class FCLayer : public Layer
 public:
     FCLayer(size_t size, real dropRate, const ActivationFunc& AFunc);
     
+    // getters
     string getName()      const override {return "FCLayer";}
     string getDetails()   const override {return "";}
     LayerClass getClass() const override {return LayerClass::FCLayer;}
     
-    void setPrevLayer(Layer* prev) override ;
-    void fwdProp()  override;
-    void bwdProp()  override;
-    void calcGrad() override;
+    // main methods
+    void setFromPrev(const Layer* prevLayer) override;
+    void fwdProp    (const Layer* prevLayer) override;
+    void bwdProp    (      Layer* prevLayer) override;
+    void calcGrad   (const Layer* prevLayer) override;
 };
 
 }

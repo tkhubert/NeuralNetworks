@@ -69,36 +69,34 @@ public:
     Layer(size_t size, real dropRate, const ActivationFunc& AFunc);
     ~Layer();
     
+    // getters
     virtual string     getName()    const = 0;
     virtual string     getDetails() const = 0;
     virtual LayerClass getClass()   const = 0;
     
     auto        getInputSize () const {return inputSize;}
     auto        getOutputSize() const {return outputSize;}
-
     auto&       getA         ()       {return a;}
     const auto& getA         () const {return a;}
     const auto& getDrop      () const {return drop;}
     auto&       getDelta     ()       {return delta;}
     auto&       getParams    ()       {return params;}
     const auto& getDParams   () const {return dparams;}
+    const auto& getAFunc     () const {return AFunc;}
 
-    const Layer*          getPrevLayer() const {return prevLayer;}
-    const ActivationFunc& getAFunc()     const {return AFunc;}
-
-    virtual void setPrevLayer(Layer* prev) = 0;
-    
+    // setters
     void setNbData(size_t nbData) { resize(nbData);}
     void setPhase (Phase  p)      { phase = p; }
-    void setA     (vec_r&& _a)    { a = move(_a);}
     void genDrop  ();
+    
+    // main methods
+    virtual void setFromPrev(const Layer* prevLayer) = 0;
+    virtual void fwdProp    (const Layer* prevLayer)  = 0;
+    virtual void bwdProp    (      Layer* prevLayer)  = 0;
+    virtual void calcGrad   (const Layer* prevLayer) = 0;
     
     void regularize  (real lambda);
     void updateParams(Optimizer& optim);
-    
-    virtual void fwdProp()  = 0;
-    virtual void bwdProp()  = 0;
-    virtual void calcGrad() = 0;
     
 protected:
     static size_t layerCount;
@@ -116,8 +114,6 @@ protected:
     
     LayerParams  params; //bias and weight
     LayerParams dparams; //dbias and dweight
-
-    Layer* prevLayer;
 
     const ActivationFunc& AFunc;
     default_random_engine gen;
