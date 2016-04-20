@@ -120,6 +120,7 @@ protected:
 //
     
 //
+// TKH_TODO : divide gradient by batch size
 class ADADOptimizer : public Optimizer
 {
 public:

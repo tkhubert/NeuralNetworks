@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Thomas Hubert. All rights reserved.
 //
 
-// TKH TO DO
+// TKH TODO
 // 1. center/normalize data
 // 2. partition data properly
 // 3. speed up ConvLayers: refine Img2Mat and try FFT to do the convolution.
