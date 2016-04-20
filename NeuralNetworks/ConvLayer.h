@@ -62,10 +62,6 @@ private:
     void img2MatCalcGrad(const Layer* prevLayer);
     
     // img2Mat helper methods
-    void genFwdPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
-    void genBwdDeltaMat(size_t d, vec_i& hIdxVec, vec_i& wIdxVec, vec_r& deltaMat, const Layer* prevLayer) const;
-    void genBwdWeightMat(vec_r& weightMat) const;
-    void genBwdIdxVec(size_t pdim, size_t dim, vec_i& weightIdxVec) const;
     void genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
 };
 

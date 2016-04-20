@@ -38,11 +38,11 @@ namespace NN
     
     constexpr auto NAIVEFWD   = false;
     constexpr auto NAIVEBWD   = false;
-    constexpr auto NAIVEGRAD  = true;
+    constexpr auto NAIVEGRAD  = false;
     
     constexpr auto FWDPROPNEW = true;
     constexpr auto BWDPROPNEW = true;
-    constexpr auto GRADNEW    = true;
+    constexpr auto GRADNEW    = false;
 }
 
 #endif
