@@ -50,13 +50,7 @@ protected:
     size_t mapSize;
     size_t stride;
     
-private:
-    // naive
-    void naiveCalcGrad(const Layer* prevLayer);
-    
-    // img2Mat
-    void img2MatCalcGrad(const Layer* prevLayer);
-    
+private:   
     // img2Mat helper methods
     void genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
 };

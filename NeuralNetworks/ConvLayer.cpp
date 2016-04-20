@@ -170,14 +170,6 @@ void ConvLayer::bwdProp(Layer* prevLayer)
 //
 void ConvLayer::calcGrad(const Layer* prevLayer)
 {
-    if (NAIVEGRAD)
-        naiveCalcGrad(prevLayer);
-    else
-        img2MatCalcGrad(prevLayer);
-}
-//
-void ConvLayer::naiveCalcGrad(const Layer* prevLayer)
-{
     const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
     const auto& prevA       = prevCL->getA();
     const auto  prevHeight  = prevCL->getHeight();
@@ -187,35 +179,45 @@ void ConvLayer::naiveCalcGrad(const Layer* prevLayer)
     auto& dbias   = dparams.bias;
     auto& dweight = dparams.weight;
     
+    auto nbRow = prevDepth*mapSize*mapSize;
+    auto nbCol = height*width;
+    auto dBIdx = 0;
+    auto dIdx  = 0;
     for (size_t d=0; d<nbData; ++d)
     {
         for (size_t ode=0; ode<depth; ++ode)
         {
-            real tmpBias=0.;
-            for (size_t oh=0; oh<height; ++oh)
-            {
-                for (size_t ow=0; ow<width; ++ow)
-                {
-                    auto oIdx = getIdx(d, ode, oh, ow);
-                    tmpBias += delta[oIdx];
-                }
-            }
-            dbias[ode] += tmpBias;
+            dbias[ode] += accumulate(delta.begin()+dBIdx, delta.begin()+dBIdx+nbCol, 0.);
+            dBIdx += nbCol;
         }
     }
     
     for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t ode=0; ode<depth; ++ode)
+        if (NAIVEGRAD)
         {
-            auto deltaStart = getIdx(d, ode, 0, 0);
-            for (size_t ide=0; ide<prevDepth; ++ide)
+            for (size_t ode=0; ode<depth; ++ode)
             {
-                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
-                auto weightStart = getWIdx(ode, ide, 0, 0);
-                
-                CorrNaive(&delta[deltaStart], &prevA[prevAStart], &dweight[weightStart], height, width, prevHeight, prevWidth);
+                auto deltaStart = getIdx(d, ode, 0, 0);
+                for (size_t ide=0; ide<prevDepth; ++ide)
+                {
+                    auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
+                    auto weightStart = getWIdx(ode, ide, 0, 0);
+                    
+                    CorrNaive(&delta[deltaStart], &prevA[prevAStart], &dweight[weightStart], height, width, prevHeight, prevWidth);
+                }
             }
+        }
+        else
+        {
+            vec_r prevAMat  (nbRow*nbCol);
+            vec_r dWeightMat(depth*nbRow);
+            
+            genGradPrevAMat(d, prevAMat, prevLayer);
+            MatMultABt(&delta[dIdx], &prevAMat[0], &dWeightMat[0], depth, nbCol, nbRow);
+            
+            transform(dWeightMat.begin(), dWeightMat.end(), dweight.begin(), dweight.begin(), [] (auto dwM, auto dw) {return dw+dwM;});
+            dIdx += outputSize;
         }
     }
 }
@@ -249,37 +251,5 @@ void ConvLayer::genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLaye
         }
     }
 }
-//
-void ConvLayer::img2MatCalcGrad(const Layer* prevLayer)
-{
-    auto nbRow = prevDepth*mapSize*mapSize;
-    auto nbCol = height*width;
-    
-    dparams.reset();
-    auto& dbias   = dparams.bias;
-    auto& dweight = dparams.weight;
-    
-    auto dIdx  = 0;
-    auto dBIdx = 0;
-    for (size_t d=0; d<nbData; ++d)
-    {
-        for (size_t ode=0; ode<depth; ++ode)
-        {
-            dbias[ode] += accumulate(delta.begin()+dBIdx, delta.begin()+dBIdx+nbCol, 0.);
-            dBIdx += nbCol;
-        }
-        
-        vec_r prevAMat  (nbRow*nbCol);
-        vec_r dWeightMat(depth*nbRow);
-        
-        genGradPrevAMat(d, prevAMat, prevLayer);
-        MatMultABt(&delta[dIdx], &prevAMat[0], &dWeightMat[0], depth, nbCol, nbRow);
-        
-        transform(dWeightMat.begin(), dWeightMat.end(), dweight.begin(), dweight.begin(), [] (auto dwM, auto dw) {return dw+dwM;});
-        dIdx += outputSize;
-    }
-}
-
-
 
 }
