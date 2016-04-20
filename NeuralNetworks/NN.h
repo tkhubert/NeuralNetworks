@@ -26,11 +26,22 @@
 namespace NN
 {
     using namespace std;
-    using real  = float;
+    using real  = double;
     using vec_r = vector<real>;
     using vec_i = vector<int>;
     
-    constexpr auto TINY = 1e-8;
+    constexpr auto CHECKGRAD  = false;
+    constexpr auto NBGRADTEST = 10;
+    constexpr auto TWEAKSIZE  = 1e-2;
+    constexpr auto GRADTOL    = 1e-6;
+    constexpr auto TINY       = 1e-8;
+    
+    constexpr auto NAIVEFWD   = false;
+    constexpr auto NAIVEBWD   = false;
+    constexpr auto NAIVEGRAD  = false;
+    
+    constexpr auto FWDPROPNEW = true;
+    constexpr auto BWDPROPNEW = true;
 }
 
 #endif

@@ -23,6 +23,7 @@ enum class LayerClass { FCLayer, ConvLayer, ConvPoolLayer };
 class Layer
 {
 protected:
+    // Layer nested class
     class LayerParams
     {
     private:
@@ -112,10 +113,11 @@ protected:
     vec_r  delta;
     vec_r  drop;
     
+    const ActivationFunc& AFunc;
+    
     LayerParams  params; //bias and weight
     LayerParams dparams; //dbias and dweight
 
-    const ActivationFunc& AFunc;
     default_random_engine gen;
     
     void initParams(size_t weightInputSize);

@@ -8,10 +8,8 @@
 
 #include "NeuralNetwork.h"
 
-namespace NN {
-    
-constexpr auto NBGRADTEST = 10;
-constexpr auto GRADTOL    = 1e-6;
+namespace NN
+{
 //
     
 //
@@ -58,12 +56,6 @@ void NeuralNetwork::genDrop()
     for_each(layers.begin(), layers.end(), [] (auto& l) { l->genDrop();});
 }
 //
-void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
-{
-    for (size_t i=1; i<nbLayers; ++i)
-        layers[i]->updateParams(*optims[i]);
-}
-//
 void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
     auto nbData   = distance(dataStart, dataEnd);
@@ -80,6 +72,8 @@ void NeuralNetwork::setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd)
     const auto& drop = layers.front()->getDrop();
     transform(input.begin(), input.end(), drop.begin(), a.begin(), [] (auto inp, auto d) {return inp*d;});
 }
+//
+    
 //
 void NeuralNetwork::fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
@@ -106,6 +100,14 @@ void NeuralNetwork::regularize(real lambda)
 {
     for_each(layers.begin()+1, layers.end(), [lambda] (auto& l) { l->regularize(lambda);});
 }
+//
+void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
+{
+    for (size_t i=1; i<nbLayers; ++i)
+        layers[i]->updateParams(*optims[i]);
+}
+//
+    
 //
 void NeuralNetwork::setDCost(LabelDataCItr dataStart, LabelDataCItr dataEnd)
 {
@@ -201,13 +203,29 @@ void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
         auto testCost    = cost;
         
         auto timeEpoch = ( clock() - startTimeEpoch ) / (real) CLOCKS_PER_SEC;
-        debugFile << "time " << timeEpoch << "s,";
-        cout << "time " << timeEpoch << "s,";
         
+        debugFile << "time "      << timeEpoch << "s,";
         debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         debugFile << trainCost    << "," << crossCost    << "," << testCost    << endl;
+        cout      << "time "      << timeEpoch << "s,";
         cout      << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
         cout      << trainCost    << "," << crossCost    << "," << testCost    << endl;
+        
+        if (CHECKGRAD)
+        {
+            default_random_engine gen;
+            uniform_int_distribution<int> unif(0, nbBatches);
+            auto batch = unif(gen);
+            
+            auto start  = batch*batchSize;
+            auto end    = min(start+batchSize, lData.size());
+            auto nbData = end-start;
+            
+            auto dataStart = lData.cbegin()+start;
+            auto dataEnd   = dataStart+nbData;
+            
+            checkGradient(dataStart, dataEnd);
+        }
     }
     
     debugFile.close();
@@ -244,15 +262,16 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
 //
 void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)
 {
-    cout << "Checking Gradient --------" << endl;
+    cout << "  Checking Gradient --------" << endl;
 
-    vec_r    dC(outputSize);
+    vec_r dC(outputSize);
+    
+    auto nbData = distance(lDStart, lDEnd);
+    setNbData(nbData);
     
     fwdProp  (lDStart, lDEnd);
     bwdProp  (lDStart, lDEnd);
     calcGrad ();
-    
-    default_random_engine gen;
     
     for (size_t i=1; i<nbLayers; ++i)
     {
@@ -271,7 +290,7 @@ void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)
         {
             auto idx = dpparams[n].first;
             auto p   = params[idx];
-            auto dp  = 1e-2*p;
+            auto dp  = TWEAKSIZE*p;
             
             params[idx] = p+dp;
             fwdProp(lDStart, lDEnd);
@@ -295,12 +314,12 @@ void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)
             if (err>GRADTOL)
             {
                 pass = false;
-                cout << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;
+                cout << "    " << i << " " << n << " " << idx << " " << grad << " " << deriv << " " << err << endl;
             }
             
             params[idx] = p;
         }
-        cout << "Gradient of layer " << i;
+        cout << "   Gradient of layer " << i;
         if (pass) cout << " is correct"   << endl;
         else      cout << " is incorrect" << endl;
             

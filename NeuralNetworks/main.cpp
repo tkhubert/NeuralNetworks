@@ -39,8 +39,8 @@ void MLP()
     
     auto batchSize =  20;
     auto nbEpochs  =  2;
-    auto dropRateI = 0.0;
-    auto dropRate  = 0.0;
+    auto dropRateI = 0.05;
+    auto dropRate  = 0.10;
     auto friction  = 0.9;
     
     vec_r lR     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
@@ -92,9 +92,9 @@ void CL()
         for (auto learningRate : lR)
         {
             vector<unique_ptr<Layer>> layers;
-            layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1,  0, 1, RFunc));
-            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 5, 5, 1, RFunc));
-            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 5, 2, 2, IFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1 , 0, 1, RFunc));
+            layers.emplace_back(make_unique<ConvLayer>    (24, 24, 5 , 5, 1, RFunc));
+            layers.emplace_back(make_unique<ConvPoolLayer>(12, 12, 5 , 2, 2, IFunc));
             layers.emplace_back(make_unique<ConvLayer>    ( 8,  8, 10, 5, 1, RFunc));
             layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 10, 2, 2, IFunc));
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
@@ -102,7 +102,6 @@ void CL()
             
             NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork CNN (SMCost, move(layers));
-            //CNN.checkGradient(data.getTrainLabelData()[0]);
             CNN.train(data, Optim);
         }
     }
@@ -110,7 +109,7 @@ void CL()
 //
 int main(int argc, const char * argv[])
 {
-    MLP();
+    //MLP();
     CL();
     return 0;
 }
