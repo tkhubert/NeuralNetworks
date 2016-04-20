@@ -159,7 +159,9 @@ void ConvLayer::naiveBwdProp(Layer* prevLayer)
 void ConvLayer::naiveCalcGrad(const Layer* prevLayer)
 {
     const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
-    const auto& prevA = prevCL->getA();
+    const auto& prevA       = prevCL->getA();
+    const auto  prevHeight  = prevCL->getHeight();
+    const auto  prevWidth   = prevCL->getWidth();
     
     dparams.reset();
     auto& dbias   = dparams.bias;
@@ -169,39 +171,30 @@ void ConvLayer::naiveCalcGrad(const Layer* prevLayer)
     {
         for (size_t ode=0; ode<depth; ++ode)
         {
-            real valBias=0.;
+            real tmpBias=0.;
             for (size_t oh=0; oh<height; ++oh)
             {
                 for (size_t ow=0; ow<width; ++ow)
                 {
                     auto oIdx = getIdx(d, ode, oh, ow);
-                    valBias += delta[oIdx];
+                    tmpBias += delta[oIdx];
                 }
             }
-            dbias[ode] += valBias;
-            
-            
+            dbias[ode] += tmpBias;
+        }
+    }
+    
+    for (size_t d=0; d<nbData; ++d)
+    {
+        for (size_t ode=0; ode<depth; ++ode)
+        {
+            auto deltaStart = getIdx(d, ode, 0, 0);
             for (size_t ide=0; ide<prevDepth; ++ide)
             {
-                for (size_t wh=0; wh<mapSize; ++wh)
-                {
-                    for (size_t ww=0; ww<mapSize; ++ww)
-                    {
-                        real valWeight =0.;
-                        for (size_t oh=0; oh<height; ++oh)
-                        {
-                            for (size_t ow=0; ow<width; ++ow)
-                            {
-                                auto iIdx  = prevCL->getIdx(d, ide, oh+wh, ow+ww);
-                                auto oIdx  = getIdx(d, ode, oh, ow);
-                                valWeight +=  delta[oIdx]*prevA[iIdx];
-                            }
-                        }
-                        
-                        auto wIdx = getWIdx(ode, ide, wh, ww);
-                        dweight[wIdx] += valWeight;
-                    }
-                }
+                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
+                auto weightStart = getWIdx(ode, ide, 0, 0);
+                
+                CorrNaive(&delta[deltaStart], &prevA[prevAStart], &dweight[weightStart], height, width, prevHeight, prevWidth);
             }
         }
     }
