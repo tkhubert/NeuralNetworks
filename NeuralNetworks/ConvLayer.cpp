@@ -77,80 +77,35 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
 //
 void ConvLayer::naiveFwdProp(const Layer* prevLayer)
 {
-    const ConvLayer* prevCL  = static_cast<const ConvLayer*>(prevLayer);
-    const auto& prevA  = prevCL->getA();
-    const auto& bias   = params.bias;
-    const auto& weight = params.weight;
+    const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
+    const auto& prevA       = prevCL->getA();
+    const auto  prevHeight  = prevCL->getHeight();
+    const auto  prevWidth   = prevCL->getWidth();
+    const auto& bias        = params.bias;
+    const auto& weight      = params.weight;
     
-    if (FWDPROPNEW)
+    fill(a.begin(), a.end(), 0.);
+    
+    for (size_t d=0; d<nbData; ++d)
     {
-        const auto prevHeight = prevCL->getHeight();
-        const auto prevWidth  = prevCL->getWidth();
-        
-        fill(a.begin(), a.end(), 0.);
-        for (size_t d=0; d<nbData; ++d)
+        for (size_t ode=0; ode<depth; ++ode)
         {
-            for (size_t ode=0; ode<depth; ++ode)
+            auto aStart = getIdx(d, ode, 0, 0);
+            
+            for (size_t ide=0; ide<prevDepth; ++ide)
             {
-                auto aStart = getIdx(d, ode, 0, 0);
-                
-                for (size_t ide=0; ide<prevDepth; ++ide)
-                {
-                    auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
-                    auto wStart     = getWIdx(ode, ide, 0, 0);
-                    CorrNaive(&weight[wStart], &prevA[prevAStart], &a[aStart], mapSize, mapSize, prevHeight, prevWidth);
-                }
-
-                auto tmpBias = bias[ode];
-                for (size_t oh=0; oh<height; ++oh)
-                {
-                    for (size_t ow=0; ow<width; ++ow)
-                    {
-                        auto oIdx = getIdx(d, ode, oh, ow);
-                        a[oIdx] =AFunc.f(a[oIdx]+tmpBias);
-                    }
-                }
+                auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
+                auto wStart     = getWIdx(ode, ide, 0, 0);
+                CorrNaive(&weight[wStart], &prevA[prevAStart], &a[aStart], mapSize, mapSize, prevHeight, prevWidth);
             }
-        }
-    }
-    else
-    {
-        fill(a.begin(), a.end(), 0.);
-        for (size_t d=0; d<nbData; ++d)
-        {
-            for (size_t ode=0; ode<depth; ++ode)
-            {
-                for (size_t ide=0; ide<prevDepth; ++ide)
-                {
-                    for (size_t oh=0; oh<height; ++oh)
-                    {
-                        auto ih = oh*stride;
-                        
-                        for (size_t ow=0; ow<width; ++ow)
-                        {
-                            auto iw = ow*stride;
 
-                            for (size_t wh=0; wh<mapSize; ++wh)
-                            {
-                                for (size_t ww=0; ww<mapSize; ++ww)
-                                {
-                                    auto wIdx = getWIdx(ode, ide, wh, ww);
-                                    auto iIdx = prevCL->getIdx(d, ide, ih+wh, iw+ww);
-                                    auto oIdx = getIdx(d, ode, oh, ow);
-                                    a[oIdx] += weight[wIdx]*prevA[iIdx];
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                for (size_t oh=0; oh<height; ++oh)
+            auto tmpBias = bias[ode];
+            for (size_t oh=0; oh<height; ++oh)
+            {
+                for (size_t ow=0; ow<width; ++ow)
                 {
-                    for (size_t ow=0; ow<width; ++ow)
-                    {
-                        auto oIdx = getIdx(d, ode, oh, ow);
-                        a[oIdx] = AFunc.f(a[oIdx]+bias[ode]);
-                    }
+                    auto oIdx = getIdx(d, ode, oh, ow);
+                    a[oIdx] =AFunc.f(a[oIdx]+tmpBias);
                 }
             }
         }
@@ -159,103 +114,46 @@ void ConvLayer::naiveFwdProp(const Layer* prevLayer)
 //
 void ConvLayer::naiveBwdProp(Layer* prevLayer)
 {
-    ConvLayer* prevCL = static_cast<ConvLayer*>(prevLayer);
-    auto& prevDelta       = prevCL->getDelta();
+    ConvLayer* prevCL     = static_cast<ConvLayer*>(prevLayer);
+    auto&       prevDelta = prevCL->getDelta();
     const auto& prevA     = prevCL->getA();
     const auto& prevAFunc = prevCL->getAFunc();
     const auto& weight    = params.weight;
     
-    const auto prevHeight = prevCL->getHeight();
-    const auto prevWidth  = prevCL->getWidth();
-    
     fill(prevDelta.begin(), prevDelta.end(), 0.);
     
-    vec_r prevdA(prevA.size());
-    for (size_t i=0; i<prevdA.size(); ++i)
-        prevdA[i] = prevAFunc.df(prevA[i]);
+    auto padHeight = height+2*(mapSize-1);
+    auto padWidth  = width +2*(mapSize-1);
+    vector<real> padDelta(depth*padHeight*padWidth);
     
-    if (BWDPROPNEW)
+    for (size_t d=0; d<nbData; ++d)
     {
-        auto padHeight = height+2*(mapSize-1);
-        auto padWidth  = width +2*(mapSize-1);
-        vector<real> padDelta(depth*padHeight*padWidth);
-        
-        for (size_t d=0; d<nbData; ++d)
+        for (size_t ode=0; ode<depth; ++ode)
         {
+            auto deltaStart    = getIdx(d, ode, 0, 0);
+            auto padDeltaStart = ode*padHeight*padWidth+(mapSize-1)*padWidth+mapSize-1;
+            
+            for (size_t i=0; i<height; ++i)
+                for (size_t j=0; j<width; ++j)
+                    padDelta[padDeltaStart+i*padWidth+j]=delta[deltaStart+i*width+j];
+        }
+        
+        for (size_t ide=0; ide<prevDepth; ++ide)
+        {
+            auto prevDeltaStart = prevCL->getIdx(d, ide, 0, 0);
+
             for (size_t ode=0; ode<depth; ++ode)
             {
-                auto deltaStart    = getIdx(d, ode, 0, 0);
-                auto padDeltaStart = ode*padHeight*padWidth+(mapSize-1)*padWidth+mapSize-1;
+                auto wStart        = getWIdx(ode, ide, 0, 0);
+                auto padDeltaStart = ode*padHeight*padWidth;
                 
-                for (size_t i=0; i<height; ++i)
-                    for (size_t j=0; j<width; ++j)
-                        padDelta[padDeltaStart+i*padWidth+j]=delta[deltaStart+i*width+j];
-                
-            }
-            
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                auto prevDeltaStart = prevCL->getIdx(d, ide, 0, 0);
-
-                for (size_t ode=0; ode<depth; ++ode)
-                {
-                    auto wStart        = getWIdx(ode, ide, 0, 0);
-                    auto padDeltaStart = ode*padHeight*padWidth;
-                    
-                    ConvNaive(&weight[wStart], &padDelta[padDeltaStart], &prevDelta[prevDeltaStart], mapSize, mapSize, padHeight, padWidth);
-                }
-                
-                for (size_t ih=0; ih<prevHeight; ++ih)
-                {
-                    for (size_t iw=0; iw<prevWidth; ++iw)
-                    {
-                        auto iIdx = prevCL->getIdx(d, ide, ih, iw);
-                        prevDelta[iIdx] *= prevdA[iIdx];
-                    }
-                }
+                ConvNaive(&weight[wStart], &padDelta[padDeltaStart], &prevDelta[prevDeltaStart], mapSize, mapSize, padHeight, padWidth);
             }
         }
     }
-    else
-    {
-        for (size_t d=0; d<nbData; ++d)
-        {
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                for (size_t ode=0; ode<depth; ++ode)
-                {
-                    for (size_t oh=0; oh<height; ++oh)
-                    {
-                        for (size_t ow=0; ow<width; ++ow)
-                        {
-                            auto oIdx = getIdx(d, ode, oh, ow);
-                            auto tmpDelta = delta[oIdx];
-                        
-                            for (size_t wh=0; wh<mapSize; ++wh)
-                            {
-                                for (size_t ww=0; ww<mapSize; ++ww)
-                                {
-                                    auto wIdx    = getWIdx(ode, ide, wh, ww);
-                                    auto iIdx    = prevCL->getIdx(d, ide, oh+wh, ow+ww);
-                                    prevDelta[iIdx] += tmpDelta * weight[wIdx];
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-                
-                for (size_t ih=0; ih<prevHeight; ++ih)
-                {
-                    for (size_t iw=0; iw<prevWidth; ++iw)
-                    {
-                        auto iIdx = prevCL->getIdx(d, ide, ih, iw);
-                        prevDelta[iIdx] *=prevdA[iIdx];
-                    }
-                }
-            }
-        }
-    }
+    
+    for (size_t i=0; i<prevDelta.size(); ++i)
+        prevDelta[i] *= prevAFunc.df(prevA[i]);
 }
 //
 void ConvLayer::naiveCalcGrad(const Layer* prevLayer)
