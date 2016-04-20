@@ -52,13 +52,9 @@ protected:
     
 private:
     // naive
-    void naiveFwdProp (const Layer* prevLayer);
-    void naiveBwdProp (      Layer* prevLayer);
     void naiveCalcGrad(const Layer* prevLayer);
     
     // img2Mat
-    void img2MatFwdProp (const Layer* prevLayer);
-    void img2MatBwdProp (      Layer* prevLayer);
     void img2MatCalcGrad(const Layer* prevLayer);
     
     // img2Mat helper methods

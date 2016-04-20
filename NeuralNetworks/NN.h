@@ -40,8 +40,6 @@ namespace NN
     constexpr auto NAIVEBWD   = false;
     constexpr auto NAIVEGRAD  = false;
     
-    constexpr auto FWDPROPNEW = true;
-    constexpr auto BWDPROPNEW = true;
     constexpr auto GRADNEW    = false;
 }
 
