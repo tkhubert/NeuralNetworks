@@ -210,26 +210,30 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
     }
     else
     {
+        vector<real> dw(prevDepth*depth*mapSize*mapSize);
         for (size_t d=0; d<nbData; ++d)
         {
             for (size_t ide=0; ide<prevDepth; ++ide)
             {
-                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
-                auto deltaStart  = getIdx(d, 0, 0, 0);
+                auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
+                auto deltaStart = getIdx(d, 0, 0, 0);
+                auto dwStart    = ide*depth*mapSize*mapSize;
                 
-                vector<real> dw(depth*mapSize*mapSize);
-                CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[0], depth, height, width, prevHeight, prevWidth);
-                
-                for (size_t ode=0; ode<depth; ++ode)
+                CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[dwStart], depth, height, width, prevHeight, prevWidth);
+            }
+        }
+        
+        auto wIdx2 = 0;
+        for (size_t ide=0; ide<prevDepth; ++ide)
+        {
+            for (size_t ode=0; ode<depth; ++ode)
+            {
+                for (size_t wh=0; wh<mapSize; ++wh)
                 {
-                    for (size_t wh=0; wh<mapSize; ++wh)
+                    for (size_t ww=0; ww<mapSize; ++ww)
                     {
-                        for (size_t ww=0; ww<mapSize; ++ww)
-                        {
-                            auto wIdx  = getWIdx(ode, ide, wh, ww);
-                            auto wIdx2 = getWIdx(0, ode, wh, ww);
-                            dweight[wIdx] += dw[wIdx2];
-                        }
+                        auto wIdx  = getWIdx(ode, ide, wh, ww);
+                        dweight[wIdx] = dw[wIdx2++];
                     }
                 }
             }
