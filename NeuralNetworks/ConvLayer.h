@@ -49,10 +49,6 @@ protected:
     size_t prevDepth;
     size_t mapSize;
     size_t stride;
-    
-private:   
-    // img2Mat helper methods
-    void genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const;
 };
 
 }

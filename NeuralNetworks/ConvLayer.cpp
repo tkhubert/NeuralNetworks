@@ -240,35 +240,6 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         }
     }
 }
-//
 
-//
-void ConvLayer::genGradPrevAMat(size_t d, vec_r& prevAMat, const Layer* prevLayer) const
-{
-    const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
-    const auto& prevA = prevCL->getA();
-    
-    auto aIdx = 0;
-    for (size_t ide=0; ide<prevDepth; ++ide)
-    {
-        for (size_t wh=0; wh<mapSize; ++wh)
-        {
-            for (size_t ww=0; ww<mapSize; ++ww)
-            {
-                for (size_t oh=0; oh<height; ++oh)
-                {
-                    auto ih = oh*stride;
-                    for (size_t ow=0; ow<width; ++ow)
-                    {
-                        auto iw = ow*stride;
-                        
-                        auto iIdx = prevCL->getIdx(d, ide, ih+wh, iw+ww);
-                        prevAMat[aIdx++] = prevA[iIdx];
-                    }
-                }
-            }
-        }
-    }
-}
 
 }
