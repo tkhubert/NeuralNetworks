@@ -62,21 +62,23 @@ void ConvLayer::fwdProp(const Layer* prevLayer)
     
     fill(a.begin(), a.end(), 0.);
     
+    vector<real> WMat(prevDepth*depth*mapSize*mapSize);
+    auto idx=0;
+    for (size_t ide=0; ide<prevDepth; ++ide)
+        for (size_t ode=0; ode<depth; ++ode)
+            for (size_t wh=0; wh<mapSize; ++wh)
+                for (size_t ww=0; ww<mapSize; ++ww)
+                    WMat[idx++] = weight[getWIdx(ode, ide, wh, ww)];
+    
     for (size_t d=0; d<nbData; ++d)
     {
         auto aStart = getIdx(d, 0, 0, 0);
         
         for (size_t ide=0; ide<prevDepth; ++ide)
         {
-            vector<real> WMat(depth*mapSize*mapSize);
-            auto idx=0;
-            for (size_t ode=0; ode<depth; ++ode)
-                for (size_t wh=0; wh<mapSize; ++wh)
-                    for (size_t ww=0; ww<mapSize; ++ww)
-                        WMat[idx++] = weight[getWIdx(ode, ide, wh, ww)];
-            
             auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
-            CorrMat(&WMat[0], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
+            auto wStart     = ide*depth*mapSize*mapSize;
+            CorrMat(&WMat[wStart], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
         }
 
         for (size_t ode=0; ode<depth; ++ode)
@@ -168,21 +170,12 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         }
     }
     
-    auto wIdx2 = 0;
+    auto idx = 0;
     for (size_t ide=0; ide<prevDepth; ++ide)
-    {
         for (size_t ode=0; ode<depth; ++ode)
-        {
             for (size_t wh=0; wh<mapSize; ++wh)
-            {
                 for (size_t ww=0; ww<mapSize; ++ww)
-                {
-                    auto wIdx  = getWIdx(ode, ide, wh, ww);
-                    dweight[wIdx] = dw[wIdx2++];
-                }
-            }
-        }
-    }
+                    dweight[getWIdx(ode, ide, wh, ww)] = dw[idx++];
 }
 
 
