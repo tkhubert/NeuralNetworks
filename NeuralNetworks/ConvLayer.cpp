@@ -62,13 +62,13 @@ void ConvLayer::fwdProp(const Layer* prevLayer)
     
     fill(a.begin(), a.end(), 0.);
     
-    vector<real> WMat(prevDepth*depth*mapSize*mapSize);
+    vector<real> weightT(prevDepth*depth*mapSize*mapSize);
     auto idx=0;
     for (size_t ide=0; ide<prevDepth; ++ide)
         for (size_t ode=0; ode<depth; ++ode)
             for (size_t wh=0; wh<mapSize; ++wh)
                 for (size_t ww=0; ww<mapSize; ++ww)
-                    WMat[idx++] = weight[getWIdx(ode, ide, wh, ww)];
+                    weightT[idx++] = weight[getWIdx(ode, ide, wh, ww)];
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -78,7 +78,7 @@ void ConvLayer::fwdProp(const Layer* prevLayer)
         {
             auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
             auto wStart     = ide*depth*mapSize*mapSize;
-            CorrMat(&WMat[wStart], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
+            CorrMat(&weightT[wStart], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
         }
 
         for (size_t ode=0; ode<depth; ++ode)
@@ -157,7 +157,7 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         }
     }
     
-    vector<real> dw(prevDepth*depth*mapSize*mapSize);
+    vector<real> dweightT(prevDepth*depth*mapSize*mapSize);
     for (size_t d=0; d<nbData; ++d)
     {
         for (size_t ide=0; ide<prevDepth; ++ide)
@@ -166,7 +166,7 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
             auto deltaStart = getIdx(d, 0, 0, 0);
             auto dwStart    = ide*depth*mapSize*mapSize;
             
-            CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[dwStart], depth, height, width, prevHeight, prevWidth);
+            CorrMat(&delta[deltaStart], &prevA[prevAStart], &dweightT[dwStart], depth, height, width, prevHeight, prevWidth);
         }
     }
     
@@ -175,7 +175,7 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         for (size_t ode=0; ode<depth; ++ode)
             for (size_t wh=0; wh<mapSize; ++wh)
                 for (size_t ww=0; ww<mapSize; ++ww)
-                    dweight[getWIdx(ode, ide, wh, ww)] = dw[idx++];
+                    dweight[getWIdx(ode, ide, wh, ww)] = dweightT[idx++];
 }
 
 

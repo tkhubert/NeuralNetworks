@@ -22,7 +22,7 @@ inline void MatTrans(const T* const A, T* At, size_t N, size_t M) noexcept
             At[i*N+j] = A[j*M+i];
 }
 //
-// input A(N*M) and B(P*M), output C(N*P) = A * B^T
+// input A(N*M) and B(P*M), output C(N*P) = C + A * B^T
 template <typename T>
 inline void MatMultABt(const T* const A, const T* const B, T* C, size_t N, size_t M, size_t P) noexcept
 {
@@ -34,44 +34,18 @@ inline void MatMultABt(const T* const A, const T* const B, T* C, size_t N, size_
             for (size_t k=0; k<M; ++k)
                 tmp+= A[i*M+k]*B[j*M+k];
             
-            C[i*P+j] = tmp;
+            C[i*P+j] += tmp;
         }
     }
 }
 //
-//  input A(N*M) and B(M*P), output C(N*P) = A * B = A * (B^T)^T = MatMultABt(A, B^T)
+//  input A(N*M) and B(M*P), output C(N*P) = C + A * B = C+ A * (B^T)^T = MatMultABt(A, B^T)
 template <typename T>
 inline void MatMultAB(const T* const A, const T* const B, T* C, size_t N, size_t M, size_t P) noexcept
 {
     vector<T> Bt(M*P);
     MatTrans  (B, &Bt[0], M, P);
     MatMultABt(A, &Bt[0], C, N, M, P);
-}
-//
-//
-template <typename T>
-inline void MatMultABtC(const T* const A, const T* const B, T* C, size_t N, size_t M, size_t P) noexcept
-{
-    for (size_t i=0; i<N; ++i)
-    {
-        for (size_t j=0; j<P; ++j)
-        {
-            T tmp = 0.;
-            for (size_t k=0; k<M; ++k)
-                tmp+= A[i*M+k]*B[j*M+k];
-                
-            C[i*P+j] += tmp;
-        }
-    }
-}
-//
-//
-template <typename T>
-inline void MatMultABC(const T* const A, const T* const B, T* C, size_t N, size_t M, size_t P) noexcept
-{
-    vector<T> Bt(M*P);
-    MatTrans  (B, &Bt[0], M, P);
-    MatMultABtC(A, &Bt[0], C, N, M, P);
 }
 //
 }
@@ -95,7 +69,7 @@ namespace NN
                     for (size_t k2=0; k2<W2; ++k2)
                         XMat[idx++] = X[(i+k1)*X2+(j+k2)];
         
-        MatMultABtC(W, &XMat[0], Y, depth, W1*W2, Y1*Y2);
+        MatMultABt(W, &XMat[0], Y, depth, W1*W2, Y1*Y2);
     }
     
     // Y = Y + W conv X
@@ -113,7 +87,7 @@ namespace NN
                     for (size_t k2=0; k2<W2; ++k2)
                         XMat[idx++] = X[(i+W1-1-k1)*X2+(j+W2-1-k2)];
                         
-        MatMultABtC(W, &XMat[0], Y, depth, W1*W2, Y1*Y2);
+        MatMultABt(W, &XMat[0], Y, depth, W1*W2, Y1*Y2);
     }
     
 }

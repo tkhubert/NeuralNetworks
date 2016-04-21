@@ -32,6 +32,7 @@ void FCLayer::fwdProp(const Layer* prevLayer)
     const auto& bias   = params.bias;
     const auto& weight = params.weight;
     
+    fill(a.begin(), a.end(), 0.);
     MatMultABt(&prevA[0], &weight[0], &a[0], nbData, inputSize, outputSize);
     
     for (size_t d=0; d<nbData; ++d)
@@ -48,6 +49,7 @@ void FCLayer::bwdProp(Layer* prevLayer)
     auto& prevDelta       = prevLayer->getDelta();
     const auto& weight    = params.weight;
     
+    fill(prevDelta.begin(), prevDelta.end(), 0.);
     MatMultAB(&delta[0], &weight[0], &prevDelta[0], nbData, outputSize, inputSize);
     
     for (size_t i=0; i<prevDelta.size(); ++i)
