@@ -179,10 +179,8 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
     auto& dbias   = dparams.bias;
     auto& dweight = dparams.weight;
     
-    auto nbRow = prevDepth*mapSize*mapSize;
     auto nbCol = height*width;
     auto dBIdx = 0;
-    auto dIdx  = 0;
     for (size_t d=0; d<nbData; ++d)
     {
         for (size_t ode=0; ode<depth; ++ode)
@@ -192,32 +190,49 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         }
     }
     
-    for (size_t d=0; d<nbData; ++d)
+    if (NAIVEGRAD)
     {
-        if (NAIVEGRAD)
+        for (size_t d=0; d<nbData; ++d)
         {
-            for (size_t ode=0; ode<depth; ++ode)
+            for (size_t ide=0; ide<prevDepth; ++ide)
             {
-                auto deltaStart = getIdx(d, ode, 0, 0);
-                for (size_t ide=0; ide<prevDepth; ++ide)
+                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
+                
+                for (size_t ode=0; ode<depth; ++ode)
                 {
-                    auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
+                    auto deltaStart = getIdx(d, ode, 0, 0);
                     auto weightStart = getWIdx(ode, ide, 0, 0);
                     
                     CorrNaive(&delta[deltaStart], &prevA[prevAStart], &dweight[weightStart], height, width, prevHeight, prevWidth);
                 }
             }
         }
-        else
+    }
+    else
+    {
+        for (size_t d=0; d<nbData; ++d)
         {
-            vec_r prevAMat  (nbRow*nbCol);
-            vec_r dWeightMat(depth*nbRow);
-            
-            genGradPrevAMat(d, prevAMat, prevLayer);
-            MatMultABt(&delta[dIdx], &prevAMat[0], &dWeightMat[0], depth, nbCol, nbRow);
-            
-            transform(dWeightMat.begin(), dWeightMat.end(), dweight.begin(), dweight.begin(), [] (auto dwM, auto dw) {return dw+dwM;});
-            dIdx += outputSize;
+            for (size_t ide=0; ide<prevDepth; ++ide)
+            {
+                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
+                auto deltaStart  = getIdx(d, 0, 0, 0);
+                
+                vector<real> dw(depth*mapSize*mapSize);
+                CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[0], depth, height, width, prevHeight, prevWidth);
+                
+                for (size_t ode=0; ode<depth; ++ode)
+                {
+                    for (size_t wh=0; wh<mapSize; ++wh)
+                    {
+                        for (size_t ww=0; ww<mapSize; ++ww)
+                        {
+                            auto wIdx  = getWIdx(ode, ide, wh, ww);
+                            auto wIdx2 = getWIdx(0, ode, wh, ww);
+                            dweight[wIdx] += dw[wIdx2];
+                        }
+                    }
+                }
+            }
         }
     }
 }

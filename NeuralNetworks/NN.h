@@ -39,8 +39,6 @@ namespace NN
     constexpr auto NAIVEFWD   = false;
     constexpr auto NAIVEBWD   = false;
     constexpr auto NAIVEGRAD  = false;
-    
-    constexpr auto GRADNEW    = false;
 }
 
 #endif
