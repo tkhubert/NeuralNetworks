@@ -35,10 +35,6 @@ namespace NN
     constexpr auto TWEAKSIZE  = 1e-2;
     constexpr auto GRADTOL    = 1e-6;
     constexpr auto TINY       = 1e-8;
-    
-    constexpr auto NAIVEFWD   = false;
-    constexpr auto NAIVEBWD   = false;
-    constexpr auto NAIVEGRAD  = false;
 }
 
 #endif

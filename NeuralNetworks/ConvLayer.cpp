@@ -64,38 +64,21 @@ void ConvLayer::fwdProp(const Layer* prevLayer)
     
     for (size_t d=0; d<nbData; ++d)
     {
-        if (NAIVEFWD)
-        {
-            for (size_t ode=0; ode<depth; ++ode)
-            {
-                auto aStart = getIdx(d, ode, 0, 0);
-                
-                for (size_t ide=0; ide<prevDepth; ++ide)
-                {
-                    auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
-                    auto wStart     = getWIdx(ode, ide, 0, 0);
-                    CorrNaive(&weight[wStart], &prevA[prevAStart], &a[aStart], mapSize, mapSize, prevHeight, prevWidth);
-                }
-            }
-        }
-        else
-        {
-            auto aStart = getIdx(d, 0, 0, 0);
-            
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                vector<real> WMat(depth*mapSize*mapSize);
-                auto idx=0;
-                for (size_t ode=0; ode<depth; ++ode)
-                    for (size_t wh=0; wh<mapSize; ++wh)
-                        for (size_t ww=0; ww<mapSize; ++ww)
-                            WMat[idx++] = weight[getWIdx(ode, ide, wh, ww)];
-                
-                auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
-                CorrMat(&WMat[0], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
-            }
-        }
+        auto aStart = getIdx(d, 0, 0, 0);
         
+        for (size_t ide=0; ide<prevDepth; ++ide)
+        {
+            vector<real> WMat(depth*mapSize*mapSize);
+            auto idx=0;
+            for (size_t ode=0; ode<depth; ++ode)
+                for (size_t wh=0; wh<mapSize; ++wh)
+                    for (size_t ww=0; ww<mapSize; ++ww)
+                        WMat[idx++] = weight[getWIdx(ode, ide, wh, ww)];
+            
+            auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
+            CorrMat(&WMat[0], &prevA[prevAStart], &a[aStart], depth, mapSize, mapSize, prevHeight, prevWidth);
+        }
+
         for (size_t ode=0; ode<depth; ++ode)
         {
             auto tmpBias = bias[ode];
@@ -137,30 +120,12 @@ void ConvLayer::bwdProp(Layer* prevLayer)
                     padDelta[padDeltaStart+i*padWidth+j]=delta[deltaStart+i*width+j];
         }
         
-        if (NAIVEBWD)
+        auto prevDeltaStart = prevCL->getIdx(d, 0, 0, 0);
+        for (size_t ode=0; ode<depth; ++ode)
         {
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                auto prevDeltaStart = prevCL->getIdx(d, ide, 0, 0);
-                
-                for (size_t ode=0; ode<depth; ++ode)
-                {
-                    auto wStart        = getWIdx(ode, ide, 0, 0);
-                    auto padDeltaStart = ode*padHeight*padWidth;
-                    
-                    ConvNaive(&weight[wStart], &padDelta[padDeltaStart], &prevDelta[prevDeltaStart], mapSize, mapSize, padHeight, padWidth);
-                }
-            }
-        }
-        else
-        {
-            auto prevDeltaStart = prevCL->getIdx(d, 0, 0, 0);
-            for (size_t ode=0; ode<depth; ++ode)
-            {
-                auto padDeltaStart  = ode*padHeight*padWidth;
-                auto wStart         = getWIdx(ode, 0, 0, 0);
-                ConvMat(&weight[wStart], &padDelta[padDeltaStart], &prevDelta[prevDeltaStart], prevDepth, mapSize, mapSize, padHeight, padWidth);
-            }
+            auto padDeltaStart  = ode*padHeight*padWidth;
+            auto wStart         = getWIdx(ode, 0, 0, 0);
+            ConvMat(&weight[wStart], &padDelta[padDeltaStart], &prevDelta[prevDeltaStart], prevDepth, mapSize, mapSize, padHeight, padWidth);
         }
     }
     
@@ -190,51 +155,30 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
         }
     }
     
-    if (NAIVEGRAD)
+    vector<real> dw(prevDepth*depth*mapSize*mapSize);
+    for (size_t d=0; d<nbData; ++d)
     {
-        for (size_t d=0; d<nbData; ++d)
-        {
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                auto prevAStart  = prevCL->getIdx(d, ide, 0, 0);
-                
-                for (size_t ode=0; ode<depth; ++ode)
-                {
-                    auto deltaStart = getIdx(d, ode, 0, 0);
-                    auto weightStart = getWIdx(ode, ide, 0, 0);
-                    
-                    CorrNaive(&delta[deltaStart], &prevA[prevAStart], &dweight[weightStart], height, width, prevHeight, prevWidth);
-                }
-            }
-        }
-    }
-    else
-    {
-        vector<real> dw(prevDepth*depth*mapSize*mapSize);
-        for (size_t d=0; d<nbData; ++d)
-        {
-            for (size_t ide=0; ide<prevDepth; ++ide)
-            {
-                auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
-                auto deltaStart = getIdx(d, 0, 0, 0);
-                auto dwStart    = ide*depth*mapSize*mapSize;
-                
-                CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[dwStart], depth, height, width, prevHeight, prevWidth);
-            }
-        }
-        
-        auto wIdx2 = 0;
         for (size_t ide=0; ide<prevDepth; ++ide)
         {
-            for (size_t ode=0; ode<depth; ++ode)
+            auto prevAStart = prevCL->getIdx(d, ide, 0, 0);
+            auto deltaStart = getIdx(d, 0, 0, 0);
+            auto dwStart    = ide*depth*mapSize*mapSize;
+            
+            CorrMat(&delta[deltaStart], &prevA[prevAStart], &dw[dwStart], depth, height, width, prevHeight, prevWidth);
+        }
+    }
+    
+    auto wIdx2 = 0;
+    for (size_t ide=0; ide<prevDepth; ++ide)
+    {
+        for (size_t ode=0; ode<depth; ++ode)
+        {
+            for (size_t wh=0; wh<mapSize; ++wh)
             {
-                for (size_t wh=0; wh<mapSize; ++wh)
+                for (size_t ww=0; ww<mapSize; ++ww)
                 {
-                    for (size_t ww=0; ww<mapSize; ++ww)
-                    {
-                        auto wIdx  = getWIdx(ode, ide, wh, ww);
-                        dweight[wIdx] = dw[wIdx2++];
-                    }
+                    auto wIdx  = getWIdx(ode, ide, wh, ww);
+                    dweight[wIdx] = dw[wIdx2++];
                 }
             }
         }

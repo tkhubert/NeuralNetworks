@@ -82,26 +82,6 @@ namespace NN
 {
     // Y = Y + W corr X
     template <typename T>
-    inline void CorrNaive(const T* const W, const T* const X, T* Y, size_t W1, size_t W2, size_t X1, size_t X2) noexcept
-    {
-        auto Y1=X1-W1+1;
-        auto Y2=X2-W2+1;
-        
-        for (size_t i=0; i<Y1; ++i)
-        {
-            for (size_t j=0; j<Y2; ++j)
-            {
-                T tmp = 0.;
-                for (size_t k1=0; k1<W1; ++k1)
-                    for (size_t k2=0; k2<W2; ++k2)
-                        tmp += W[k1*W2+k2]*X[(i+k1)*X2+(j+k2)];
-                
-                Y[i*Y2+j] += tmp;
-            }
-        }
-    }
-    //
-    template <typename T>
     inline void CorrMat(const T* const W, const T* const X, T* Y, size_t depth, size_t W1, size_t W2, size_t X1, size_t X2) noexcept
     {
         auto Y1=X1-W1+1;
@@ -119,26 +99,6 @@ namespace NN
     }
     
     // Y = Y + W conv X
-    template <typename T>
-    inline void ConvNaive(const T* const W, const T* const X, T* Y, size_t W1, size_t W2, size_t X1, size_t X2) noexcept
-    {
-        auto Y1=X1-W1+1;
-        auto Y2=X2-W2+1;
-        
-        for (size_t i=0; i<Y1; ++i)
-        {
-            for (size_t j=0; j<Y2; ++j)
-            {
-                T tmp = 0.;
-                for (size_t k1=0; k1<W1; ++k1)
-                    for (size_t k2=0; k2<W2; ++k2)
-                        tmp += W[k1*W2+k2]*X[(i+W1-1-k1)*X2+(j+W2-1-k2)];
-                
-                Y[i*Y2+j] += tmp;
-            }
-        }
-    }
-    //
     template <typename T>
     inline void ConvMat(const T* const W, const T* const X, T* Y, size_t depth, size_t W1, size_t W2, size_t X1, size_t X2) noexcept
     {
