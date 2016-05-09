@@ -35,10 +35,33 @@ void ConvPoolLayer::resize(size_t nbData)
     maxIdx.resize(outputSize*nbData);
 }
 //
+void ConvPoolLayer::maxPool(const ConvLayer* prevCL, size_t d, size_t de, size_t ih, size_t iw, int& mIdx, real& mVal) const
+{
+    const auto& prevA = prevCL->getA();
+    auto        cIdx  = prevCL->getIdx(d, de, ih, iw);
+    
+    mIdx = cIdx;
+    mVal = prevA[cIdx];
+    for (size_t wh=0; wh<mapSize; ++wh)
+    {
+        for (size_t ww=0; ww<mapSize; ++ww)
+        {
+            cIdx = prevCL->getIdx(d, de, ih+wh, iw+ww);
+            
+            if (mVal<prevA[cIdx])
+            {
+                mIdx = cIdx;
+                mVal = prevA[cIdx];
+            }
+        }
+    }
+}
+//
+    
+//
 void ConvPoolLayer::fwdProp(const Layer* prevLayer)
 {
     const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);
-    const auto& prevA = prevCL->getA();
     
     for (size_t d=0; d<nbData; ++d)
     {
@@ -51,26 +74,10 @@ void ConvPoolLayer::fwdProp(const Layer* prevLayer)
                 for (size_t ow=0; ow<width; ++ow)
                 {
                     auto iw = ow*stride;
-                    
-                    auto iIdx = prevCL->getIdx(d, de, ih, iw);
-                    auto mIdx = iIdx;
-                    auto val  = prevA[iIdx];
-                    for (size_t wh=0; wh<mapSize; ++wh)
-                    {
-                        for (size_t ww=0; ww<mapSize; ++ww)
-                        {
-                            iIdx = prevCL->getIdx(d, de, ih+wh, iw+ww);
-                            if (val<prevA[iIdx])
-                            {
-                                mIdx = iIdx;
-                                val = prevA[iIdx];
-                            }
-                        }
-                    }
-                    
-                    auto oIdx    = getIdx(d, de, oh, ow);
-                    a[oIdx]      = AFunc.f(val);
-                    maxIdx[oIdx] = mIdx;
+        
+                    auto oIdx = getIdx(d, de, oh, ow);
+                    maxPool(prevCL, d, de, ih, iw, maxIdx[oIdx], a[oIdx]);
+                    a[oIdx] = AFunc.f(a[oIdx]);
                 }
             }
         }
@@ -104,7 +111,5 @@ void ConvPoolLayer::bwdProp(Layer* prevLayer)
     }
 }
 //
-    
-    
     
 }

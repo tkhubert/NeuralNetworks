@@ -51,6 +51,8 @@ void ConvLayer::setFromPrev(const Layer* prevLayer)
     initParams(weightInputSize);
 }
 //
+    
+//
 void ConvLayer::fwdProp(const Layer* prevLayer)
 {
     const ConvLayer* prevCL = static_cast<const ConvLayer*>(prevLayer);

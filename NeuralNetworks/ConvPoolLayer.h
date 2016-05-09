@@ -31,7 +31,8 @@ public:
     void calcGrad   (const Layer* prevLayer) override {};
     
 private:
-    vec_r maxIdx;
+    vec_i maxIdx;
+    void maxPool(const ConvLayer* prevCL, size_t d, size_t de, size_t ih, size_t iw, int& mIdx, real& mVal) const;
     
     void resize(size_t nbData) override;
     void validate(const Layer* prevLayer) const override;

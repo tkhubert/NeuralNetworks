@@ -25,6 +25,8 @@ void FCLayer::setFromPrev(const Layer* prevLayer)
     initParams(inputSize);
 }
 //
+    
+//
 void FCLayer::fwdProp(const Layer* prevLayer)
 {
     // A_(l+1)  = AFunc( A_l W^T_(l+1)  + B_(l+1))    
