@@ -17,33 +17,15 @@ class Optimizer
 {
 public:
     // methods
-    Optimizer(real _lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
-        lambda(_lambda*batchSize/trainSetSize),
-        lambdaBase(_lambda),
-        batchSize(batchSize),
-        nbEpochs(nbEpochs)
-    {};
-    
+    Optimizer() {};
     virtual ~Optimizer() {}
     virtual unique_ptr<Optimizer> clone() const = 0;
     
-    auto getLambda()    const {return lambda;}
-    auto getBatchSize() const {return batchSize;}
-    auto getNbEpochs()  const {return nbEpochs;}
-    
     virtual string getName()   const = 0;
-    virtual string getDetail() const
-    {
-        return to_string(lambdaBase) + "_" + to_string(batchSize) + "_" + to_string(nbEpochs);
-    }
+    virtual string getDetail() const = 0;
     
     virtual void resize(size_t) = 0;
     virtual void updateParams(vec_r& params, const vec_r& dparams) = 0;
-    
-protected:
-    real   lambda, lambdaBase;
-    size_t batchSize;
-    size_t nbEpochs;
 };
 //
 
@@ -52,14 +34,14 @@ class GDOptimizer : public Optimizer
 {
 public:
     // methods
-    GDOptimizer(real _alpha, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
-        Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
+    GDOptimizer(real _alpha) :
+        Optimizer(),
         alpha(_alpha)
     {};
     
     unique_ptr<Optimizer> clone() const override {return make_unique<GDOptimizer>(*this);}
     //
-    string getName()   const override {return "GDOptim_" + getDetail() + "_" + Optimizer::getDetail();}
+    string getName()   const override {return "GDOptim_" + getDetail();}
     string getDetail() const override {return to_string(alpha); }
     //
     void resize(size_t) override {}
@@ -80,15 +62,15 @@ class NMOptimizer : public Optimizer
 {
 public:
     // methods
-    NMOptimizer(real _alpha, real friction, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
-        Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
+    NMOptimizer(real _alpha, real friction) :
+        Optimizer(),
         alpha(_alpha),
         friction(friction)
     {};
     
     unique_ptr<Optimizer> clone() const override { return make_unique<NMOptimizer>(*this); }
     //
-    string getName()   const override { return "NMOptim_" + getDetail() + "_" + Optimizer::getDetail(); }
+    string getName()   const override { return "NMOptim_" + getDetail();}
     string getDetail() const override { return to_string(alpha) + "_" + to_string(friction); }
     //
     void resize(size_t size) override
@@ -122,15 +104,15 @@ class ADADOptimizer : public Optimizer
 {
 public:
     // methods
-    ADADOptimizer(real friction, real eps, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
-        Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
+    ADADOptimizer(real friction, real eps) :
+        Optimizer(),
         eps(eps),
         friction(friction)
     {};
     
     unique_ptr<Optimizer> clone() const override {return make_unique<ADADOptimizer>(*this);}
     //
-    string getName()   const override {return "ADADOptim_" + getDetail() + "_" + Optimizer::getDetail();}
+    string getName()   const override {return "ADADOptim_" + getDetail();}
     string getDetail() const override {return to_string(friction) + "_" + to_string(eps);}
     //
     void resize(size_t size) override

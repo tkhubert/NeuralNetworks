@@ -11,7 +11,7 @@
 
 #include "NN.h"
 #include "CostFunc.h"
-#include "Optimizer.h"
+#include "Trainer.h"
 #include "Layer.h"
 #include "Data.h"
 
@@ -28,7 +28,7 @@ public:
     real getCost()    const {return cost;}
     real getErrRate() const {return errRate;}
     
-    void train(const DataContainer& data, const Optimizer& Optim);
+    void train(const DataContainer& data, const Trainer& Optim);
     void test (const vector<LabelData>& lData, size_t batchSize=20);
     void checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd);
     

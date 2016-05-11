@@ -7,9 +7,9 @@
 //
 
 // TKH TODO
-// 1. center/normalize data
-// 2. partition data properly
-// 3. speed up ConvLayers: refine Img2Mat and try FFT to do the convolution.
+// 1. clean up optimizer and other data.
+// 2. batch normalization.
+// 3. try FFT to do the convolution.
 // 4. internalize the hyperparameter search : can we back prop?
 
 #include "NN.h"
@@ -58,9 +58,10 @@ void MLP()
             layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
             layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
             
-            NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
+            NMOptimizer optimizer(learningRate, friction);
+            Trainer trainer(optimizer, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork FCNN (SMCost, move(layers));
-            FCNN.train(data, Optim);
+            FCNN.train(data, trainer);
         }
     }
 }
@@ -100,9 +101,10 @@ void CL()
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
             
-            NMOptimizer   Optim(learningRate, friction, lbda, batchSize, nbEpochs, tS);
+            NMOptimizer optimizer(learningRate, friction);
+            Trainer trainer(optimizer, lbda, batchSize, nbEpochs, tS);
             NeuralNetwork CNN (SMCost, move(layers));
-            CNN.train(data, Optim);
+            CNN.train(data, trainer);
         }
     }
 }

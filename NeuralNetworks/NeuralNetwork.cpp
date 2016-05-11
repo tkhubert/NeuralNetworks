@@ -142,9 +142,9 @@ size_t NeuralNetwork::isCorrect(LabelDataCItr dataStart, LabelDataCItr dataEnd) 
     return nbCorrect;
 }
 //
-void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
+void NeuralNetwork::train(const DataContainer& data, const Trainer& trainer)
 {
-    auto name = getName() + "_" + optim.getName();
+    auto name = getName() + "_" + trainer.getName();
     ofstream debugFile  = ofstream("/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/"+name+".csv");
 
     cout << "Start training " << name << "-------------"<<endl;
@@ -152,13 +152,13 @@ void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
     vector<unique_ptr<Optimizer>> optims(layers.size());
     for (size_t i=0; i<layers.size(); ++i)
     {
-        optims[i] = optim.clone();
+        optims[i] = trainer.getOptimizer().clone();
         optims[i]->resize(layers[i]->getParams().size());
     }
     
     auto lData      = data.getTrainLabelData();
-    auto nbEpochs   = optim.getNbEpochs();
-    auto batchSize  = optim.getBatchSize();
+    auto nbEpochs   = trainer.getNbEpochs();
+    auto batchSize  = trainer.getBatchSize();
     auto totalISize = lData.size();
     auto nbBatches  = (totalISize-1)/batchSize + 1;
     
@@ -186,7 +186,7 @@ void NeuralNetwork::train(const DataContainer& data, const Optimizer& optim)
             bwdProp (dataStart, dataEnd);
             calcGrad();
             
-            regularize(optim.getLambda());
+            regularize(trainer.getLambda());
             updateParams(optims);
         }
         
