@@ -11,6 +11,7 @@
 
 #include "NN.h"
 #include "Optimizer.h"
+#include "Regularizer.h"
 
 namespace NN
 {
@@ -19,10 +20,9 @@ class Trainer
 {
 public:
     // methods
-    Trainer(const Optimizer& _optimizer, real _lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
+    Trainer(const Optimizer& _optimizer, const Regularizer& _regularizer, size_t batchSize, size_t nbEpochs) :
         optimizer(_optimizer),
-        lambda(_lambda*batchSize/trainSetSize),
-        lambdaBase(_lambda),
+        regularizer(_regularizer),
         batchSize(batchSize),
         nbEpochs(nbEpochs)
     {};
@@ -32,21 +32,21 @@ public:
 
     string getName() const
     {
-        return optimizer.getName() + "_" + getDetail();
+        return optimizer.getName() + "_" + regularizer.getName() + "_" + getDetail();
     }
     string getDetail() const
     {
-        return to_string(lambdaBase) + "_" + to_string(batchSize) + "_" + to_string(nbEpochs);
+        return to_string(batchSize) + "_" + to_string(nbEpochs);
     }
     
-    const auto& getOptimizer() const {return optimizer;}
-    auto        getLambda()    const {return lambda;}
-    auto        getBatchSize() const {return batchSize;}
-    auto        getNbEpochs()  const {return nbEpochs;}
+    const auto& getOptimizer()   const {return optimizer;}
+    const auto& getRegularizer() const {return regularizer;}
+    auto        getBatchSize()   const {return batchSize;}
+    auto        getNbEpochs()    const {return nbEpochs;}
     
 private:
-    const Optimizer& optimizer;
-    real   lambda, lambdaBase;
+    const Optimizer&   optimizer;
+    const Regularizer& regularizer;
     size_t batchSize;
     size_t nbEpochs;
 };

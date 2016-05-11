@@ -26,9 +26,11 @@
 namespace NN
 {
     using namespace std;
-    using real  = double;
-    using vec_r = vector<real>;
-    using vec_i = vector<int>;
+    using real     = double;
+    using vec_r    = vector<real>;
+    using vec_i    = vector<int>;
+    using vecr_itr = vector<real>::iterator;
+    using pair_r   = pair<real, real>;
     
     constexpr auto CHECKGRAD  = false;
     constexpr auto NBGRADTEST = 10;

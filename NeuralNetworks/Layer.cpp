@@ -63,11 +63,6 @@ void Layer::genDrop()
     for_each(drop.begin(), drop.end(), [&b=bern, &g=gen] (auto& d) {d=b(g);});
 }
 //
-void Layer::regularize(real lambda)
-{
-    transform(params.weight.begin(), params.weight.end(), dparams.weight.begin(), dparams.weight.begin(), [lambda] (auto w, auto dw) {return dw+lambda*w;});
-}
-//
 void Layer::initParams(size_t weightInputSize)
 {
     normal_distribution<real> norm(0.,1.);
@@ -75,9 +70,14 @@ void Layer::initParams(size_t weightInputSize)
     for_each(params.weight.begin(), params.weight.end(), [sig=1./sqrt(weightInputSize)] (auto& w) {w*=sig;});
 }
 //
-void Layer::updateParams(Optimizer& optim)
+void Layer::regularize(const Regularizer& regularizer)
 {
-    optim.updateParams(params.params, dparams.params);
+    regularizer.apply(params.weight.begin(), params.weight.end(), dparams.weight.begin());
+}
+//
+void Layer::updateParams(Optimizer& optimizer)
+{
+    optimizer.updateParams(params.params, dparams.params);
 }
 //
 }

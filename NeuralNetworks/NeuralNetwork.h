@@ -25,12 +25,9 @@ public:
     string getName()    const;
     string getDetails() const;
     
-    real getCost()    const {return cost;}
-    real getErrRate() const {return errRate;}
-    
-    void train(const DataContainer& data, const Trainer& Optim);
-    void test (const vector<LabelData>& lData, size_t batchSize=20);
-    void checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd);
+    void   train(const DataContainer& data, const Trainer& trainer);
+    pair_r test (const vector<LabelData>& lData, size_t batchSize=20);
+    void   checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd);
     
 private:
     // members
@@ -40,9 +37,6 @@ private:
     
     const CostFunc& CFunc;
     vector<unique_ptr<Layer>> layers;
-    
-    real cost;
-    real errRate;
     
     // methods
     void  setInput(LabelDataCItr dataStart, LabelDataCItr dataEnd);
@@ -59,7 +53,7 @@ private:
     void fwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void bwdProp(LabelDataCItr dataStart, LabelDataCItr dataEnd);
     void calcGrad();
-    void regularize(real lambda);
+    void regularizeParams(const Regularizer& regularizer);
     void updateParams(vector<unique_ptr<Optimizer>>& optim);
     
 };

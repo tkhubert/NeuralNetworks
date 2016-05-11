@@ -7,7 +7,7 @@
 //
 
 // TKH TODO
-// 1. clean up optimizer and other data.
+// 1. check the cost function and the check gradient
 // 2. batch normalization.
 // 3. try FFT to do the convolution.
 // 4. internalize the hyperparameter search : can we back prop?
@@ -58,8 +58,10 @@ void MLP()
             layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
             layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
             
-            NMOptimizer optimizer(learningRate, friction);
-            Trainer trainer(optimizer, lbda, batchSize, nbEpochs, tS);
+            L2Regularizer regularizer(lbda*batchSize/tS);
+            NMOptimizer   optimizer(learningRate, friction);
+            Trainer       trainer(optimizer, regularizer, batchSize, nbEpochs);
+            
             NeuralNetwork FCNN (SMCost, move(layers));
             FCNN.train(data, trainer);
         }
@@ -84,7 +86,7 @@ void CL()
     auto  nbEpochs  = 2;
     auto  friction  = 0.9;
     vec_r lR        = {0.002};
-    vec_r lambda    = {0.};//{0.1, 1, 3, 5};
+    vec_r lambda    = {0.1};//{0.1, 1, 3, 5};
     
     SMCostFunc SMCost;
 
@@ -101,8 +103,10 @@ void CL()
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
             
-            NMOptimizer optimizer(learningRate, friction);
-            Trainer trainer(optimizer, lbda, batchSize, nbEpochs, tS);
+            L2Regularizer regularizer(lbda*batchSize/tS);
+            NMOptimizer   optimizer(learningRate, friction);
+            Trainer       trainer(optimizer, regularizer, batchSize, nbEpochs);
+            
             NeuralNetwork CNN (SMCost, move(layers));
             CNN.train(data, trainer);
         }

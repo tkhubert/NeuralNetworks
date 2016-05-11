@@ -96,9 +96,10 @@ void NeuralNetwork::calcGrad()
         layers[i]->calcGrad(layers[i-1].get());
 }
 //
-void NeuralNetwork::regularize(real lambda)
+void NeuralNetwork::regularizeParams(const Regularizer& regularizer)
 {
-    for_each(layers.begin()+1, layers.end(), [lambda] (auto& l) { l->regularize(lambda);});
+    for (size_t i=1; i<nbLayers; ++i)
+        layers[i]->regularize(regularizer);
 }
 //
 void NeuralNetwork::updateParams(vector<unique_ptr<Optimizer>>& optims)
@@ -156,6 +157,8 @@ void NeuralNetwork::train(const DataContainer& data, const Trainer& trainer)
         optims[i]->resize(layers[i]->getParams().size());
     }
     
+    const auto& regularizer = trainer.getRegularizer();
+    
     auto lData      = data.getTrainLabelData();
     auto nbEpochs   = trainer.getNbEpochs();
     auto batchSize  = trainer.getBatchSize();
@@ -186,30 +189,22 @@ void NeuralNetwork::train(const DataContainer& data, const Trainer& trainer)
             bwdProp (dataStart, dataEnd);
             calcGrad();
             
-            regularize(trainer.getLambda());
+            regularizeParams(regularizer);
             updateParams(optims);
         }
         
-        test(data.getTrainLabelData(), batchSize);
-        auto trainErrRate = errRate;
-        auto trainCost    = cost;
-        
-        test(data.getCrossLabelData(), batchSize);
-        auto crossErrRate = errRate;
-        auto crossCost    = cost;
-        
-        test(data.getTestLabelData(), batchSize);
-        auto testErrRate = errRate;
-        auto testCost    = cost;
+        auto resTrain = test(data.getTrainLabelData(), batchSize);
+        auto resCross = test(data.getCrossLabelData(), batchSize);
+        auto resTest  = test(data.getTestLabelData(), batchSize);
         
         auto timeEpoch = ( clock() - startTimeEpoch ) / (real) CLOCKS_PER_SEC;
         
-        debugFile << "time "      << timeEpoch << "s,";
-        debugFile << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
-        debugFile << trainCost    << "," << crossCost    << "," << testCost    << endl;
+        debugFile << "time "  << timeEpoch << "s,";
+        debugFile << resTrain.first  << "," << resCross.first  << "," << resTest.first << ",";
+        debugFile << resTrain.second << "," << resCross.second << "," << resTest.second  << endl;
         cout      << "time "      << timeEpoch << "s,";
-        cout      << trainErrRate << "," << crossErrRate << "," << testErrRate << ",";
-        cout      << trainCost    << "," << crossCost    << "," << testCost    << endl;
+        cout      << resTrain.first  << "," << resCross.first  << "," << resTest.first << ",";
+        cout      << resTrain.second << "," << resCross.second << "," << resTest.second  << endl;
         
         if (CHECKGRAD)
         {
@@ -231,12 +226,12 @@ void NeuralNetwork::train(const DataContainer& data, const Trainer& trainer)
     debugFile.close();
 }
 //
-void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
+pair_r NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
 {
     setPhase(Phase::TEST);
     
-    cost   =0.;
-    errRate=0.;
+    real cost   =0.;
+    real errRate=0.;
     
     auto totalISize = lData.size();
     auto nbBatches  = (totalISize-1)/batchSize + 1;
@@ -258,6 +253,7 @@ void NeuralNetwork::test(const vector<LabelData>& lData, size_t batchSize)
     
     cost    /= totalISize;
     errRate  = 1.-errRate/totalISize;
+    return make_pair(errRate, cost);
 }
 //
 void NeuralNetwork::checkGradient(LabelDataCItr lDStart, LabelDataCItr lDEnd)

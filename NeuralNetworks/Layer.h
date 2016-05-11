@@ -11,6 +11,7 @@
 
 #include "NN.h"
 #include "ActivationFunc.h"
+#include "Regularizer.h"
 #include "Optimizer.h"
 
 namespace NN {
@@ -31,7 +32,7 @@ protected:
         {
         public:
             innerData() {}
-            innerData(vec_r::iterator s, vec_r::iterator e) : s(s), e(e) {}
+            innerData(vecr_itr s, vecr_itr e) : s(s), e(e) {}
             
             auto begin()        {return s;}
             auto cbegin() const {return s;}
@@ -42,8 +43,8 @@ protected:
             const auto& operator[](size_t i) const {return *(s+i);}
             
         private:
-            vec_r::iterator s;
-            vec_r::iterator e;
+            vecr_itr s;
+            vecr_itr e;
         };
     
     public:
@@ -96,8 +97,8 @@ public:
     virtual void bwdProp    (      Layer* prevLayer) = 0;
     virtual void calcGrad   (const Layer* prevLayer) = 0;
     
-    void regularize  (real lambda);
-    void updateParams(Optimizer& optim);
+    void regularize  (const Regularizer& regularizer);
+    void updateParams(Optimizer&   optimizer);
     
 protected:
     static size_t layerCount;
