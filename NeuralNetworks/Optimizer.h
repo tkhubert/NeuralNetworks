@@ -54,14 +54,13 @@ public:
     // methods
     GDOptimizer(real _alpha, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
-        alpha(_alpha/batchSize),
-        alphaBase(_alpha)
+        alpha(_alpha)
     {};
     
     unique_ptr<Optimizer> clone() const override {return make_unique<GDOptimizer>(*this);}
     //
     string getName()   const override {return "GDOptim_" + getDetail() + "_" + Optimizer::getDetail();}
-    string getDetail() const override {return to_string(alphaBase); }
+    string getDetail() const override {return to_string(alpha); }
     //
     void resize(size_t) override {}
     //
@@ -72,7 +71,7 @@ public:
     
 protected:
     // members
-    real alpha, alphaBase;
+    real alpha;
 };
 //
     
@@ -83,15 +82,14 @@ public:
     // methods
     NMOptimizer(real _alpha, real friction, real lambda, size_t batchSize, size_t nbEpochs, size_t trainSetSize) :
         Optimizer(lambda, batchSize, nbEpochs, trainSetSize),
-        alpha(_alpha/batchSize),
-        alphaBase(_alpha),
+        alpha(_alpha),
         friction(friction)
     {};
     
     unique_ptr<Optimizer> clone() const override { return make_unique<NMOptimizer>(*this); }
     //
     string getName()   const override { return "NMOptim_" + getDetail() + "_" + Optimizer::getDetail(); }
-    string getDetail() const override { return to_string(alphaBase) + "_" + to_string(friction); }
+    string getDetail() const override { return to_string(alpha) + "_" + to_string(friction); }
     //
     void resize(size_t size) override
     {
@@ -112,7 +110,7 @@ public:
     
 protected:
     // members
-    real alpha, alphaBase;
+    real alpha;
     real friction;
     
     vec_r vparams;
@@ -120,7 +118,6 @@ protected:
 //
     
 //
-// TKH_TODO : divide gradient by batch size
 class ADADOptimizer : public Optimizer
 {
 public:

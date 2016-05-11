@@ -59,7 +59,7 @@ public:
     real f (real x)  const noexcept override
     {
         real tmp1 = exp(x);
-        real tmp2 = 1/tmp1;
+        real tmp2 = 1./tmp1;
         return (tmp1-tmp2)/(tmp1+tmp2);
     }
     real df(real f) const noexcept override {return 1.-f*f;}

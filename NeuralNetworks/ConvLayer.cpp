@@ -143,6 +143,7 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
     const auto& prevA       = prevCL->getA();
     const auto  prevHeight  = prevCL->getHeight();
     const auto  prevWidth   = prevCL->getWidth();
+    real        scale       = 1./nbData;
     
     dparams.reset();
     auto& dbias   = dparams.bias;
@@ -178,6 +179,10 @@ void ConvLayer::calcGrad(const Layer* prevLayer)
             for (size_t wh=0; wh<mapSize; ++wh)
                 for (size_t ww=0; ww<mapSize; ++ww)
                     dweight[getWIdx(ode, ide, wh, ww)] = dweightT[idx++];
+    
+    
+    for (size_t i=0; i<dparams.size(); ++i)
+        dparams[i] *=scale;
 }
 
 

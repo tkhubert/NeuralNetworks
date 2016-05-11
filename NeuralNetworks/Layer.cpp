@@ -55,7 +55,7 @@ void Layer::genDrop()
 {
     if (dropRate<TINY || phase==Phase::TEST)
     {
-        fill(drop.begin(), drop.end(), 1.-dropRate);
+        fill(drop.begin(), drop.end(), 1.);
         return;
     }
     

@@ -63,6 +63,7 @@ void FCLayer::calcGrad(const Layer* prevLayer)
     dparams.reset();
     auto& dbias   = dparams.bias;
     auto& dweight = dparams.weight;
+    real  scale   = 1./nbData;
     
     const auto& prevA = prevLayer->getA();
     
@@ -76,7 +77,11 @@ void FCLayer::calcGrad(const Layer* prevLayer)
             for (size_t i=0; i<inputSize; ++i)
                 dweight[o*inputSize+i] += tmpDelta * prevA[d*inputSize+i];
         }
-    }    
+    }
+    
+    for (size_t i=0; i<dparams.size(); ++i)
+        dparams[i] *=scale;
 }
 //
+    
 }
