@@ -22,8 +22,10 @@
 
 using namespace NN;
 
-void MLP()
+//
+int main(int argc, const char * argv[])
 {
+    // data
     string dir = "/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/";
     string trainLabels = dir + "train-labels-idx1-ubyte";
     string testLabels  = dir + "t10k-labels-idx1-ubyte";
@@ -34,65 +36,36 @@ void MLP()
     auto iS = data.getDataSize();
     auto tS = data.getTrainLabelData().size();
     
-    IdFunc IFunc;
-    RLFunc RFunc;
-    
-    auto batchSize =  20;
-    auto nbEpochs  =  2;
+    // hyperparameter
+    auto batchSize = 20;
+    auto nbEpochs  = 2;
+    auto friction  = 0.9;
     auto dropRateI = 0.05;
     auto dropRate  = 0.10;
-    auto friction  = 0.9;
     
-    vec_r lR     = {0.005};//{0.005, 0.01, 0.02, 0.05, 0.08, 0.1, 0.15};
-    vec_r lambda = {0.};
-
+    vec_r learnRates = {0.002};
+    vec_r lambdas    = {0.1};//{0.1, 1, 3, 5};
+    
+    vector<pair_r> hyperParams;
+    for (auto learnRate : learnRates)
+        for (auto lambda : lambdas)
+            hyperParams.push_back(make_pair(learnRate, lambda));
+    
+    // setting
+    IdFunc     IFunc;
+    RLFunc     RFunc;
     SMCostFunc SMCost;
     
-    for (auto lbda : lambda)
+    for (auto hyperParam : hyperParams)
     {
-        for (auto learningRate : lR)
-        {
-            vector<unique_ptr<Layer>> layers;
-            layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
-            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
-            layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
-            
-            L2Regularizer regularizer(lbda*batchSize/tS);
-            NMOptimizer   optimizer(learningRate, friction);
-            Trainer       trainer(optimizer, regularizer, batchSize, nbEpochs);
-            
-            NeuralNetwork FCNN (SMCost, move(layers));
-            FCNN.train(data, trainer);
-        }
-    }
-}
-//
-void CL()
-{
-    string dir = "/Users/tkhubert/Documents/Projects/NeuralNetworks/MNist/";
-    string trainLabels = dir + "train-labels-idx1-ubyte";
-    string testLabels  = dir + "t10k-labels-idx1-ubyte";
-    string trainData   = dir + "train-images-idx3-ubyte";
-    string testData    = dir + "t10k-images-idx3-ubyte";
-    
-    MNistDataContainer data(trainLabels, testLabels, trainData, testData);
-    auto tS = data.getTrainLabelData().size();
-    
-    IdFunc IFunc;
-    RLFunc RFunc;
-    
-    auto  batchSize = 20;
-    auto  nbEpochs  = 2;
-    auto  friction  = 0.9;
-    vec_r lR        = {0.002};
-    vec_r lambda    = {0.1};//{0.1, 1, 3, 5};
-    
-    SMCostFunc SMCost;
-
-    for (auto lbda : lambda)
-    {
-        for (auto learningRate : lR)
+        auto learnRate = hyperParam.first;
+        auto lambda    = hyperParam.second;
+        
+        L2Regularizer regularizer(lambda*batchSize/tS);
+        NMOptimizer   optimizer(learnRate, friction);
+        Trainer       trainer(optimizer, regularizer, batchSize, nbEpochs);
+        
+        if (true)
         {
             vector<unique_ptr<Layer>> layers;
             layers.emplace_back(make_unique<ConvLayer>    (28, 28, 1 , 0, 1, RFunc));
@@ -102,21 +75,24 @@ void CL()
             layers.emplace_back(make_unique<ConvPoolLayer>( 4,  4, 10, 2, 2, IFunc));
             layers.emplace_back(make_unique<FCLayer>      (100, 0.         , RFunc));
             layers.emplace_back(make_unique<FCLayer>      (10 , 0.         , RFunc));
+            NeuralNetwork CNN(SMCost, move(layers));
             
-            L2Regularizer regularizer(lbda*batchSize/tS);
-            NMOptimizer   optimizer(learningRate, friction);
-            Trainer       trainer(optimizer, regularizer, batchSize, nbEpochs);
-            
-            NeuralNetwork CNN (SMCost, move(layers));
             CNN.train(data, trainer);
         }
+        else
+        {
+            vector<unique_ptr<Layer>> layers;
+            layers.emplace_back(make_unique<FCLayer>(iS , dropRateI, RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(100, dropRate , RFunc));
+            layers.emplace_back(make_unique<FCLayer>(10 , 0.       , IFunc));
+            NeuralNetwork FCNN(SMCost, move(layers));
+            
+            FCNN.train(data, trainer);
+        }
+        
     }
-}
-//
-int main(int argc, const char * argv[])
-{
-    //MLP();
-    CL();
+    
     return 0;
 }
 
