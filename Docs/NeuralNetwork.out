@@ -1,0 +1,36 @@
+\BOOKMARK [1][-]{section.1}{General Theory}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Introduction}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Neural Network Architecture}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Neural Network Learning}{section.1}% 4
+\BOOKMARK [3][-]{subsubsection.1.3.1}{Forward Propagation}{subsection.1.3}% 5
+\BOOKMARK [3][-]{subsubsection.1.3.2}{Backward Propagation}{subsection.1.3}% 6
+\BOOKMARK [3][-]{subsubsection.1.3.3}{Gradient Calculation}{subsection.1.3}% 7
+\BOOKMARK [1][-]{section.2}{Layers}{}% 8
+\BOOKMARK [2][-]{subsection.2.1}{Fully Connected Layer}{section.2}% 9
+\BOOKMARK [3][-]{subsubsection.2.1.1}{Forward Propagation}{subsection.2.1}% 10
+\BOOKMARK [3][-]{subsubsection.2.1.2}{Backward Propagation}{subsection.2.1}% 11
+\BOOKMARK [3][-]{subsubsection.2.1.3}{Gradients Calculation}{subsection.2.1}% 12
+\BOOKMARK [2][-]{subsection.2.2}{Convolutional Layer}{section.2}% 13
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Convolution and Correlation}{subsection.2.2}% 14
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Forward Propagation}{subsection.2.2}% 15
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Backward Propagation}{subsection.2.2}% 16
+\BOOKMARK [3][-]{subsubsection.2.2.4}{Gradients Calculation}{subsection.2.2}% 17
+\BOOKMARK [2][-]{subsection.2.3}{Pool Layer}{section.2}% 18
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Forward Propagation}{subsection.2.3}% 19
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Backward Propagation}{subsection.2.3}% 20
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Gradients Calculation}{subsection.2.3}% 21
+\BOOKMARK [1][-]{section.3}{Activation Functions}{}% 22
+\BOOKMARK [2][-]{subsection.3.1}{Identity}{section.3}% 23
+\BOOKMARK [2][-]{subsection.3.2}{Sigmoid}{section.3}% 24
+\BOOKMARK [2][-]{subsection.3.3}{TanH}{section.3}% 25
+\BOOKMARK [2][-]{subsection.3.4}{Relu}{section.3}% 26
+\BOOKMARK [1][-]{section.4}{Cost Functions}{}% 27
+\BOOKMARK [2][-]{subsection.4.1}{Mean Squared Error}{section.4}% 28
+\BOOKMARK [2][-]{subsection.4.2}{Cross Entropy}{section.4}% 29
+\BOOKMARK [2][-]{subsection.4.3}{Softmax}{section.4}% 30
+\BOOKMARK [2][-]{subsection.4.4}{Support Vector Machine}{section.4}% 31
+\BOOKMARK [1][-]{section.5}{Optimizers}{}% 32
+\BOOKMARK [2][-]{subsection.5.1}{Gradient Descent}{section.5}% 33
+\BOOKMARK [2][-]{subsection.5.2}{Nesterov Momentum}{section.5}% 34
+\BOOKMARK [2][-]{subsection.5.3}{RMSProp}{section.5}% 35
+\BOOKMARK [2][-]{subsection.5.4}{AdaDelta}{section.5}% 36
